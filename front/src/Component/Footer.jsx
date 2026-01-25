@@ -13,10 +13,10 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-[#0a0a0a] text-white pt-20 pb-10 border-t border-gray-900 font-sans">
+    <footer className="bg-[#0a0a0a] text-white pt-12 pb-6 border-t border-gray-900 font-sans">
       <div className="container mx-auto px-4">
         {/* Main Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
           {/* Column 1: Brand & Socials */}
           <div className="space-y-6">
             <div className="flex flex-col">
@@ -133,22 +133,20 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-900 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600">
+        {/* Bottom Bar */}
+        <div className="border-t border-gray-900 pt-4 mt-6 text-center text-xs text-gray-600">
           <p>
             &copy; {new Date().getFullYear()} Al Faiha Group. All rights
-            reserved.
+            reserved. Powered by{" "}
+            <a
+              href="https://qtechnetworks.com/jo/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#ee2039]-400 text-[#ee2039] bold"
+            >
+              QTech
+            </a>
           </p>
-          <div className="flex gap-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-[#ee2039] transition-colors">
-              Privacy Policy
-            </a>
-            <a href="#" className="hover:text-[#ee2039] transition-colors">
-              Terms of Service
-            </a>
-            <a href="#" className="hover:text-[#ee2039] transition-colors">
-              Sitemap
-            </a>
-          </div>
         </div>
       </div>
     </footer>

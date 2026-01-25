@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown, Menu, X, Globe, ChevronRight } from "lucide-react";
 
-// --- DATA STRUCTURE (Based on your breakdown) ---
+// --- الهيكل البياني المحدث ---
 const NAV_DATA = [
   {
     id: "services",
     label: "Services",
     type: "mega",
-    columns: 2, // 2 Column Layout for Services
+    columns: 2,
     children: [
       {
         label: "Chemical Formulation & Customization",
@@ -47,7 +47,7 @@ const NAV_DATA = [
     id: "solutions",
     label: "Solutions",
     type: "mega",
-    columns: 3, // 3 Column Layout for Solutions
+    columns: 3,
     children: [
       { label: "Concrete Admixtures" },
       { label: "Cement Additives" },
@@ -79,7 +79,7 @@ const NAV_DATA = [
     id: "projects",
     label: "Projects",
     type: "mega",
-    columns: 4, // Layout by Country
+    columns: 4,
     children: [
       { label: "Algeria", isHeader: true },
       { label: "Jordan", isHeader: true },
@@ -137,48 +137,51 @@ const Header = () => {
   }, []);
 
   const toggleMobileGroup = (id) => {
-    setMobileExpanded((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    setMobileExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   return (
     <header className="w-full font-sans fixed top-0 left-0 z-50 transition-all duration-300">
-      {/* 1. Top Bar (Black) */}
+      {/* 1. Top Bar */}
       <div
-        className={`bg-black text-white text-xs transition-all duration-300 overflow-hidden ${
-          isScrolled ? "h-0 py-0" : "h-auto py-2.5"
-        } px-4 md:px-8 lg:px-16 flex justify-end items-center`}
+        className={`bg-black text-white text-[10px] md:text-xs transition-all duration-500 overflow-hidden ${
+          isScrolled ? "h-0 py-0 opacity-0" : "h-auto py-2.5 opacity-100"
+        } px-4 md:px-8 lg:px-16 flex justify-end items-center border-b border-white/5`}
       >
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-1 hover:text-[#ee2039] cursor-pointer transition border-l border-gray-700 pl-6">
-            <Globe size={14} />
-            <span>EN | AR</span>
+          <div className="flex items-center gap-3 border-gray-800">
+            <Globe size={13} className="text-gray-500" />
+            <div className="flex items-center gap-2 font-light tracking-widest uppercase">
+              <span className="cursor-pointer hover:text-[#ee2039] transition-colors duration-300">
+                EN
+              </span>
+              <span className="text-gray-700">|</span>
+              <span className="cursor-pointer hover:text-[#ee2039] transition-colors duration-300">
+                FR
+              </span>
+              <span className="text-gray-700">|</span>
+              <span className="cursor-pointer hover:text-[#ee2039] transition-colors duration-300 font-medium">
+                AR
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 2. Main Navbar (White) */}
+      {/* 2. Main Navbar */}
       <div
-        className={`bg-white shadow-lg/5 transition-all duration-300 border-b border-gray-100 ${
+        className={`bg-white shadow-lg/5 transition-all duration-300 border-b border-gray-100 h-20 ${
           isScrolled ? "py-3" : "py-5"
         } px-4 md:px-8 lg:px-16 flex justify-between items-center relative`}
       >
-        {/* Logo */}
-        <a
-          href="/"
-          className="flex-shrink-0 flex items-center gap-3 cursor-pointer z-50"
-        >
-          {/* Logo Image */}
+        <a href="/" className="flex-shrink-0 flex items-center gap-3 z-50">
           <img
-            src="/images/logo.svg"
-            alt="Al Faiha Group Logo"
-            className="h-20 w-auto object-contain"
+            src="/images/Al Faiha-Logo-EN-Blk-landscape.png"
+            alt="Logo"
+            className="h-14 w-auto object-contain"
           />
         </a>
 
-        {/* Desktop Menu */}
         <nav className="hidden xl:flex items-center gap-8 font-medium text-slate-800 text-[15px]">
           {NAV_DATA.map((item) => (
             <div
@@ -189,7 +192,7 @@ const Header = () => {
             >
               <a
                 href={`#${item.id}`}
-                className={`flex items-center gap-1.5 py-4 transition-colors duration-200 ${
+                className={`flex items-center gap-1.5 py-7 transition-colors duration-200 ${
                   activeDropdown === item.id
                     ? "text-[#ee2039]"
                     : "hover:text-[#ee2039]"
@@ -198,26 +201,19 @@ const Header = () => {
                 {item.label}
                 <ChevronDown
                   size={14}
-                  className={`mt-0.5 transition-transform duration-300 ${
-                    activeDropdown === item.id ? "rotate-180" : ""
-                  }`}
+                  className={`mt-0.5 transition-transform duration-300 ${activeDropdown === item.id ? "rotate-180" : ""}`}
                 />
               </a>
 
-              {/* Mega Menu / Dropdown Logic */}
+              {/* Mega Menu / Dropdown - التعديل هنا للالتصاق والبادينغ */}
               <div
-                className={`absolute top-full left-1/2 -translate-x-1/2 bg-white shadow-xl border-t-[3px] border-[#ee2039] 
-                transition-all duration-200 transform origin-top
-                ${
-                  activeDropdown === item.id
-                    ? "opacity-100 visible translate-y-0"
-                    : "opacity-0 invisible translate-y-4"
-                } 
-                ${item.type === "mega" ? "w-[800px] p-8" : "w-64 p-4"} rounded-b-xl z-50`}
+                className={`absolute top-[calc(100%-1px)] left-1/2 -translate-x-1/2 bg-white shadow-2xl border-t-[3px] border-[#ee2039] 
+                transition-all duration-300 transform origin-top
+                ${activeDropdown === item.id ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"} 
+                ${item.type === "mega" ? "w-[850px] p-10" : "w-72 p-6"} rounded-b-xl z-50`}
               >
-                {/* Content Grid */}
                 <div
-                  className={`grid gap-x-8 gap-y-4 ${
+                  className={`grid gap-x-12 gap-y-6 ${
                     item.type === "mega"
                       ? item.columns === 2
                         ? "grid-cols-2"
@@ -231,24 +227,20 @@ const Header = () => {
                     <a
                       key={idx}
                       href="#"
-                      className={`group/item block ${
+                      className={`group/item block transition-all duration-200 ${
                         subItem.isHeader
-                          ? "font-bold text-[#ee2039] uppercase text-xs tracking-wider mb-2 border-b border-gray-100 pb-2 cursor-default pointer-events-none"
-                          : "hover:bg-gray-50 rounded-lg p-2 -ml-2 transition-colors"
+                          ? "font-bold text-[#ee2039] uppercase text-[10px] tracking-wider mb-2 border-b border-gray-100 pb-2 cursor-default"
+                          : "hover:bg-gray-50 rounded-xl p-4 -mx-4 transition-colors"
                       }`}
                     >
                       <div className="flex flex-col">
                         <span
-                          className={`text-sm ${
-                            subItem.isHeader
-                              ? ""
-                              : "text-gray-700 font-semibold group-hover/item:text-[#ee2039]"
-                          }`}
+                          className={`text-sm ${subItem.isHeader ? "" : "text-gray-700 font-semibold group-hover/item:text-[#ee2039] break-words"}`}
                         >
                           {subItem.label}
                         </span>
                         {subItem.desc && (
-                          <span className="text-[11px] text-gray-400 mt-0.5 font-normal leading-tight">
+                          <span className="text-[11px] text-gray-400 mt-1.5 font-normal leading-relaxed">
                             {subItem.desc}
                           </span>
                         )}
@@ -260,7 +252,6 @@ const Header = () => {
             </div>
           ))}
 
-          {/* Special Buttons */}
           <a
             href="#academy"
             className="text-slate-800 hover:text-[#ee2039] transition py-4"
@@ -273,45 +264,33 @@ const Header = () => {
         <div className="xl:hidden flex items-center gap-4">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="focus:outline-none hover:text-[#ee2039] transition text-black"
+            className="hover:text-[#ee2039] transition text-black"
           >
             <Menu size={32} strokeWidth={1.5} />
           </button>
         </div>
       </div>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar (نفس الكود الأصلي) */}
       <div
-        className={`fixed inset-0 z-[60] xl:hidden transition-all duration-300 ${
-          isMobileMenuOpen ? "visible" : "invisible"
-        }`}
+        className={`fixed inset-0 z-[60] xl:hidden transition-all duration-300 ${isMobileMenuOpen ? "visible" : "invisible"}`}
       >
-        {/* Backdrop */}
         <div
-          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
-            isMobileMenuOpen ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isMobileMenuOpen ? "opacity-100" : "opacity-0"}`}
           onClick={() => setIsMobileMenuOpen(false)}
         ></div>
-
-        {/* Drawer */}
         <div
-          className={`absolute right-0 top-0 bottom-0 w-[85%] max-w-[320px] bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-out ${
-            isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+          className={`absolute right-0 top-0 bottom-0 w-[85%] max-w-[320px] bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-out ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
         >
-          {/* Mobile Header */}
           <div className="p-6 flex justify-between items-center border-b border-gray-100">
             <span className="font-bold text-lg text-slate-800">Menu</span>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="text-gray-400 hover:text-[#ee2039] transition bg-gray-50 rounded-full p-2"
+              className="text-gray-400 hover:text-[#ee2039] bg-gray-50 rounded-full p-2"
             >
               <X size={20} />
             </button>
           </div>
-
-          {/* Mobile Links */}
           <div className="flex-1 overflow-y-auto p-4 scrollbar-hide">
             <nav className="flex flex-col space-y-2">
               {NAV_DATA.map((item) => (
@@ -321,39 +300,23 @@ const Header = () => {
                 >
                   <button
                     onClick={() => toggleMobileGroup(item.id)}
-                    className={`flex w-full justify-between items-center py-3 px-2 font-semibold text-[15px] transition-colors ${
-                      mobileExpanded[item.id]
-                        ? "text-[#ee2039]"
-                        : "text-slate-800"
-                    }`}
+                    className={`flex w-full justify-between items-center py-3 px-2 font-semibold text-[15px] transition-colors ${mobileExpanded[item.id] ? "text-[#ee2039]" : "text-slate-800"}`}
                   >
                     {item.label}
                     <ChevronRight
                       size={16}
-                      className={`transition-transform duration-300 ${
-                        mobileExpanded[item.id] ? "rotate-90" : ""
-                      }`}
+                      className={`transition-transform duration-300 ${mobileExpanded[item.id] ? "rotate-90" : ""}`}
                     />
                   </button>
-
-                  {/* Submenu Accordion */}
                   <div
-                    className={`overflow-hidden transition-all duration-300 ${
-                      mobileExpanded[item.id]
-                        ? "max-h-[500px] opacity-100"
-                        : "max-h-0 opacity-0"
-                    }`}
+                    className={`overflow-hidden transition-all duration-300 ${mobileExpanded[item.id] ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}
                   >
                     <div className="bg-gray-50 rounded-lg p-3 space-y-3 mx-2 mb-2">
                       {item.children?.map((sub, idx) => (
                         <a
                           key={idx}
                           href="#"
-                          className={`block text-sm ${
-                            sub.isHeader
-                              ? "font-bold text-[#ee2039] mt-3 mb-1 uppercase text-xs"
-                              : "text-gray-600 hover:text-black hover:pl-1 transition-all"
-                          }`}
+                          className={`block text-sm ${sub.isHeader ? "font-bold text-[#ee2039] mt-3 mb-1 uppercase text-xs" : "text-gray-600 hover:text-black hover:pl-1 transition-all"}`}
                         >
                           {sub.label}
                         </a>
@@ -362,7 +325,6 @@ const Header = () => {
                   </div>
                 </div>
               ))}
-
               <a
                 href="#academy"
                 className="block py-3 px-2 font-semibold text-slate-800 border-b border-gray-50"

@@ -7,14 +7,11 @@ import {
   Globe,
   Award,
   TrendingUp,
-  CheckCircle,
-  Factory,
-  ShieldCheck,
-  Briefcase,
 } from "lucide-react";
 
 // --- Helper Component: Number Counter (للعداد الرقمي) ---
 const Counter = ({ end, duration = 2000, isVisible }) => {
+  // التصحيح هنا: استخدام useState بدلاً من setCount
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -24,23 +21,29 @@ const Counter = ({ end, duration = 2000, isVisible }) => {
     const animate = (timestamp) => {
       if (!isVisible) return;
       if (!startTime) startTime = timestamp;
+
       const progress = timestamp - startTime;
       const percentage = Math.min(progress / duration, 1);
-      const ease = 1 - Math.pow(1 - percentage, 4); // Ease Out Quart
 
-      setCount(Math.floor(end * ease));
+      // معادلة Ease Out Quart لنعومة الحركة
+      const ease = 1 - Math.pow(1 - percentage, 4);
+
+      // استخدام Math.round لضمان الوصول لآخر رقم (مثلاً 500) بدون تعليق عند 499
+      const currentCount = Math.round(end * ease);
+
+      setCount(currentCount);
 
       if (progress < duration) {
         animationFrame = requestAnimationFrame(animate);
       } else {
-        setCount(end);
+        setCount(end); // التأكيد على الرقم النهائي
       }
     };
 
     if (isVisible) {
       animationFrame = requestAnimationFrame(animate);
     } else {
-      setCount(0);
+      setCount(0); // إعادة العداد للصفر إذا خرج السكشن من الشاشة
     }
 
     return () => cancelAnimationFrame(animationFrame);
@@ -57,7 +60,7 @@ const EngineeringConfidence = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
-      { threshold: 0.3 },
+      { threshold: 0.5 },
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => {
@@ -70,13 +73,15 @@ const EngineeringConfidence = () => {
       ref={sectionRef}
       className="relative w-full py-16 md:py-24 bg-white overflow-hidden flex flex-col items-center justify-center text-center font-sans z-20 border-b border-gray-100"
     >
+      {/* شبكة هندسية خلفية دقيقة */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#000000_1px,transparent_1px),linear-gradient(to_bottom,#000000_1px,transparent_1px)] bg-[size:20px_20px] md:bg-[size:40px_40px]"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4">
+        {/* العناوين الرئيسية */}
         <div
-          className={`mb-8 md:mb-12 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+          className={`mb-12 md:mb-16 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
         >
           <h2 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-slate-900 tracking-tight leading-tight md:leading-[1.1]">
             Engineered Products.
@@ -85,98 +90,89 @@ const EngineeringConfidence = () => {
           </h2>
         </div>
 
+        {/* سكشن الأبراج الهندسية المقربة */}
+        <div className="relative w-full max-w-3xl mx-auto h-32 md:h-48 flex items-end justify-center">
+          <svg
+            width="100%"
+            height="100%"
+            viewBox="0 0 800 200"
+            preserveAspectRatio="none"
+            className="overflow-visible"
+          >
+            {/* المسار الجديد: أبراج متقاربة بتصميم هندسي */}
+            <path
+              d="M0,200 L180,200 L180,140 L210,140 L210,200 L240,200 L240,80 L280,80 L280,200 L310,200 L310,110 L350,110 L350,200 L380,200 L380,20 L420,20 L420,200 L450,200 L450,70 L490,70 L490,200 L520,200 L520,130 L560,130 L560,200 L590,200 L590,90 L630,90 L630,200 L800,200"
+              fill="none"
+              stroke="#ee2039"
+              strokeWidth="1.5"
+              className="drop-shadow-[0_0_8px_rgba(238,32,57,0.4)]"
+              strokeDasharray="2500"
+              strokeDashoffset={isVisible ? "0" : "2500"}
+              style={{
+                transition: "stroke-dashoffset 3s cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+
+            {/* زيادة عدد العُقد عند نقاط الالتقاء لتعزيز المظهر الهندسي */}
+            {[
+              { x: 180, y: 140 },
+              { x: 210, y: 140 },
+              { x: 240, y: 80 },
+              { x: 280, y: 80 },
+              { x: 310, y: 110 },
+              { x: 350, y: 110 },
+              { x: 380, y: 20 },
+              { x: 420, y: 20 },
+              { x: 450, y: 70 },
+              { x: 490, y: 70 },
+              { x: 520, y: 130 },
+              { x: 560, y: 130 },
+              { x: 590, y: 90 },
+              { x: 630, y: 90 },
+            ].map((point, i) => (
+              <circle
+                key={i}
+                cx={point.x}
+                cy={point.y}
+                r="2.5"
+                fill="white"
+                stroke="#ee2039"
+                strokeWidth="1"
+                className={`transition-opacity duration-500 delay-[2.5s] ${isVisible ? "opacity-100" : "opacity-0"}`}
+              />
+            ))}
+          </svg>
+
+          {/* نقطة التوهج المركزية فوق أعلى برج */}
+          <div
+            className={`absolute top-0 left-[50%] -translate-x-1/2 w-3 h-3 bg-[#ee2039] rotate-45 transition-all duration-1000 delay-[2.8s] shadow-[0_0_20px_rgba(238,32,57,0.8)] ${
+              isVisible ? "scale-100 opacity-100" : "scale-0 opacity-0"
+            }`}
+          ></div>
+        </div>
+
+        {/* القيم الجوهرية (Precision, Durability, Reliability) */}
         <div
-          className={`flex flex-wrap justify-center gap-6 md:gap-16 mb-16 md:mb-20 text-gray-500 font-medium tracking-[0.15em] md:tracking-[0.2em] uppercase text-xs sm:text-sm md:text-base transition-all duration-1000 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+          className={`mt-16 flex flex-wrap justify-center gap-6 md:gap-16 text-gray-500 font-medium tracking-[0.15em] md:tracking-[0.2em] uppercase text-xs sm:text-sm md:text-base transition-all duration-1000 delay-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
         >
           {["Precision", "Durability", "Reliability"].map((item, i) => (
             <span
               key={i}
               className="flex items-center gap-2 hover:text-black transition-colors duration-300 group cursor-default"
             >
-              <span className="w-1.5 h-1.5 bg-[#ee2039] group-hover:scale-150 transition-transform rotate-45"></span>{" "}
+              <span className="w-1.5 h-1.5 bg-[#ee2039] group-hover:scale-150 transition-transform rotate-45"></span>
               {item}
             </span>
           ))}
-        </div>
-
-        <div className="relative w-full max-w-4xl mx-auto h-auto py-8 md:h-32 flex flex-col items-center justify-center">
-          <div className="relative w-full h-px bg-gray-200 transition-colors duration-500 flex justify-between items-center">
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className={`w-px h-2 bg-gray-300 ${i % 2 !== 0 ? "hidden md:block" : ""}`}
-                style={{ opacity: i % 5 === 0 ? 1 : 0.4 }}
-              ></div>
-            ))}
-            <div
-              className={`absolute top-1/2 left-0 w-full -translate-y-1/2 flex items-center justify-center transition-opacity duration-1000 delay-500 ${isVisible ? "opacity-100" : "opacity-0"}`}
-            >
-              <svg
-                width="100%"
-                height="80"
-                viewBox="0 0 800 100"
-                preserveAspectRatio="none"
-                className="overflow-visible h-16 md:h-24"
-              >
-                <path
-                  d="M0,50 L350,50 L350,20 L390,20 L390,80 L430,80 L430,50 L800,50"
-                  fill="none"
-                  stroke="#ee2039"
-                  strokeWidth="2"
-                  className="animate-draw-line drop-shadow-[0_0_4px_rgba(238,32,57,0.6)]"
-                  strokeDasharray="1000"
-                  strokeDashoffset={isVisible ? "0" : "1000"}
-                  style={{
-                    transition:
-                      "stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1)",
-                  }}
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <div
-              className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-slate-900 rotate-45 transition-all duration-1000 delay-1000 ${isVisible ? "bg-[#ee2039] w-3 h-3 rotate-180 shadow-[0_0_15px_rgba(238,32,57,0.8)]" : ""}`}
-            ></div>
-            <div
-              className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 border border-[#ee2039]/0 transition-all duration-1000 delay-1000 ${isVisible ? "scale-100 border-[#ee2039]/50" : "scale-150 border-[#ee2039]/0"}`}
-            ></div>
-          </div>
-
-          <div
-            className={`flex flex-col sm:flex-row justify-between items-center w-full max-w-2xl mt-16 md:mt-8 gap-6 sm:gap-0 transition-all duration-1000 delay-[1200ms] transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-          >
-            <div className="text-center">
-              <p className="text-[#ee2039] font-bold text-base md:text-lg">
-                Since 1987
-              </p>
-              <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-wider">
-                Proven Legacy
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-slate-900 font-bold text-base md:text-lg">
-                European Tech
-              </p>
-              <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-wider">
-                ECA Partner
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-slate-900 font-bold text-base md:text-lg">
-                MENA Region
-              </p>
-              <p className="text-gray-500 text-[10px] md:text-xs uppercase tracking-wider">
-                Local Experts
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </section>
   );
 };
 
-// --- 2. Stats Section (إحصائيات مع عداد) ---
+// --- 2. Stats Section (إحصائيات) ---
 const StatsSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -184,7 +180,7 @@ const StatsSection = () => {
   const stats = [
     {
       id: 1,
-      value: 37,
+      value: 500,
       suffix: "+",
       label: "Years of Experience",
       sub: "Since 1987",
@@ -192,7 +188,7 @@ const StatsSection = () => {
     },
     {
       id: 2,
-      value: 6,
+      value: 500,
       suffix: "",
       label: "Countries",
       sub: "MENA Presence",
@@ -208,7 +204,7 @@ const StatsSection = () => {
     },
     {
       id: 4,
-      value: 100,
+      value: 500,
       suffix: "M+",
       label: "Project Value",
       sub: "Delivered Excellence",
@@ -232,21 +228,23 @@ const StatsSection = () => {
       ref={sectionRef}
       className="py-20 bg-slate-900 text-white relative overflow-hidden"
     >
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#ee2039]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#ee2039]/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
           {stats.map((stat, index) => (
             <div
               key={stat.id}
-              className={`flex flex-col items-center text-center transition-all duration-700 transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-              style={{ transitionDelay: `${index * 150}ms` }}
+              className={`flex flex-col items-center text-center transition-all duration-700 transform ${
+                isVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-10"
+              }`}
+              style={{ transitionDelay: `${index * 300}ms` }}
             >
-              <div className="mb-4 p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+              <div className="mb-4 p-3 bg-white/5 rounded-2xl border border-white/10">
                 {stat.icon}
               </div>
               <div className="flex items-baseline mb-2">
-                <span className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+                <span className="text-4xl md:text-5xl font-bold text-white">
                   <Counter end={stat.value} isVisible={isVisible} />
                 </span>
                 <span className="text-2xl md:text-3xl font-bold text-[#ee2039] ml-1">
@@ -265,11 +263,19 @@ const StatsSection = () => {
   );
 };
 
-// --- 3. Featured Products (سلايدر المنتجات - المتجاوب) ---
+// --- 3. Featured Products (سلايدر المنتجات - تم حل مشكلة التعليق) ---
 const FeaturedProducts = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showContent, setShowContent] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowContent(activeIndex);
+    }, 400); // تأخير بسيط لانتهاء حركة التوسع
+    return () => clearTimeout(timer);
+  }, [activeIndex]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -294,7 +300,7 @@ const FeaturedProducts = () => {
       category: "Concrete Solutions",
       image: "/images/product1.png",
       description:
-        "High-performance superplasticizers for superior flow and strength.",
+        "High-performance superplasticizers for superior flow and strength. Engineered for the toughest site conditions.",
       link: "#product-1",
     },
     {
@@ -303,7 +309,7 @@ const FeaturedProducts = () => {
       category: "Protection Systems",
       image: "/images/product2.png",
       description:
-        "Advanced crystalline technology for permanent water sealing.",
+        "Advanced crystalline technology for permanent water sealing. Ensures structural durability for a lifetime.",
       link: "#product-2",
     },
     {
@@ -312,7 +318,7 @@ const FeaturedProducts = () => {
       category: "Industrial Flooring",
       image: "/images/product3.png",
       description:
-        "Heavy-duty chemical resistant grouts for industrial applications.",
+        "Heavy-duty chemical resistant grouts for industrial applications. Perfect for factories and warehouses.",
       link: "#product-3",
     },
     {
@@ -320,7 +326,8 @@ const FeaturedProducts = () => {
       name: "Repair Mortars",
       category: "Restoration",
       image: "/images/product4.png",
-      description: "Structural grade repair systems for aging infrastructure.",
+      description:
+        "Structural grade repair systems for aging infrastructure. Restoring strength with precision.",
       link: "#product-4",
     },
     {
@@ -328,7 +335,8 @@ const FeaturedProducts = () => {
       name: "Protective Coatings",
       category: "Surface Treatment",
       image: "/images/product5.png",
-      description: "Long-lasting protection against corrosion and weathering.",
+      description:
+        "Long-lasting protection against corrosion and weathering. Tested under extreme MENA climates.",
       link: "#product-5",
     },
   ];
@@ -339,93 +347,90 @@ const FeaturedProducts = () => {
       className="py-16 md:py-20 bg-gray-50 relative overflow-hidden"
     >
       <div
-        className={`absolute inset-0 opacity-[0.03] pointer-events-none transition-opacity duration-1000 ${isVisible ? "opacity-[0.03]" : "opacity-0"}`}
-      >
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#000000_1px,transparent_1px),linear-gradient(to_bottom,#000000_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-      </div>
-
-      <div
-        className={`container mx-auto px-4 mb-10 text-center transition-all duration-1000 transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+        className={`container mx-auto px-4 mb-10 text-center transition-all duration-1000 ${isVisible ? "opacity-100" : "opacity-0 translate-y-10"}`}
       >
         <h2 className="text-3xl md:text-5xl font-bold text-slate-900">
           Featured <span className="text-[#ee2039]">Products</span>
         </h2>
-        <p className="text-gray-500 mt-4 max-w-2xl mx-auto text-sm md:text-base">
-          Explore our range of high-performance engineered solutions, trusted
-          across the MENA region.
-        </p>
       </div>
 
-      <div className="flex flex-col md:flex-row h-[850px] md:h-[600px] w-full max-w-[1400px] mx-auto overflow-hidden gap-2 px-2 md:px-8">
-        {products.map((product, index) => (
-          <div
-            key={product.id}
-            onClick={() => setActiveIndex(index)}
-            onMouseEnter={() => setActiveIndex(index)}
-            // Removed delays for snappy feel
-            className={`
-              relative rounded-3xl overflow-hidden cursor-pointer 
-              transition-all duration-500 ease-out will-change-[flex] transform-gpu group 
-              ${isVisible ? "translate-y-0 opacity-70" : "translate-y-20 opacity-0"} 
-              ${
-                activeIndex === index
-                  ? "flex-[10] md:flex-[4] !opacity-100 shadow-2xl scale-100 z-10" // Flex-10 for mobile expanding
-                  : "flex-[1] hover:!opacity-90 grayscale-[30%] hover:grayscale-0 z-0"
-              }
-            `}
-          >
-            <div
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-              style={{ backgroundImage: `url('${product.image}')` }}
-            />
-            <div
-              className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300 ${activeIndex === index ? "opacity-80" : "opacity-60"}`}
-            ></div>
+      <div className="flex flex-col md:flex-row h-[850px] md:h-[600px] w-full max-w-[1400px] mx-auto overflow-hidden gap-3 px-2 md:px-8">
+        {products.map((product, index) => {
+          const isActive = activeIndex === index;
+          const isContentVisible = showContent === index;
 
-            {/* Collapsed Text */}
+          return (
             <div
-              className={`absolute transition-all duration-300 z-20 bottom-auto top-1/2 -translate-y-1/2 left-6 rotate-0 md:top-auto md:bottom-8 md:left-8 md:translate-y-0 md:origin-bottom-left md:-rotate-90 ${activeIndex === index ? "opacity-0 scale-90 pointer-events-none" : "opacity-100 scale-100"}`}
+              key={product.id}
+              onMouseEnter={() => setActiveIndex(index)}
+              onClick={() => setActiveIndex(index)}
+              className={`relative rounded-3xl overflow-hidden cursor-pointer transition-[flex] duration-500 ease-out transform-gpu ${isActive ? "flex-[10] md:flex-[5] z-10 shadow-2xl" : "flex-[1] grayscale-[50%] z-0"}`}
             >
-              <h3 className="text-lg md:text-xl font-bold text-white whitespace-nowrap tracking-wider uppercase drop-shadow-md">
-                {product.category}
-              </h3>
-            </div>
+              {/* Image & Overlay */}
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url('${product.image}')` }}
+              />
+              <div
+                className={`absolute inset-0 bg-black transition-opacity duration-500 ${isActive ? "opacity-70" : "opacity-40"}`}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
 
-            {/* Expanded Content with Min-Width Wrapper */}
-            <div
-              className={`absolute bottom-0 left-0 right-0 p-6 md:p-12 flex flex-col justify-end transition-all duration-500 ease-out transform-gpu z-20 overflow-hidden ${activeIndex === index ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}
-            >
-              <div className="min-w-[250px] md:min-w-[400px]">
-                <div className="inline-block py-1 px-3 rounded-full bg-[#ee2039] text-white text-[10px] md:text-xs font-bold uppercase tracking-widest mb-2 md:mb-4 w-fit">
-                  {product.category}
+              {/* العنوان الجانبي (يظهر لما الكارد يكون مسكر) */}
+              {!isActive && (
+                <div className="absolute inset-0 flex items-center justify-center md:items-end md:justify-start md:p-8">
+                  <h3 className="text-white font-bold uppercase tracking-widest text-xs md:rotate-[-90deg] md:origin-bottom-left whitespace-nowrap opacity-70">
+                    {product.category}
+                  </h3>
                 </div>
-                <h3 className="text-2xl md:text-5xl font-bold text-white mb-2 md:mb-4 leading-tight">
-                  {product.name}
-                </h3>
-                <p className="text-gray-300 text-sm md:text-lg mb-4 md:mb-8 max-w-lg leading-relaxed line-clamp-2 md:line-clamp-none">
-                  {product.description}
-                </p>
-                <a
-                  href={product.link}
-                  className="inline-flex items-center gap-3 text-white font-bold group/btn w-fit hover:text-[#ee2039] transition-colors text-sm md:text-base"
+              )}
+
+              {/* المحتوى (يظهر فقط لما isActive يكون true) */}
+              {isActive && (
+                <div
+                  className={`absolute inset-0 p-6 md:p-10 flex flex-col justify-end z-20 transition-all duration-500 ${
+                    isContentVisible
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-10"
+                  }`}
                 >
-                  <span className="border-b-2 border-white/30 pb-1 group-hover/btn:border-[#ee2039] transition-all">
-                    View Details
-                  </span>
-                  <div className="bg-white/10 p-2 rounded-full group-hover/btn:bg-[#ee2039] transition-all">
-                    <ChevronRight size={16} md:size={20} />
+                  <div className="w-full max-w-[90%] md:max-w-[420px]">
+                    {/* Category Label */}
+                    <div className="inline-block py-1 px-2 rounded bg-[#ee2039] text-white text-[9px] md:text-[10px] font-bold uppercase mb-3 tracking-wider">
+                      {product.category}
+                    </div>
+
+                    {/* Product Name: شلنا whitespace-nowrap وصغرنا الخط */}
+                    <h3 className="text-xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3 leading-[1.1] break-words drop-shadow-xl">
+                      {product.name}
+                    </h3>
+
+                    {/* Description: تحديد أسطر العرض القصوى */}
+                    <p className="text-gray-200 text-xs md:text-sm lg:text-base mb-6 leading-relaxed opacity-90 line-clamp-2 md:line-clamp-3">
+                      {product.description}
+                    </p>
+
+                    {/* Action Button */}
+                    <div className="inline-flex items-center gap-2 text-white text-xs md:text-sm font-bold group/btn cursor-pointer">
+                      <span className="border-b-2 border-[#ee2039] pb-0.5 transition-all group-hover:border-white">
+                        View Details
+                      </span>
+                      <div className="bg-[#ee2039] p-1 rounded-full transition-transform group-hover:translate-x-1">
+                        <ChevronRight size={14} />
+                      </div>
+                    </div>
                   </div>
-                </a>
-              </div>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
 };
 
-// --- 4. Certifications & Partners Slider (الشهادات والشركاء) ---
+// --- 4. Certifications ---
 const Certifications = () => {
   const certs = [
     {
@@ -532,7 +537,7 @@ const Certifications = () => {
   );
 };
 
-// --- 5. HomeCTA (بطاقات التواصل) ---
+// --- 5. HomeCTA ---
 const HomeCTA = () => {
   return (
     <section className="py-16 md:py-20 bg-white">
@@ -640,14 +645,14 @@ const Home = () => {
 
   return (
     <div className="flex flex-col w-full">
-      <section className="relative w-full h-[100dvh] md:h-screen overflow-hidden bg-black">
+      <section className="relative w-full h-[calc(100dvh-120px)] md:h-[calc(100vh-120px)] mt-[110px] overflow-hidden bg-black">
         {slides.map((slide, index) => (
           <div
             key={slide.id}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? "opacity-100" : "opacity-0"}`}
           >
             <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
               style={{ backgroundImage: `url('${slide.image}')` }}
             />
             <div className="absolute inset-0 bg-black/60"></div>
@@ -659,7 +664,7 @@ const Home = () => {
               key={currentSlide}
               className="animate-[fadeInUp_0.8s_ease-out]"
             >
-              <div className="inline-flex items-center gap-2 py-2 px-4 rounded-full bg-[#ee2039]/20 text-[#ee2039] border border-[#ee2039]/30 text-xs md:text-sm font-bold tracking-widest uppercase mb-4 md:mb-6 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-2 py-2 px-4 rounded-full bg-[#ee2039]/20 text-white border border-[#ee2039]/30 text-xs md:text-sm font-bold tracking-widest uppercase mb-4 md:mb-6 backdrop-blur-sm">
                 <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
                 {slides[currentSlide].subtitle}
               </div>
