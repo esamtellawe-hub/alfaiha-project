@@ -298,7 +298,7 @@ const FeaturedProducts = () => {
       id: 1,
       name: "Euniflow Admixtures",
       category: "Concrete Solutions",
-      image: "/images/product1.png",
+      image: "/images/mock ups paper.png",
       description:
         "High-performance superplasticizers for superior flow and strength. Engineered for the toughest site conditions.",
       link: "#product-1",
@@ -307,7 +307,7 @@ const FeaturedProducts = () => {
       id: 2,
       name: "TopSeal Waterproofing",
       category: "Protection Systems",
-      image: "/images/product2.png",
+      image: "/images/mock ups paper 2.png",
       description:
         "Advanced crystalline technology for permanent water sealing. Ensures structural durability for a lifetime.",
       link: "#product-2",
@@ -316,7 +316,7 @@ const FeaturedProducts = () => {
       id: 3,
       name: "Epoxy Grouting",
       category: "Industrial Flooring",
-      image: "/images/product3.png",
+      image: "/images/mock ups waterproofing.png",
       description:
         "Heavy-duty chemical resistant grouts for industrial applications. Perfect for factories and warehouses.",
       link: "#product-3",
@@ -334,7 +334,7 @@ const FeaturedProducts = () => {
       id: 5,
       name: "Protective Coatings",
       category: "Surface Treatment",
-      image: "/images/product5.png",
+      image: "/images/plastic bag-mock up.png",
       description:
         "Long-lasting protection against corrosion and weathering. Tested under extreme MENA climates.",
       link: "#product-5",
@@ -364,31 +364,44 @@ const FeaturedProducts = () => {
               key={product.id}
               onMouseEnter={() => setActiveIndex(index)}
               onClick={() => setActiveIndex(index)}
-              className={`relative rounded-3xl overflow-hidden cursor-pointer transition-[flex] duration-500 ease-out transform-gpu ${isActive ? "flex-[10] md:flex-[5] z-10 shadow-2xl" : "flex-[1] grayscale-[50%] z-0"}`}
+              className={`relative rounded-3xl overflow-hidden cursor-pointer transition-[flex] duration-500 ease-out transform-gpu 
+        ${
+          isActive
+            ? "flex-[10] md:flex-[5] z-10 shadow-2xl bg-transparent"
+            : "flex-[1] z-0 bg-[#ee2039]" // اللون المطلوبة للخلفية لما يكون مطفي
+        }`}
             >
-              {/* Image & Overlay */}
-              <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url('${product.image}')` }}
-              />
-              <div
-                className={`absolute inset-0 bg-black transition-opacity duration-500 ${isActive ? "opacity-70" : "opacity-40"}`}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+              {/* الصورة: تظهر فقط إذا كان isActive true */}
+              {isActive && (
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
+                  style={{ backgroundImage: `url('${product.image}')` }}
+                />
+              )}
 
-              {/* العنوان الجانبي (يظهر لما الكارد يكون مسكر) */}
+              {/* Overlay: يظهر فوق الصورة في حالة الاكتف فقط */}
+              {isActive && (
+                <div className="absolute inset-0 bg-black/60 transition-opacity duration-500" />
+              )}
+
+              {/* Gradient الـ التدرج السفلي يظهر فقط في الاكتف */}
+              {isActive && (
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+              )}
+
+              {/* العنوان الجانبي (لما يكون مطفي): الآن في المنتصف تماماً */}
               {!isActive && (
-                <div className="absolute inset-0 flex items-center justify-center md:items-end md:justify-start md:p-8">
-                  <h3 className="text-white font-bold uppercase tracking-widest text-xs md:rotate-[-90deg] md:origin-bottom-left whitespace-nowrap opacity-70">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <h3 className="text-white font-bold uppercase tracking-widest text-xs md:rotate-[-90deg] whitespace-nowrap opacity-100">
                     {product.category}
                   </h3>
                 </div>
               )}
 
-              {/* المحتوى (يظهر فقط لما isActive يكون true) */}
+              {/* المحتوى (لما يكون شغال): رفعنا المحتوى للأعلى قليلاً (تغيير justify-end إلى justify-start أو إضافة padding top) */}
               {isActive && (
                 <div
-                  className={`absolute inset-0 p-6 md:p-10 flex flex-col justify-end z-20 transition-all duration-500 ${
+                  className={`absolute inset-0 p-6 md:p-12 flex flex-col justify-start pt-16 z-20 transition-all duration-500 ${
                     isContentVisible
                       ? "opacity-100 translate-y-0"
                       : "opacity-0 translate-y-10"
@@ -400,22 +413,22 @@ const FeaturedProducts = () => {
                       {product.category}
                     </div>
 
-                    {/* Product Name: شلنا whitespace-nowrap وصغرنا الخط */}
+                    {/* Product Name */}
                     <h3 className="text-xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3 leading-[1.1] break-words drop-shadow-xl">
                       {product.name}
                     </h3>
 
-                    {/* Description: تحديد أسطر العرض القصوى */}
-                    <p className="text-gray-200 text-xs md:text-sm lg:text-base mb-6 leading-relaxed opacity-90 line-clamp-2 md:line-clamp-3">
+                    {/* Description */}
+                    <p className="text-gray-200 text-xs md:text-sm lg:text-base mb-6 leading-relaxed opacity-90 line-clamp-3">
                       {product.description}
                     </p>
 
                     {/* Action Button */}
                     <div className="inline-flex items-center gap-2 text-white text-xs md:text-sm font-bold group/btn cursor-pointer">
-                      <span className="border-b-2 border-[#ee2039] pb-0.5 transition-all group-hover:border-white">
+                      <span className="border-b-2 border-[#ee2039] pb-0.5 transition-all">
                         View Details
                       </span>
-                      <div className="bg-[#ee2039] p-1 rounded-full transition-transform group-hover:translate-x-1">
+                      <div className="bg-[#ee2039] p-1 rounded-full text-white transition-transform group-hover:translate-x-1">
                         <ChevronRight size={14} />
                       </div>
                     </div>
@@ -570,7 +583,7 @@ const HomeCTA = () => {
           </div>
           <div className="relative rounded-3xl overflow-hidden min-h-[300px] md:min-h-[400px] group cursor-pointer transform-gpu">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"></div>
-            <div className="absolute inset-0 bg-[#ee2039]/90 group-hover:bg-[#ee2039]/80 transition-colors duration-300"></div>
+            <div className="absolute inset-0 bg-[#ee2039]/60 group-hover:bg-[#ee2039]/50 transition-colors duration-300"></div>
             <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 border border-white/30">

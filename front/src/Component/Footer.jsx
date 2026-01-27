@@ -20,12 +20,17 @@ const Footer = () => {
           {/* Column 1: Brand & Socials */}
           <div className="space-y-6">
             <div className="flex flex-col">
-              <h2 className="text-2xl font-bold tracking-tighter text-white">
-                ALFAIHA <span className="text-[#ee2039]">GROUP</span>
-              </h2>
-              <span className="text-[10px] text-gray-500 tracking-[0.2em] uppercase mt-1">
-                Engineering Excellence
-              </span>
+              <a
+                href="/"
+                className="inline-block transition-transform duration-300 hover:scale-105"
+              >
+                <img
+                  src="/images/Al Faiha-Logo-EN-WT-landscape.png"
+                  alt="Logo"
+                  /* التعديل هنا: إضافة -mt-2 لرفع الصورة للأعلى */
+                  className="h-20 md:h-24 lg:h-28 w-auto object-contain object-left -mt-2 md:-mt-3 lg:-mt-4"
+                />
+              </a>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
               Your trusted partner for advanced construction chemicals and
@@ -33,10 +38,18 @@ const Footer = () => {
             </p>
 
             <div className="flex gap-4 pt-4">
-              <SocialIcon icon={<Linkedin size={18} />} href="#" />
-              <SocialIcon icon={<Facebook size={18} />} href="#" />
-              <SocialIcon icon={<Instagram size={18} />} href="#" />
-              <SocialIcon icon={<Twitter size={18} />} href="#" />
+              <SocialIcon
+                icon={<Linkedin size={18} />}
+                href="https://www.linkedin.com/company/alfaihaengineering/"
+              />
+              <SocialIcon
+                icon={<Facebook size={18} />}
+                href="https://www.facebook.com/alfaihajo/"
+              />
+              <SocialIcon
+                icon={<Instagram size={18} />}
+                href="https://www.instagram.com/alfaihajo/"
+              />
             </div>
           </div>
 
