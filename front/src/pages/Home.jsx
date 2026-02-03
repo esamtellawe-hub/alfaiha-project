@@ -52,17 +52,36 @@ const Counter = ({ end, duration = 2000, isVisible }) => {
   return <span>{count}</span>;
 };
 
-// --- 1. EngineeringConfidence Component (خط النبض) ---
 const EngineeringConfidence = () => {
   const [isVisible, setIsVisible] = useState(false);
+
   const sectionRef = useRef(null);
+
+  const coreValues = [
+    "Always Exceed Expectations",
+
+    "Delivering Our Promises",
+
+    "Be Your Own Customer",
+
+    "Continuous Improvement",
+
+    "Honesty",
+
+    "Courage",
+
+    "We Listen, We Care, We Serve",
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
-      { threshold: 0.5 },
+
+      { threshold: 0.3 }, // قللت الـ threshold شوي عشان يشتغل أسرع عالموبايل
     );
+
     if (sectionRef.current) observer.observe(sectionRef.current);
+
     return () => {
       if (sectionRef.current) observer.unobserve(sectionRef.current);
     };
@@ -73,13 +92,15 @@ const EngineeringConfidence = () => {
       ref={sectionRef}
       className="relative w-full py-16 md:py-24 bg-white overflow-hidden flex flex-col items-center justify-center text-center font-sans z-20 border-b border-gray-100"
     >
-      {/* شبكة هندسية خلفية دقيقة */}
+      {/* شبكة هندسية خلفية */}
+
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#000000_1px,transparent_1px),linear-gradient(to_bottom,#000000_1px,transparent_1px)] bg-[size:20px_20px] md:bg-[size:40px_40px]"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4">
         {/* العناوين الرئيسية */}
+
         <div
           className={`mb-12 md:mb-16 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
         >
@@ -90,7 +111,8 @@ const EngineeringConfidence = () => {
           </h2>
         </div>
 
-        {/* سكشن الأبراج الهندسية المقربة */}
+        {/* سكشن الأبراج الهندسية */}
+
         <div className="relative w-full max-w-3xl mx-auto h-32 md:h-48 flex items-end justify-center">
           <svg
             width="100%"
@@ -99,7 +121,6 @@ const EngineeringConfidence = () => {
             preserveAspectRatio="none"
             className="overflow-visible"
           >
-            {/* المسار الجديد: أبراج متقاربة بتصميم هندسي */}
             <path
               d="M0,200 L180,200 L180,140 L210,140 L210,200 L240,200 L240,80 L280,80 L280,200 L310,200 L310,110 L350,110 L350,200 L380,200 L380,20 L420,20 L420,200 L450,200 L450,70 L490,70 L490,200 L520,200 L520,130 L560,130 L560,200 L590,200 L590,90 L630,90 L630,200 L800,200"
               fill="none"
@@ -115,20 +136,22 @@ const EngineeringConfidence = () => {
               strokeLinecap="round"
             />
 
-            {/* زيادة عدد العُقد عند نقاط الالتقاء لتعزيز المظهر الهندسي */}
             {[
               { x: 180, y: 140 },
               { x: 210, y: 140 },
               { x: 240, y: 80 },
               { x: 280, y: 80 },
+
               { x: 310, y: 110 },
               { x: 350, y: 110 },
               { x: 380, y: 20 },
               { x: 420, y: 20 },
+
               { x: 450, y: 70 },
               { x: 490, y: 70 },
               { x: 520, y: 130 },
               { x: 560, y: 130 },
+
               { x: 590, y: 90 },
               { x: 630, y: 90 },
             ].map((point, i) => (
@@ -145,25 +168,36 @@ const EngineeringConfidence = () => {
             ))}
           </svg>
 
-          {/* نقطة التوهج المركزية فوق أعلى برج */}
+          {/* نقطة التوهج - المعين صار مثلث (Polygon) */}
+
           <div
-            className={`absolute top-0 left-[50%] -translate-x-1/2 w-3 h-3 bg-[#ee2039] rotate-45 transition-all duration-1000 delay-[2.8s] shadow-[0_0_20px_rgba(238,32,57,0.8)] ${
+            className={`absolute -top-3 left-[50%] -translate-x-1/2 w-4 h-4 bg-[#ee2039] transition-all duration-1000 delay-[2.8s] shadow-[0_0_20px_rgba(238,32,57,0.8)] ${
               isVisible ? "scale-100 opacity-100" : "scale-0 opacity-0"
             }`}
+            style={{ clipPath: "polygon(0% 0%, 100% 50%, 0% 100%)" }}
           ></div>
         </div>
 
-        {/* القيم الجوهرية (Precision, Durability, Reliability) */}
+        {/* القيم الجوهرية الـ 7 الجديدة */}
+
         <div
-          className={`mt-16 flex flex-wrap justify-center gap-6 md:gap-16 text-gray-500 font-medium tracking-[0.15em] md:tracking-[0.2em] uppercase text-xs sm:text-sm md:text-base transition-all duration-1000 delay-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+          className={`mt-16 flex flex-wrap justify-center gap-y-6 gap-x-8 md:gap-x-12 max-w-6xl mx-auto transition-all duration-1000 delay-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
         >
-          {["Precision", "Durability", "Reliability"].map((item, i) => (
+          {coreValues.map((item, i) => (
             <span
               key={i}
-              className="flex items-center gap-2 hover:text-black transition-colors duration-300 group cursor-default"
+              className="flex items-center gap-3 text-gray-600 hover:text-black transition-colors duration-300 group cursor-default whitespace-nowrap"
             >
-              <span className="w-1.5 h-1.5 bg-[#ee2039] group-hover:scale-150 transition-transform rotate-45"></span>
-              {item}
+              {/* أيقونة المثلث الصغير */}
+
+              <div
+                className="w-2.5 h-2.5 bg-[#ee2039] group-hover:translate-x-1 transition-transform "
+                style={{ clipPath: "polygon(0% 0%, 100% 50%, 0% 100%)" }}
+              ></div>
+
+              <span className="font-bold tracking-wider uppercase text-[10px] sm:text-xs md:text-sm">
+                {item}
+              </span>
             </span>
           ))}
         </div>
@@ -172,7 +206,6 @@ const EngineeringConfidence = () => {
   );
 };
 
-// --- 2. Stats Section (إحصائيات) ---
 const StatsSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -226,7 +259,7 @@ const StatsSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="py-20 bg-slate-900 text-white relative overflow-hidden"
+      className="py-20 bg-black text-white relative overflow-hidden"
     >
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
@@ -263,7 +296,6 @@ const StatsSection = () => {
   );
 };
 
-// --- 3. Featured Products (سلايدر المنتجات - تم حل مشكلة التعليق) ---
 const FeaturedProducts = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [showContent, setShowContent] = useState(0);
@@ -391,8 +423,8 @@ const FeaturedProducts = () => {
 
               {/* العنوان الجانبي (لما يكون مطفي): الآن في المنتصف تماماً */}
               {!isActive && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <h3 className="text-white font-bold uppercase tracking-widest text-xs md:rotate-[-90deg] whitespace-nowrap opacity-100">
+                <div className="absolute inset-0 flex items-center  justify-center">
+                  <h3 className="text-white font-bold uppercase tracking-widest text-lg md:rotate-[-90deg] whitespace-nowrap opacity-100">
                     {product.category}
                   </h3>
                 </div>
@@ -630,7 +662,7 @@ const Home = () => {
       image:
         "https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070&auto=format&fit=crop",
       subtitle: "Technical Support & Consultancy",
-      title: "Expertise You Can",
+      title: "Expertise You Can ",
       highlight: "Rely On",
       description:
         "From on-site inspections to tailored formulations, our engineers deliver solutions that solve your toughest challenges.",
@@ -640,7 +672,7 @@ const Home = () => {
       image:
         "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop",
       subtitle: "Advanced Chemical Formulations",
-      title: "Innovation in Every",
+      title: "Innovation in Every ",
       highlight: "Drop",
       description:
         "Sole licensed manufacturer of European Concrete Additives (ECA), bringing world-class technology to local markets.",
@@ -655,51 +687,72 @@ const Home = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, [slides.length]);
-
   return (
     <div className="flex flex-col w-full">
-      <section className="relative w-full h-[calc(100dvh-120px)] md:h-[calc(100vh-120px)] mt-[110px] overflow-hidden bg-black">
+      {/* Hero Section */}
+      <section className="relative w-full min-h-[calc(100vh-110px)] flex items-center mt-[110px] overflow-hidden bg-black">
+        {/* Background Images */}
         {slides.map((slide, index) => (
           <div
             key={slide.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? "opacity-100" : "opacity-0"}`}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              index === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
           >
             <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
-              style={{ backgroundImage: `url('${slide.image}')` }}
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: `url('${slide.image}')`,
+                opacity: 0.6, // تحسين الرؤية للنصوص
+              }}
             />
-            <div className="absolute inset-0 bg-black/60"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/60"></div>
           </div>
         ))}
-        <div className="relative z-10 w-full h-full flex items-center justify-center px-4">
-          <div className="max-w-4xl w-full text-center mt-10 md:mt-0 pb-16 md:pb-0">
+
+        {/* Content Container */}
+        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+          <div className="max-w-5xl mx-auto text-center">
             <div
               key={currentSlide}
-              className="animate-[fadeInUp_0.8s_ease-out]"
+              className="animate-[fadeInUp_0.8s_ease-out] flex flex-col items-center"
             >
-              <div className="inline-flex items-center gap-2 py-2 px-4 rounded-full bg-[#ee2039]/20 text-white border border-[#ee2039]/30 text-xs md:text-sm font-bold tracking-widest uppercase mb-4 md:mb-6 backdrop-blur-sm">
+              {/* Badge/Subtitle */}
+              <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 text-white border border-[#ee2039]/30 text-[10px] xs:text-xs md:text-sm font-bold tracking-[0.2em] uppercase mb-6 backdrop-blur-sm">
                 <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
                 {slides[currentSlide].subtitle}
               </div>
-              <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-4 md:mb-6 tracking-tight leading-tight">
-                {slides[currentSlide].title} <br />
-                <span className="text-[#ee2039]">
+
+              {/* Main Title */}
+              <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 tracking-tight leading-[1.2]">
+                {/* السطر الأول: نمنع تكسير النص هنا */}
+                <span className="whitespace-nowrap sm:whitespace-normal block sm:inline">
+                  {slides[currentSlide].title}
+                </span>
+
+                {/* السطر الثاني: نجبره ينزل سطر جديد */}
+                <span className="block text-[#ee2039]">
                   {slides[currentSlide].highlight}
                 </span>
               </h1>
-              <p className="text-sm sm:text-lg md:text-xl text-gray-200 mb-8 md:mb-10 leading-relaxed max-w-2xl mx-auto font-light">
+
+              {/* Description */}
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 mb-10 leading-relaxed max-w-2xl mx-auto font-light">
                 {slides[currentSlide].description}
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full px-4 sm:px-0">
+
+              {/* Call to Actions */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md sm:max-w-none">
                 <a
                   href="#products"
-                  className="w-full sm:w-auto px-8 py-3 md:py-4 bg-[#ee2039] hover:bg-[#c41229] text-white rounded font-bold text-base md:text-lg transition-all duration-300 shadow-lg shadow-red-900/30 text-center"
+                  className="w-full sm:w-auto px-10 py-4 bg-[#ee2039] hover:bg-[#c41229] text-white rounded-md font-bold text-base transition-all duration-300 shadow-lg shadow-[#ee2039]/20 text-center active:scale-95"
                 >
                   Explore Solutions
                 </a>
+
                 <a
                   href="#projects"
-                  className="w-full sm:w-auto px-8 py-3 md:py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded font-bold text-base md:text-lg backdrop-blur-md transition-all duration-300 text-center"
+                  className="w-full sm:w-auto px-10 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-md font-bold text-base backdrop-blur-md transition-all duration-300 text-center active:scale-95"
                 >
                   View Projects
                 </a>
@@ -707,21 +760,32 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+
+        {/* Pagination Dots */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
           {slides.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`h-1.5 md:h-2 rounded-full transition-all duration-300 ${index === currentSlide ? "bg-[#ee2039] w-6 md:w-8" : "bg-white/40 hover:bg-white w-2"}`}
+              className={`h-1.5 rounded-full transition-all duration-500 ${
+                index === currentSlide
+                  ? "bg-[#ee2039] w-10"
+                  : "bg-white/30 hover:bg-white/60 w-3"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
       </section>
 
       <EngineeringConfidence />
+
       <StatsSection />
+
       <FeaturedProducts />
+
       <HomeCTA />
+
       <Certifications />
     </div>
   );

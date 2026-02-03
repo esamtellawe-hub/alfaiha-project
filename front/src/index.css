@@ -1,6 +1,33 @@
+/* 1. استدعاء الخط من جوجل - Montserrat بكل الأوزان */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap");
+
+/* 2. استدعاء تيلويند */
 @import "tailwindcss";
 
+/* 3. تخصيص الثيم */
 @theme {
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --color-primary: #ee2039;
   --color-secondary: #000000;
+}
+
+/* 4. تطبيق القواعد الأساسية للخطوط */
+@layer base {
+  /* النصوص العادية (Body) -> Montserrat Regular */
+  body {
+    font-family: var(--font-sans);
+    font-weight: 400; /* Regular */
+    @apply text-gray-600; /* لون افتراضي مريح للعين للنصوص */
+  }
+
+  /* العناوين (Headlines) -> Montserrat Bold */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-sans);
+    font-weight: 700; /* Bold */
+  }
 }
