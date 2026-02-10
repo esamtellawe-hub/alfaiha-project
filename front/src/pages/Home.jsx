@@ -212,7 +212,6 @@ const EngineeringConfidence = () => {
     </section>
   );
 };
-
 const StatsSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
