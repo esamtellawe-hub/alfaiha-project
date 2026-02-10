@@ -1,0 +1,228 @@
+{
+  "EUNITILE A1": {
+    "id": "eunitile-a1",
+    "name": "EUNITILE A1",
+    "category": "Tile Adhesives and Grout",
+    "subCategory": "Tile Adhesives",
+    "description": "EUNITILE A1 is a cement-based, standard-performance tile adhesive for fixing ceramic tiles on stable surfaces like concrete or plaster. It offers reliable adhesion and slip resistance, ideal for light-traffic, low-moisture areas such as living rooms, bedrooms, and corridors.",
+    "image": "/images/mock ups paper.png",
+    "uses": [
+      "Fixing ceramic tiles efficiently and securely",
+      "Internal and external applications in residential or commercial areas",
+      "Stable substrates such as concrete, cement plaster, and masonry",
+      "Both wall and floor tiling installations",
+      "Areas with light to medium foot traffic",
+      "Surfaces free from major thermal or structural movement"
+    ],
+    "advantages": [
+      "Ready to use; just add water",
+      "Suitable for wall and floor applications",
+      "Reliable adhesion on stable concrete or plaster surfaces",
+      "Consistent workability and smooth troweling",
+      "Adequate open time for standard tiling applications",
+      "Economical and ideal for general-purpose tiling"
+    ],
+    "standard": "BS EN 12004:2017 Class C1T (Normal adhesion, slip-resistant tile adhesive)",
+    "mixing": "Add 5.0–5.5 liters of clean, cool water per 25 kg bag of EUNITILE A1",
+    "coverage": "5.0–5.5 m² per 25 kg bag at a 3 mm thickness",
+    "packaging": "25 kg multi-layer paper bags with an inner moisture barrier",
+    "storage": "Store in a dry, cool area (5°C–40°C) under moisture-free conditions. Shelf life: 12 months from production date.",
+    "healthSafety": "Refer to the Material Safety Data Sheet (MSDS) for detailed information."
+  },
+  "EUNITILE A1+": {
+    "id": "eunitile-a1-plus",
+    "name": "EUNITILE A1+",
+    "category": "Tile Adhesives and Grout",
+    "subCategory": "Tile Adhesives",
+    "description": "EUNITILE A1+ is a general-purpose, cementitious tile adhesive with reduced slip and extended open time. It provides excellent workability, precise tile placement, and durable adhesion on stable substrates such as concrete, cement plaster, or screeds.",
+    "image": "/images/mock ups paper.png",
+    "uses": [
+      "Fixing ceramic tiles efficiently and securely",
+      "Suitable for both internal and external use in residential or commercial areas",
+      "Applicable on stable substrates such as concrete, cement plaster, or masonry",
+      "Suitable for both wall and floor tiling installations",
+      "Ideal for areas with light to medium foot traffic"
+    ],
+    "advantages": [
+      "High impact resistance and increased durability",
+      "Easy to apply with good workability and extended open time",
+      "Strong adhesive bond strength for secure fixation",
+      "Non-sag formulation; suitable for use on walls and vertical surfaces"
+    ],
+    "standard": "BS EN 12004:2017 Class C1TE (Standard cementitious tile adhesive with reduced slip and extended open time)",
+    "mixing": "Add 4.0–4.5 liters of fresh water per 20 kg bag",
+    "coverage": "~6.5 m² per 20 kg bag (depending on trowel size and substrate condition)",
+    "packaging": "20 kg and 25 kg bags",
+    "storage": "Store in a dry, cool area (5°C–40°C). Shelf life: 12  months from production date.",
+    "healthSafety": "Refer to the Material Safety Data Sheet (MSDS)."
+  },
+  "EUNITILE A2": {
+    "id": "eunitile-a2",
+    "name": "EUNITILE A2",
+    "category": "Tile Adhesives and Grout",
+    "subCategory": "Tile Adhesives",
+    "description": "EUNITILE A2 is a high-strength, cement-based tile adhesive with improved adhesion, suitable for challenging substrates such as existing tiles, concrete, cement screeds, and masonry. It provides excellent slip resistance, ideal for vertical applications, wet areas, heavy-traffic zones, and exterior façades.",
+    "image": "/images/mock ups paper.png",
+    "uses": [
+      "Fixing ceramic and porcelain tiles on challenging substrates",
+      "Internal and external applications",
+      "Walls and floors, including vertical installations",
+      "Wet areas including bathrooms, kitchens, balconies, and terraces",
+      "Large-format or heavy tiles",
+      "Heated floors and underfloor heating systems",
+      "Heavy traffic areas"
+    ],
+    "advantages": [
+      "Improved adhesion on difficult substrates",
+      "Excellent slip resistance, ideal for vertical installation",
+      "Suitable for internal and external applications",
+      "Durable for wet areas and heavy traffic",
+      "Easy to use, smooth workability"
+    ],
+    "standard": "BS EN 12004:2017 Class C2T (Improved adhesion, slip-resistant)",
+    "mixing": "Add 5.0–5.5 liters of fresh water per 25 kg bag",
+    "coverage": "~5.0 m² per 25 kg bag",
+    "packaging": "25 kg multi-layer paper bags",
+    "storage": "Store in a dry, cool area (5°C–40°C). Shelf life: 12 months.",
+    "healthSafety": "Refer to MSDS."
+  },
+  "EUNITILE A2(H)": {
+    "id": "eunitile-a2-h",
+    "name": "EUNITILE A2(H)",
+    "category": "Tile Adhesives and Grout",
+    "subCategory": "Tile Adhesives",
+    "description": "EUNITILE A2(H) is a high-performance, cement-based, polymer-modified tile adhesive with improved adhesion, high slip resistance, and slight deformability. Suitable for ceramic, porcelain, and natural stone tiles on walls and floors, both indoors and outdoors.",
+    "image": "/images/mock ups paper.png",
+    "uses": [
+      "Bonding porcelain, large-format tiles, and natural stone",
+      "Can be applied on drywall",
+      "Ideal for slightly deformable substrates",
+      "Wet areas such as bathrooms and kitchens",
+      "Submerged conditions including swimming pools",
+      "Large-format tiles and heavy-duty applications"
+    ],
+    "advantages": [
+      "High adhesive bond strength and excellent durability",
+      "Easy to use with smooth workability",
+      "High water resistance; unaffected in submerged conditions",
+      "Non-sag properties for secure vertical tile fixing",
+      "Slight deformability (S1) to absorb minor movements"
+    ],
+    "standard": "BS EN 12004:2017 Class C2TS1",
+    "mixing": "Add ~6.0–6.5 L water per 25 kg bag",
+    "coverage": "~6.5–7.0 m² per 25 kg bag",
+    "packaging": "25 kg multi-layer paper bags",
+    "storage": "Store in a dry, cool area (5°C–40°C). Shelf life: 12 months.",
+    "healthSafety": "Refer to MSDS."
+  },
+  "EUNITILE GP": {
+    "id": "eunitile-gp",
+    "name": "EUNITILE GP",
+    "category": "Tile Adhesives and Grout",
+    "subCategory": "Tile Adhesives",
+    "description": "EUNITILE GP is a cement-based, general-purpose tile adhesive formulated for fixing ceramic tiles on interior wall and floor applications. It offers good workability, reliable adhesion, and ease of use for standard tiling works.",
+    "image": "/images/mock ups paper.png",
+    "uses": [
+      "Fixing ceramic wall and floor tiles",
+      "Application over concrete surfaces, cementitious screeds, plaster",
+      "Dry interior environments",
+      "Residential buildings, offices, commercial areas"
+    ],
+    "advantages": [
+      "Non-slip/non-slump formulation",
+      "Easy to mix and apply",
+      "Good open time and workability",
+      "Economical and cost-effective solution"
+    ],
+    "standard": "ANSI A118.1 Standard for Non-Modified Dry-Set Cement Mortar",
+    "mixing": "~5.0–5.5 L water per 25 kg",
+    "coverage": "~5.5 m² per 25 kg bag",
+    "packaging": "25 kg multi-layer paper bags",
+    "storage": "Store in a dry, cool area (5°C–40°C). Shelf life: 12 months.",
+    "healthSafety": "Refer to MSDS."
+  },
+  "EUNITILE A2 MAX": {
+    "id": "eunitile-a2-max",
+    "name": "EUNITILE A2 MAX",
+    "category": "Tile Adhesives and Grout",
+    "subCategory": "Tile Adhesives",
+    "description": "EUNITILE A2 MAX is a high-performance, two-component, polymer-modified cementitious tile adhesive designed for superior adhesion, extended open time, and exceptional slip resistance. Ideal for installing large-format tiles and natural stone.",
+    "image": "/images/mock ups paper.png",
+    "uses": [
+      "Fixing large-format tiles and natural stone",
+      "Tile-over-tile applications",
+      "Wet environments such as swimming pools",
+      "Vertical applications",
+      "High-traffic areas and floor heating systems"
+    ],
+    "advantages": [
+      "Excellent adhesion to various tiles and substrates",
+      "Superior long-term performance in submerged conditions",
+      "Extended open time",
+      "Non-sag and slip-resistant properties"
+    ],
+    "standard": "BS EN 12004:2017 Class C2TE",
+    "mixing": "As supplied (liquid polymer + powder), no water added",
+    "coverage": "~8 m² per 25 kg at 2 mm layer thickness",
+    "packaging": "Part A: 20 kg set; Part B: 5 kg container",
+    "storage": "Store in a dry, cool area (5°C–40°C). Shelf life: 12 months.",
+    "healthSafety": "Refer to MSDS."
+  },
+  "EUNITILE G2": {
+    "id": "eunitile-g2",
+    "name": "EUNITILE G2",
+    "category": "Tile Adhesives and Grout",
+    "subCategory": "Grout",
+    "description": "EUNITILE G2 is a high-performance cementitious tile grout with high abrasion resistance and reduced water absorption, suitable for both interior and exterior applications with all types of ceramic tiles, for joint widths up to 8mm.",
+    "image": "/images/mock ups paper 2.png",
+    "uses": [
+      "General-purpose colored grout for tile joints",
+      "Interior and exterior applications",
+      "Walls, floors, kitchens, and bathrooms",
+      "Compatible with all types of ceramic tiles",
+      "Joint widths up to 8 mm"
+    ],
+    "advantages": [
+      "Crack-free jointing",
+      "Excellent adhesion",
+      "Clear fade-resistant colors",
+      "Easy workability",
+      "Shrinkage resistance",
+      "High abrasion resistance"
+    ],
+    "standard": "ISO 13007-4, BS EN 13888: CG2 AW, ANSI A118.6",
+    "mixing": "Add 1.5–2 liters per 5 kg (all colors); for black: 2.25–2.5 liters per 5 kg",
+    "coverage": "Refer to TDS",
+    "packaging": "5 kg and 20 kg bags",
+    "storage": "Store in a cool, dry place. Shelf life: 12 months.",
+    "healthSafety": "Refer to MSDS."
+  },
+  "EUNITILE G2 (H)": {
+    "id": "eunitile-g2-h",
+    "name": "EUNITILE G2 (H)",
+    "category": "Tile Adhesives and Grout",
+    "subCategory": "Grout",
+    "description": "EUNITILE G2 (H) is an improved hydrophobic cementitious tile grout with high abrasion resistance. It is water-repellent and designed for use in submerged areas and swimming pools.",
+    "image": "/images/mock ups paper 2.png",
+    "uses": [
+      "Submerged areas and swimming pools",
+      "General use in wet and dry areas",
+      "Walls, floors, kitchens, and bathrooms",
+      "All types of tiles",
+      "Joint widths up to 10 mm"
+    ],
+    "advantages": [
+      "Water-repellent, minimizing efflorescence",
+      "Excellent adhesion",
+      "Clear, fade-resistant colors",
+      "Shrinkage resistant",
+      "High abrasion resistance"
+    ],
+    "standard": "ISO 13007-3, BS EN 13888 CG2 (AW), ANSI A118.6",
+    "mixing": "Add 1.750–1.875 liters per 5 kg bag",
+    "coverage": "Refer to TDS",
+    "packaging": "5 kg and 20 kg bags",
+    "storage": "Store in a cool, dry place. Shelf life: 12 months.",
+    "healthSafety": "Refer to MSDS."
+  }
+}
