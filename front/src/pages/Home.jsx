@@ -1,63 +1,37 @@
-import React, { useState, useEffect, useRef } from "react";
+import useHomeData from "../hooks/useHomeData";
+import { useState, useEffect, useRef } from "react";
+import { ArrowRight,ChevronRight,GraduationCap , Award, Globe, Users, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  ChevronRight,
-  GraduationCap,
-  Users,
-  Globe,
-  Award,
-  TrendingUp,
-} from "lucide-react";
+import api from "../api/axios";
 
-// --- Helper Component: Number Counter (للعداد الرقمي) ---
+
+// --- Helper Components ---
+
 const Counter = ({ end, duration = 2000, isVisible }) => {
-  // التصحيح هنا: استخدام useState بدلاً من setCount
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    let startTime = null;
-    let animationFrame;
-
-    const animate = (timestamp) => {
-      if (!isVisible) return;
-      if (!startTime) startTime = timestamp;
-
-      const progress = timestamp - startTime;
-      const percentage = Math.min(progress / duration, 1);
-
-      // معادلة Ease Out Quart لنعومة الحركة
-      const ease = 1 - Math.pow(1 - percentage, 4);
-
-      // استخدام Math.round لضمان الوصول لآخر رقم (مثلاً 500) بدون تعليق عند 499
-      const currentCount = Math.round(end * ease);
-
-      setCount(currentCount);
-
-      if (progress < duration) {
-        animationFrame = requestAnimationFrame(animate);
-      } else {
-        setCount(end); // التأكيد على الرقم النهائي
+    if (!isVisible) return;
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      setCount(Math.floor(progress * end));
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
       }
     };
-
-    if (isVisible) {
-      animationFrame = requestAnimationFrame(animate);
-    } else {
-      setCount(0); // إعادة العداد للصفر إذا خرج السكشن من الشاشة
-    }
-
-    return () => cancelAnimationFrame(animationFrame);
+    window.requestAnimationFrame(step);
   }, [end, duration, isVisible]);
 
-  return <span>{count}</span>;
+  return <>{count}</>;
 };
 
-const EngineeringConfidence = () => {
+const EngineeringConfidence = ({ data }) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const coreValues = [
+  const coreValues = data?.extra_data?.core_values_en || [
     "Always Exceed Expectations",
     "Delivering Our Promises",
     "Be Your Own Customer",
@@ -102,9 +76,9 @@ const EngineeringConfidence = () => {
           }`}
         >
           <h2 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-slate-900 tracking-tight leading-tight md:leading-[1.1]">
-            Engineered Products.
+            {data?.title_en || "Engineered Products."}
             <br />
-            <span className="text-[#ee2039]">Zero Compromise.</span>
+            <span className="text-[#ee2039]">{data?.description_en || "Zero Compromise."}</span>
           </h2>
         </div>
 
@@ -212,46 +186,51 @@ const EngineeringConfidence = () => {
     </section>
   );
 };
-const StatsSection = () => {
+
+// Update Child Components to accept props
+const StatsSection = ({ statsData }) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
 
+  // Map backend data to frontend structure
+  // statsData is an object: { stat_experience: { extra_data: { value: 37 } }, ... }
   const stats = [
     {
       id: 1,
-      value: 500,
-      suffix: "+",
-      label: "Years of Experience",
-      sub: "Since 1987",
+      value: statsData?.stat_experience?.extra_data?.value || 37,
+      suffix: statsData?.stat_experience?.extra_data?.suffix || "+",
+      label: statsData?.stat_experience?.title_en || "Years of Experience",
+      sub: statsData?.stat_experience?.description_en || "Since 1987",
       icon: <Award className="w-6 h-6 md:w-8 md:h-8 text-[#ee2039]" />,
     },
     {
       id: 2,
-      value: 500,
-      suffix: "",
-      label: "Countries",
-      sub: "MENA Presence",
+      value: statsData?.stat_countries?.extra_data?.value || 12,
+      suffix: statsData?.stat_countries?.extra_data?.suffix || "",
+      label: statsData?.stat_countries?.title_en || "Countries",
+      sub: statsData?.stat_countries?.description_en || "MENA Presence",
       icon: <Globe className="w-6 h-6 md:w-8 md:h-8 text-[#ee2039]" />,
     },
     {
       id: 3,
-      value: 500,
-      suffix: "+",
-      label: "Employees",
-      sub: "Dedicated Professionals",
+      value: statsData?.stat_employees?.extra_data?.value || 150,
+      suffix: statsData?.stat_employees?.extra_data?.suffix || "+",
+      label: statsData?.stat_employees?.title_en || "Employees",
+      sub: statsData?.stat_employees?.description_en || "Dedicated Professionals",
       icon: <Users className="w-6 h-6 md:w-8 md:h-8 text-[#ee2039]" />,
     },
     {
       id: 4,
-      value: 500,
-      suffix: "M+",
-      label: "Project Value",
-      sub: "Delivered Excellence",
+      value: statsData?.stat_projects?.extra_data?.value || 500,
+      suffix: statsData?.stat_projects?.extra_data?.suffix || "M+",
+      label: statsData?.stat_projects?.title_en || "Project Value",
+      sub: statsData?.stat_projects?.description_en || "Delivered Excellence",
       icon: <TrendingUp className="w-6 h-6 md:w-8 md:h-8 text-[#ee2039]" />,
     },
   ];
 
   useEffect(() => {
+    // ... (Keep existing observer logic)
     const observer = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
       { threshold: 0.2 },
@@ -302,7 +281,7 @@ const StatsSection = () => {
   );
 };
 
-const FeaturedProducts = () => {
+const FeaturedProducts = ({ products }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [showContent, setShowContent] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
@@ -311,7 +290,7 @@ const FeaturedProducts = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowContent(activeIndex);
-    }, 400); // تأخير بسيط لانتهاء حركة التوسع
+    }, 400); 
     return () => clearTimeout(timer);
   }, [activeIndex]);
 
@@ -331,53 +310,10 @@ const FeaturedProducts = () => {
     };
   }, []);
 
-  const products = [
-    {
-      id: 1,
-      name: "Euniflow Admixtures",
-      category: "Concrete Solutions",
-      image: "/images/mock ups paper.png",
-      description:
-        "High-performance superplasticizers for superior flow and strength. Engineered for the toughest site conditions.",
-      link: "/solutions#concrete-admixtures",
-    },
-    {
-      id: 2,
-      name: "TopSeal Waterproofing",
-      category: "Protection Systems",
-      image: "/images/mock ups paper 2.png",
-      description:
-        "Advanced crystalline technology for permanent water sealing. Ensures structural durability for a lifetime.",
-      link: "/solutions#waterproofing",
-    },
-    {
-      id: 3,
-      name: "Epoxy Grouting",
-      category: "Industrial Flooring",
-      image: "/images/mock ups waterproofing.png",
-      description:
-        "Heavy-duty chemical resistant grouts for industrial applications. Perfect for factories and warehouses.",
-      link: "/solutions#tile-adhesives",
-    },
-    {
-      id: 4,
-      name: "Repair Mortars",
-      category: "Restoration",
-      image: "/images/product4.png",
-      description:
-        "Structural grade repair systems for aging infrastructure. Restoring strength with precision.",
-      link: "/solutions#repair",
-    },
-    {
-      id: 5,
-      name: "Protective Coatings",
-      category: "Surface Treatment",
-      image: "/images/plastic bag-mock up.png",
-      description:
-        "Long-lasting protection against corrosion and weathering. Tested under extreme MENA climates.",
-      link: "/solutions#protective-coatings",
-    },
-  ];
+  // Use passed products or fallback
+  const displayProducts = products && products.length > 0 ? products : [];
+
+  if (displayProducts.length === 0) return null; // Don't render if no products
 
   return (
     <section
@@ -393,7 +329,7 @@ const FeaturedProducts = () => {
       </div>
 
       <div className="flex flex-col md:flex-row h-[850px] md:h-[600px] w-full max-w-[1400px] mx-auto overflow-hidden gap-3 px-2 md:px-8">
-        {products.map((product, index) => {
+        {displayProducts.map((product, index) => {
           const isActive = activeIndex === index;
           const isContentVisible = showContent === index;
 
@@ -406,37 +342,30 @@ const FeaturedProducts = () => {
         ${
           isActive 
             ? "flex-[10] md:flex-[5] z-10 shadow-2xl bg-transparent"
-            : "flex-[1] z-0 bg-[#ee2039]" // اللون المطلوبة للخلفية لما يكون مطفي
+            : "flex-[1] z-0 bg-[#ee2039]" 
         }`}
             >
-              {/* الصورة: تظهر فقط إذا كان isActive true */}
               {isActive && (
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
-                  style={{ backgroundImage: `url('${product.image}')` }}
+                  style={{ backgroundImage: `url('${product.image_url || product.image}')` }}
                 />
               )}
-
-              {/* Overlay: يظهر فوق الصورة في حالة الاكتف فقط */}
               {isActive && (
                 <div className="absolute inset-0 bg-black/60 transition-opacity duration-500" />
               )}
-
-              {/* Gradient الـ التدرج السفلي يظهر فقط في الاكتف */}
               {isActive && (
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
               )}
 
-              {/* العنوان الجانبي (لما يكون مطفي): الآن في المنتصف تماماً */}
               {!isActive && (
                 <div className="absolute inset-0 flex items-center  justify-center">
                   <h3 className="text-white font-bold uppercase tracking-widest text-lg md:rotate-[-90deg] whitespace-nowrap opacity-100">
-                    {product.category}
+                    {product.category?.name_en || product.category}
                   </h3>
                 </div>
               )}
 
-              {/* المحتوى (لما يكون شغال): رفعنا المحتوى للأعلى قليلاً (تغيير justify-end إلى justify-start أو إضافة padding top) */}
               {isActive && (
                 <div
                   className={`absolute inset-0 p-6 md:p-12 flex flex-col justify-start pt-16 z-20 transition-all duration-500 ${
@@ -446,23 +375,16 @@ const FeaturedProducts = () => {
                   }`}
                 >
                   <div className="w-full max-w-[90%] md:max-w-[420px]">
-                    {/* Category Label */}
                     <div className="inline-block py-1 px-2 rounded bg-[#ee2039] text-white text-[9px] md:text-[10px] font-bold uppercase mb-3 tracking-wider">
-                      {product.category}
+                      {product.category?.name_en || product.category}
                     </div>
-
-                    {/* Product Name */}
                     <h3 className="text-xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3 leading-[1.1] break-words drop-shadow-xl">
-                      {product.name}
+                      {product.name_en || product.name}
                     </h3>
-
-                    {/* Description */}
                     <p className="text-gray-200 text-xs md:text-sm lg:text-base mb-6 leading-relaxed opacity-90 line-clamp-3">
-                      {product.description}
+                      {product.description_en || product.description}
                     </p>
-
-                    {/* Action Button */}
-                    <Link to={product.link} className="inline-flex items-center gap-2 text-white text-xs md:text-sm font-bold group/btn cursor-pointer">
+                    <Link to={`/products/${product.slug}` || product.link} className="inline-flex items-center gap-2 text-white text-xs md:text-sm font-bold group/btn cursor-pointer">
                       <span className="border-b-2 border-[#ee2039] pb-0.5 transition-all">
                         View Details
                       </span>
@@ -481,59 +403,9 @@ const FeaturedProducts = () => {
   );
 };
 
-// --- 4. Certifications ---
-const Certifications = () => {
-  const certs = [
-    {
-      name: "ECA",
-      type: "Licensee Manufacturer",
-      image: "/images/ECA.png",
-      color: "text-blue-600",
-    },
-    {
-      name: "ISO 9001:2015",
-      type: "Quality Management",
-      image: "/images/Logo-ISO9001.png",
-      color: "text-green-600",
-    },
-    {
-      name: "ISO 14001:2015",
-      type: "Environment System",
-      image: "/images/LOGO+-+ISO+14001-2015+500px.webp",
-      color: "text-green-600",
-    },
-    {
-      name: "JEA",
-      type: "Jordan Engineers Assoc.",
-      image: "/images/JEA.jpg",
-      color: "text-slate-800",
-    },
-    {
-      name: "ASTM",
-      type: "Product Compliance",
-      image: "/images/astm1.png",
-      color: "text-blue-800",
-    },
-    {
-      name: "GCP Applied Tech",
-      type: "Historical Partner",
-      image: "/images/WOC_GCP.jpg",
-      color: "text-red-700",
-    },
-    {
-      name: "JCCA",
-      type: "Contractors Assoc.",
-      image: "/images/JCCA.png",
-      color: "text-slate-800",
-    },
-    {
-      name: "BS Standards",
-      type: "British Standards",
-      image: "/images/british-standards-institute.jpg",
-      color: "text-blue-800",
-    },
-  ];
-
+const Certifications = ({ certs }) => {
+  const displayCerts = certs || [];
+  
   return (
     <section className="py-16 bg-white border-t border-gray-100 overflow-hidden">
       <style>{`
@@ -560,7 +432,7 @@ const Certifications = () => {
         <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10"></div>
 
         <div className="flex w-max animate-scroll hover:[animation-play-state:paused]">
-          {[...certs, ...certs].map((cert, index) => (
+          {[...displayCerts, ...displayCerts].map((cert, index) => (
             <div
               key={index}
               className="flex flex-col items-center justify-center min-w-[200px] md:min-w-[280px] px-6 py-4 mx-2 group cursor-default transition-all duration-300"
@@ -569,7 +441,7 @@ const Certifications = () => {
                 className={`w-20 h-20 md:w-24 md:h-24 rounded-full bg-white flex items-center justify-center mb-4 transition-all duration-300 group-hover:shadow-xl border border-gray-100 group-hover:border-gray-200 overflow-hidden p-4`}
               >
                 <img
-                  src={cert.image}
+                  src={cert.image_url || cert.image} 
                   alt={cert.name}
                   className="w-full h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
                 />
@@ -577,7 +449,7 @@ const Certifications = () => {
               <h4 className="font-bold text-slate-700 text-sm md:text-base group-hover:text-black transition-colors">
                 {cert.name}
               </h4>
-              <p className="text-xs text-gray-300 uppercase tracking-wider font-medium group-hover:text-[#ee2039] transition-colors mt-1">
+              <p className="text-xs text-gray-500 uppercase tracking-wider font-bold group-hover:text-[#ee2039] transition-colors mt-2 text-center">
                 {cert.type}
               </p>
             </div>
@@ -588,60 +460,65 @@ const Certifications = () => {
   );
 };
 
-// --- 5. HomeCTA ---
-const HomeCTA = () => {
+const HomeCTA = ({ sections }) => {
+  const academy = sections?.cta_academy;
+  const partners = sections?.cta_partners;
+
   return (
     <section className="py-16 md:py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          {/* Academy CTA */}
           <div className="relative rounded-3xl overflow-hidden min-h-[300px] md:min-h-[400px] group cursor-pointer transform-gpu">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"></div>
-            <div className="absolute inset-0 bg-slate-900/80 group-hover:bg-slate-900/70 transition-colors duration-300"></ div>
-            <a href="Academy">
+             <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"
+                  style={{ backgroundImage: `url('${academy?.image_url || "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop"}')` }}></div>
+            <div className="absolute inset-0 bg-slate-900/80 group-hover:bg-slate-900/70 transition-colors duration-300"></div>
+            <a href={academy?.link_url || "/academy"}>
             <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 border border-blue-400/30">
                   <GraduationCap className="text-blue-400 w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 md:mb-4">
-                  AFG Academy
+                  {academy?.title_en || "AFG Academy"}
                 </h3>
                 <p className="text-gray-200 leading-relaxed max-w-md text-sm md:text-base">
-                  Empowering the next generation of engineers with hands-on
-                  training, technical workshops, and certification programs.
+                  {academy?.description_en || "Empowering the next generation..."}
                 </p>
               </div>
               <p
                 className="inline-flex items-center gap-2 text-white font-bold hover:gap-4 transition-all group-hover:text-blue-400 text-sm md:text-base"
               >
-                Join the Program{" "}
+                {academy?.btn_text_en || "Join the Program"}{" "}
                 <ArrowRight size={18} className="md:w-5 md:h-5" />
               </p>
             </div>
             </a>
           </div>
+          
+          {/* Partners CTA */}
           <div className="relative rounded-3xl overflow-hidden min-h-[300px] md:min-h-[400px] group cursor-pointer transform-gpu">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"></div>
+            <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"
+                 style={{ backgroundImage: `url('${partners?.image_url || "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=800&auto=format&fit=crop"}')` }}></div>
             
             <div className="absolute inset-0 bg-[#ee2039]/60 group-hover:bg-[#ee2039]/50 transition-colors duration-300"></div>
-            <a href="Partners">
+            <a href={partners?.link_url || "/partners"}>
             <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 border border-white/30">
                   <Users className="text-white w-5 h-5 md:w-6 md:h-6" />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 md:mb-4">
-                  Become a Partner
+                  {partners?.title_en || "Become a Partner"}
                 </h3>
                 <p className="text-white/90 leading-relaxed max-w-md text-sm md:text-base">
-                  Join our growing network of distributors and applicators
-                  across the MENA region. Let's build success together.
+                  {partners?.description_en || "Join our growing network..."}
                 </p>
               </div>
               <p
                 className="inline-flex items-center gap-2 text-white font-bold hover:gap-4 transition-all text-sm md:text-base"
               >
-                Apply for Partnership{" "}
+                {partners?.btn_text_en || "Apply for Partnership"}{" "}
                 <ArrowRight size={18} className="md:w-5 md:h-5" />
               </p>
             </div>
@@ -655,53 +532,31 @@ const HomeCTA = () => {
 
 // --- 6. Main Home Page Component ---
 const Home = () => {
-  const slides = [
-    {
-      id: 1,
-      image:
-        "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2070&auto=format&fit=crop",
-      subtitle: "Engineering Excellence Since 1987",
-      title: "Building the Future with",
-      highlight: "Confidence",
-      description:
-        "Your trusted partner for advanced construction chemicals and engineering solutions tailored for the MENA region.",
-    },
-    {
-      id: 2,
-      image:
-        "https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070&auto=format&fit=crop",
-      subtitle: "Technical Support & Consultancy",
-      title: "Expertise You Can ",
-      highlight: "Rely On",
-      description:
-        "From on-site inspections to tailored formulations, our engineers deliver solutions that solve your toughest challenges.",
-    },
-    {
-      id: 3,
-      image:
-        "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop",
-      subtitle: "Advanced Chemical Formulations",
-      title: "Innovation in Every ",
-      highlight: "Drop",
-      description:
-        "Sole licensed manufacturer of European Concrete Additives (ECA), bringing world-class technology to local markets.",
-    },
-  ];
-
+  const { hero, sections, certifications, featuredProducts, loading } = useHomeData();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [slides.length]);
+    if (hero.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev === hero.length - 1 ? 0 : prev + 1));
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [hero.length]);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center bg-black text-white">Loading...</div>; // Simplistic loader
+  }
+
+  // Fallback if hero is empty to prevent crash
+  if (!hero || hero.length === 0) return null; 
+
   return (
     <div className="flex flex-col w-full">
       {/* Hero Section */}
       <section className="relative w-full min-h-[calc(100vh-110px)] flex items-center mt-[110px] overflow-hidden bg-black">
         {/* Background Images */}
-        {slides.map((slide, index) => (
+        {hero.map((slide, index) => (
           <div
             key={slide.id}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
@@ -711,8 +566,8 @@ const Home = () => {
             <div
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
               style={{
-                backgroundImage: `url('${slide.image}')`,
-                opacity: 0.6, // تحسين الرؤية للنصوص
+                backgroundImage: `url('${slide.image_url}')`,
+                opacity: 0.6,
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/60"></div>
@@ -729,42 +584,41 @@ const Home = () => {
               {/* Badge/Subtitle */}
               <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 text-white border border-[#ee2039]/30 text-[10px] xs:text-xs md:text-sm font-bold tracking-[0.2em] uppercase mb-6 backdrop-blur-sm">
                 <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
-                {slides[currentSlide].subtitle}
+                {hero[currentSlide].subtitle_en}
               </div>
 
               {/* Main Title */}
               <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 tracking-tight leading-[1.2]">
-                {/* السطر الأول: نمنع تكسير النص هنا */}
                 <span className="whitespace-nowrap sm:whitespace-normal block sm:inline">
-                  {slides[currentSlide].title}
+                  {hero[currentSlide].title_en}
                 </span>
 
-                {/* السطر الثاني: نجبره ينزل سطر جديد */}
                 <span className="block text-[#ee2039]">
-                  {slides[currentSlide].highlight}
+                  {/* Assuming extra_data contains highlight word for now as per seeder */}
+                  {hero[currentSlide].extra_data?.highlight_en || "Excellence"}
                 </span>
               </h1>
 
               {/* Description */}
               <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 mb-10 leading-relaxed max-w-2xl mx-auto font-light">
-                {slides[currentSlide].description}
+                {hero[currentSlide].description_en}
               </p>
 
               {/* Call to Actions */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md sm:max-w-none">
-                <a
-                  href="Solutions"
+                <Link
+                  to={hero[currentSlide].btn_1_link || "/solutions"}
                   className="w-full sm:w-auto px-10 py-4 bg-[#ee2039] hover:bg-[#c41229] text-white rounded-md font-bold text-base transition-all duration-300 shadow-lg shadow-[#ee2039]/20 text-center active:scale-95"
                 >
-                  Explore Solutions
-                </a>
+                  {hero[currentSlide].btn_1_text_en}
+                </Link>
 
-                <a
-                  href="Projects"
+                <Link
+                  to="/projects"
                   className="w-full sm:w-auto px-10 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-md font-bold text-base backdrop-blur-md transition-all duration-300 text-center active:scale-95"
                 >
                   View Projects
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -772,7 +626,7 @@ const Home = () => {
 
         {/* Pagination Dots */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-          {slides.map((_, index) => (
+          {hero.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
@@ -787,15 +641,15 @@ const Home = () => {
         </div>
       </section>
 
-      <EngineeringConfidence />
+      <EngineeringConfidence data={sections?.engineering_confidence} />
 
-      <StatsSection />
+      <StatsSection statsData={sections} />
 
-      <FeaturedProducts />
+      <FeaturedProducts products={featuredProducts} />
 
-      <HomeCTA />
+      <HomeCTA sections={sections} />
 
-      <Certifications />
+      <Certifications certs={certifications} />
     </div>
   );
 };

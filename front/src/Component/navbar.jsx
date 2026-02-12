@@ -3,147 +3,21 @@ import { ChevronDown, Menu, X, Globe, ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom"; // استيراد Link و useLocation
 
 // --- بيانات القائمة ---
-const NAV_DATA = [
-  {
-    id: "services",
-    label: "Services",
-    type: "mega",
-    path: "/services",
-    columns: 2,
-    children: [
-      {
-        label: "Chemical Formulation",
-        desc: "Tailor-made solutions for Cement & Concrete",
-        path: "/services#chemical-formulation",
-      },
-      {
-        label: "Technical Support",
-        desc: "Inspection, Optimization & Testing",
-        path: "/services#technical-support",
-      },
-      {
-        label: "Consultancy & Specs",
-        desc: "Guidance, Recommendations & Training",
-        path: "/services#consultancy-specs",
-      },
-      {
-        label: "Quality Control",
-        desc: "Raw Material & Finished Goods Testing",
-        path: "/services#quality-control",
-      },
-      {
-        label: "Waterproofing Support",
-        desc: "Inspection, Recommendation & Application",
-        path: "/services#waterproofing-support",
-      },
-      { 
-        label: "Supply Chain", 
-        desc: "Logistics, Planning & Delivery",
-        path: "/services#supply-chain",
-      },
-      { 
-        label: "Turnkey Solutions", 
-        desc: "Storage, Dosing & Calibration",
-        path: "/services#turnkey-solutions",
-      },
-      {
-        label: "Maintenance & Repair",
-        desc: "Analysis, Recommendation & Execution",
-        path: "/services#maintenance-repair",
-      },
-    ],
-  },
-  {
-    id: "solutions",
-    label: "Solutions",
-    path: "/solutions",
-    type: "mega",
-    columns: 3,
-    children: [
-      { label: "Concrete Admixtures", path: "/solutions#concrete-admixtures" },
-      { label: "Cement Additives", path: "/solutions#cement-additives" },
-      { label: "Tile Adhesives & Grout", path: "/solutions#tile-adhesives" },
-      { label: "Concrete Repair", path: "/solutions#cementitious-repair" },
-      { label: "Protective Coating", path: "/solutions#protective-coating" },
-      { label: "Waterproofing", path: "/solutions#waterproofing" },
-      { label: "Surface Treatment", path: "/solutions#surface-treatments" },
-      { label: "Decorative Plastering", path: "/solutions#decorative" },
-      { label: "Flooring Products", path: "/solutions#flooring" },
-      { label: "Concrete Fibers", path: "/solutions#concrete-fibers" },
-      { label: "Sealants", path: "/solutions#sealants" },
-    ],
-  },
-  {
-
-    id: "sectors",
-    label: "Sectors",
-    type: "link",
-    href: "/sectors",
-  },
-  {
-    id: "projects",
-    label: "Projects",
-    path: "/projects",
-    type: "dropdown",
-    children: [
-      { label: "Algeria", path: "/projects?country=algeria" },
-      { label: "Jordan", path: "/projects?country=jordan" },
-      { label: "Iraq", path: "/projects?country=iraq" },
-      { label: "Lebanon", path: "/projects?country=lebanon" },
-      { label: "Saudi Arabia", path: "/projects?country=saudi-arabia" },
-    ],
-  },
-  {
-    id: "partners",
-    label: "Partners",
-    path: "/partners",
-    type: "dropdown",
-    children: [
-      { label: "ECA Partners", path: "/partners#eca-partnership" },
-      { label: "Become a Partner", path: "/partners#become-partner" },
-    ],
-  },
-  {
-    id: "sustainability",
-    label: "Sustainability",
-    type: "link",
-    href: "/sustainability",
-    path: "/sustainability", // Added path for consistency
-  },
-  {
-    id: "about",
-    label: "About Us",
-    path: "/about",
-    type: "dropdown",
-    children: [
-      { label: "Message from Founder", path: "/about#founder-message" },
-      { label: "Vision & Values", path: "/about#vision-values" },
-      { label: "Our Story", path: "/about#our-story" },
-      { label: "Why Us", path: "/about#why-us" },
-    ],
-  },
-  {
-    id: "academy",
-    label: "AFG Academy",
-    type: "link",
-    href: "/academy",
-    path: "/academy", // Added path for consistency
-  },
-];
+import useMenu from "../hooks/useMenu";
+import useSiteSettings from "../hooks/useSiteSettings";
 
 const Header = () => {
+  const { menuItems, loading: menuLoading } = useMenu();
+  const { regionalOffices } = useSiteSettings();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [mobileExpanded, setMobileExpanded] = useState({});
-  const location = useLocation(); // Get current location
+  const location = useLocation();
 
   // Helper to check if a path is active
   const isPathActive = (path) => {
     if (!path) return false;
-    // Check for exact match or if it starts with the path (for sub-routes)
-    // using startsWith allows /services/detail to keep Services active if needed
-    // But for now strict check on base path might be cleaner
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
   };
@@ -162,14 +36,12 @@ const Header = () => {
     setMobileExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const countries = [
-    { code: "jo", name: "Jordan" },
-    { code: "lb", name: "Lebanon" },
-    { code: "sa", name: "Saudi Arabia" },
-    { code: "dz", name: "Algeria" },
-    { code: "iq", name: "Iraq" },
-  ];
+  // Use menuItems from API instead of hardcoded NAV_DATA
+  const navData = menuItems || [];
+  // ... existing state ...
 
+  // Remove hardcoded countries array
+  
   return (
     <header className="w-full font-sans fixed top-0 left-0 z-[60] transition-all duration-300">
       {/* 1. Top Bar */}
@@ -178,17 +50,17 @@ const Header = () => {
       >
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 md:gap-3">
-            {countries.map((country) => (
+            {regionalOffices.map((office) => (
               <div
-                key={country.code}
+                key={office.id}
                 className="relative flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-full overflow-hidden shrink-0 hover:scale-110 transition-transform cursor-pointer border border-white/20 shadow-sm"
-                title={country.name}
+                title={office.country_name_en}
               >
                 <img
-                  src={`https://flagcdn.com/w80/${country.code}.png`}
-                  alt={country.name}
+                  src={`https://flagcdn.com/w80/${office.country_code}.png`}
+                  alt={office.country_name_en}
                   className={`w-full h-full object-cover opacity-90 hover:opacity-100 ${
-                    country.code === "jo" ? "object-left" : "object-center"
+                    office.country_code === "jo" ? "object-left" : "object-center"
                   }`}
                 />
               </div>
@@ -234,7 +106,7 @@ const Header = () => {
 
         {/* Desktop Nav */}
         <nav className="hidden min-[1089px]:flex items-center gap-6 xl:gap-9 font-semibold text-slate-800 text-[14px]">
-          {NAV_DATA.map((item, index) => {
+          {navData.map((item, index) => {
             const isActive = isPathActive(item.path || item.href);
 
             if (item.type === "link") {
@@ -244,7 +116,7 @@ const Header = () => {
                   to={item.href || item.path}
                   className={`relative group py-6 flex items-center gap-1 transition-colors ${isActive ? "text-[#ee2039]" : "hover:text-[#ee2039]"}`}
                 >
-                  {item.label}
+                  {item.label_en}
                   <span className={`absolute bottom-6 left-0 h-[2px] bg-[#ee2039] transition-all duration-300 ${isActive ? "w-full opacity-100" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-100"}`}></span>
                 </Link>
               );
@@ -264,7 +136,7 @@ const Header = () => {
                     if (!item.path) e.preventDefault();
                   }}
                 >
-                  {item.label}
+                  {item.label_en}
                   <ChevronDown
                     size={11}
                     strokeWidth={3}
@@ -280,7 +152,7 @@ const Header = () => {
                   ${activeDropdown === item.id ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"} 
                   ${
                     item.type === "mega"
-                      ? `w-[900px] p-8 rounded-b-xl ${item.id === "solutions" ? "left-1/2 -translate-x-1/2" : "left-0"}`
+                      ? `w-[900px] p-8 rounded-b-xl ${item.key === "solutions" ? "left-1/2 -translate-x-1/2" : "left-0"}`
                       : `w-60 p-3 rounded-b-lg ${index > 4 ? "right-0" : "left-0"}`
                   } 
                   z-50`}
@@ -299,11 +171,11 @@ const Header = () => {
                           <div className="w-[3px] h-0 bg-[#ee2039] group-hover/item:h-full transition-all duration-300 rounded-full mt-1"></div>
                           <div className="flex flex-col">
                             <span className="text-[14px] font-bold text-slate-800 group-hover/item:text-[#ee2039] transition-colors leading-tight">
-                              {subItem.label}
+                              {subItem.label_en}
                             </span>
-                            {subItem.desc && (
+                            {subItem.description_en && (
                               <span className="text-[12px] text-gray-400 mt-1.5 leading-relaxed font-normal">
-                                {subItem.desc}
+                                {subItem.description_en}
                               </span>
                             )}
                           </div>
@@ -319,7 +191,7 @@ const Header = () => {
                           className="block px-4 py-2.5 text-[13px] text-slate-600 hover:text-[#ee2039] hover:bg-gray-50 rounded-md transition-all font-medium text-left"
                           onClick={() => setActiveDropdown(null)}
                         >
-                          {subItem.label}
+                          {subItem.label_en}
                         </Link>
                       ))}
                     </div>
@@ -363,7 +235,7 @@ const Header = () => {
           </div>
           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
             <nav className="flex flex-col space-y-2">
-              {NAV_DATA.map((item) => {
+              {navData.map((item) => {
                 const isActive = isPathActive(item.path || item.href);
                 if (item.type === "link") {
                   return (
@@ -373,7 +245,7 @@ const Header = () => {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`block py-3 px-2 font-bold text-[15px] border-b border-gray-50 last:border-0 ${isActive ? "text-[#ee2039]" : "text-slate-800 hover:text-[#ee2039]"}`}
                     >
-                      {item.label}
+                      {item.label_en}
                     </Link>
                   );
                 }
@@ -386,7 +258,7 @@ const Header = () => {
                       onClick={() => toggleMobileGroup(item.id)}
                       className={`flex w-full justify-between items-center py-4 px-2 font-bold text-[15px] transition-colors ${mobileExpanded[item.id] || isActive ? "text-[#ee2039]" : "text-slate-800"}`}
                     >
-                      {item.label}
+                      {item.label_en}
                       <ChevronRight
                         size={18}
                         className={`transition-transform duration-300 ${mobileExpanded[item.id] ? "rotate-90 text-[#ee2039]" : "text-gray-300"}`}
@@ -403,7 +275,7 @@ const Header = () => {
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="block py-2.5 px-4 text-[13px] text-gray-600 hover:text-[#ee2039] hover:bg-white rounded-lg transition-all font-medium"
                           >
-                            {sub.label}
+                            {sub.label_en}
                           </Link>
                         ))}
                       </div>

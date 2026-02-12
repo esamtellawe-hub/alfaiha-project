@@ -327,7 +327,7 @@ const SECTORS_DATA = [
     icon: <Briefcase />,
     description:
       "Hygienic solutions for hospitals, clinics, and sterile areas.",
-    tabs: ["Hospitals", "Clinics", "Laboratories", "Sterile Rooms"], // أضفت تابس هنا للتجربة
+    tabs: ["Hospitals", "Clinics", "Laboratories", "Sterile Rooms"],
     areas: [
       {
         id: "operating",
@@ -356,7 +356,7 @@ const SECTORS_DATA = [
     title: "Hospitality",
     icon: <LayoutGrid />,
     description: "Aesthetic & durable solutions for hotels and resorts.",
-    tabs: ["Hotels", "Resorts", "Restaurants", "Recreational Facilities"], // أضفت تابس هنا للتجربة
+    tabs: ["Hotels", "Resorts", "Restaurants", "Recreational Facilities"],
     areas: [
       {
         id: "lobbies",
@@ -1280,7 +1280,7 @@ const SECTORS_DATA = [
 const getSolutionLink = (productName) => {
   const mapping = {
     "Waterproofing Products": "waterproofing",
-    "Sealants": "sealants",
+    Sealants: "sealants",
     "Concrete Repair": "cementitious-repair",
     "Concrete Repair Products": "cementitious-repair",
     "Protective Coatings": "protective-coating",
@@ -1301,7 +1301,7 @@ const getSolutionLink = (productName) => {
   if (solutionId) {
     return `/solutions#${solutionId}`;
   }
-  
+
   // Fallback: use search query
   return `/solutions?search=${encodeURIComponent(productName)}`;
 };
@@ -1313,122 +1313,132 @@ const getProductCategoryInfo = (name) => {
   const categoryData = {
     "Waterproofing Products": {
       icon: <Droplets size={32} />,
-      description: "Advanced waterproofing systems for roofs, basements, and wet areas",
+      description:
+        "Advanced waterproofing systems for roofs, basements, and wet areas",
       color: "bg-blue-50",
-      iconColor: "text-blue-600"
+      iconColor: "text-blue-600",
     },
-    "Sealants": {
+    Sealants: {
       icon: <Box size={32} />,
-      description: "Flexible joint sealants for construction and infrastructure",
+      description:
+        "Flexible joint sealants for construction and infrastructure",
       color: "bg-purple-50",
-      iconColor: "text-purple-600"
+      iconColor: "text-purple-600",
     },
     "Concrete Repair": {
       icon: <Hammer size={32} />,
-      description: "Restoration mortars and repair systems for damaged concrete",
+      description:
+        "Restoration mortars and repair systems for damaged concrete",
       color: "bg-orange-50",
-      iconColor: "text-orange-600"
+      iconColor: "text-orange-600",
     },
     "Concrete Repair Products": {
       icon: <Hammer size={32} />,
-      description: "Restoration mortars and repair systems for damaged concrete",
+      description:
+        "Restoration mortars and repair systems for damaged concrete",
       color: "bg-orange-50",
-      iconColor: "text-orange-600"
+      iconColor: "text-orange-600",
     },
     "Protective Coatings": {
       icon: <PaintBucket size={32} />,
       description: "Surface protection against carbonation and chemical attack",
       color: "bg-green-50",
-      iconColor: "text-green-600"
+      iconColor: "text-green-600",
     },
     "Flooring Products": {
       icon: <Grid size={32} />,
       description: "Industrial and decorative flooring solutions",
       color: "bg-indigo-50",
-      iconColor: "text-indigo-600"
+      iconColor: "text-indigo-600",
     },
     "Tile Adhesives & Grouts": {
       icon: <Layers size={32} />,
       description: "High-performance tile fixing systems and grouts",
       color: "bg-pink-50",
-      iconColor: "text-pink-600"
+      iconColor: "text-pink-600",
     },
     "Concrete Admixtures": {
       icon: <Beaker size={32} />,
       description: "Performance enhancers for strength and durability",
       color: "bg-cyan-50",
-      iconColor: "text-cyan-600"
+      iconColor: "text-cyan-600",
     },
     "Concrete Fibers": {
       icon: <Grid size={32} />,
       description: "Fiber reinforcement to control cracking",
       color: "bg-teal-50",
-      iconColor: "text-teal-600"
+      iconColor: "text-teal-600",
     },
     "Concrete Fiber": {
       icon: <Grid size={32} />,
       description: "Fiber reinforcement to control cracking",
       color: "bg-teal-50",
-      iconColor: "text-teal-600"
+      iconColor: "text-teal-600",
     },
     "Surface Treatments": {
       icon: <Layers size={32} />,
       description: "Curing compounds and surface protection agents",
       color: "bg-amber-50",
-      iconColor: "text-amber-600"
+      iconColor: "text-amber-600",
     },
     "Plastering Textured Products": {
       icon: <PaintBucket size={32} />,
       description: "Decorative finish plasters and textured coatings",
       color: "bg-rose-50",
-      iconColor: "text-rose-600"
+      iconColor: "text-rose-600",
     },
     "Plastering Textured": {
       icon: <PaintBucket size={32} />,
       description: "Decorative finish plasters and textured coatings",
       color: "bg-rose-50",
-      iconColor: "text-rose-600"
+      iconColor: "text-rose-600",
     },
     "Anchoring and Grouts": {
       icon: <Hammer size={32} />,
       description: "High-strength anchoring and grouting systems",
       color: "bg-slate-50",
-      iconColor: "text-slate-600"
+      iconColor: "text-slate-600",
     },
     "Cement additives": {
       icon: <Grid size={32} />,
       description: "Grinding aids and performance enhancers for cement",
       color: "bg-gray-50",
-      iconColor: "text-gray-600"
+      iconColor: "text-gray-600",
     },
     "Products Coatings": {
       icon: <PaintBucket size={32} />,
       description: "Protective coating systems",
       color: "bg-green-50",
-      iconColor: "text-green-600"
-    }
+      iconColor: "text-green-600",
+    },
   };
 
-  return categoryData[name] || {
-    icon: <Box size={32} />,
-    description: "Professional construction solutions",
-    color: "bg-gray-50",
-    iconColor: "text-gray-600"
-  };
+  return (
+    categoryData[name] || {
+      icon: <Box size={32} />,
+      description: "Professional construction solutions",
+      color: "bg-gray-50",
+      iconColor: "text-gray-600",
+    }
+  );
 };
 
 // كرت المنتج المحسّن
 const ProductCard = ({ name }) => {
   const info = getProductCategoryInfo(name);
-  
+
   return (
-    <Link 
+    <Link
       to={getSolutionLink(name)}
       className="bg-white rounded-2xl border border-gray-100 hover:border-[#ee2039] hover:shadow-xl transition-all duration-300 group/product flex flex-col h-full overflow-hidden cursor-pointer"
     >
       {/* Header with Icon */}
-      <div className={`${info.color} p-6 flex items-center justify-center transition-colors duration-300 group-hover/product:bg-[#ee2039]/5`}>
-        <div className={`${info.iconColor} group-hover/product:text-[#ee2039] transition-colors duration-300`}>
+      <div
+        className={`${info.color} p-6 flex items-center justify-center transition-colors duration-300 group-hover/product:bg-[#ee2039]/5`}
+      >
+        <div
+          className={`${info.iconColor} group-hover/product:text-[#ee2039] transition-colors duration-300`}
+        >
           {info.icon}
         </div>
       </div>
@@ -1461,7 +1471,7 @@ const ProductCard = ({ name }) => {
 const Sectors = () => {
   // Detect if desktop or mobile on initial load
   const getInitialSectorId = () => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // Desktop: lg breakpoint is 1024px in Tailwind
       return window.innerWidth >= 1024 ? SECTORS_DATA[0].id : null;
     }
@@ -1489,8 +1499,8 @@ const Sectors = () => {
       // No action needed - let user control
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [activeSectorId]);
 
   // --- Handle URL Hash Navigation ---
@@ -1498,7 +1508,7 @@ const Sectors = () => {
   useEffect(() => {
     if (location.hash) {
       const sectorId = location.hash.replace("#", "");
-      const sector = SECTORS_DATA.find(s => s.id === sectorId);
+      const sector = SECTORS_DATA.find((s) => s.id === sectorId);
       if (sector) {
         setActiveSectorId(sectorId);
         setTimeout(() => {
@@ -1547,9 +1557,9 @@ const Sectors = () => {
   const activeSector = useMemo(() => {
     const found = filteredSectors.find((s) => s.id === activeSectorId);
     if (found) return found;
-    
+
     // Fallback: on desktop (lg+), show first sector; on mobile, show nothing
-    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
       return filteredSectors[0] || null;
     }
     return null;
@@ -1632,8 +1642,7 @@ const Sectors = () => {
                   <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 px-2">
                     Select Industry
                   </h3>
-                  {/* Scrollable Container */}
-                  <div className="flex flex-col gap-3 max-h-[calc(100vh-300px)] overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
+                  <div className="flex flex-col gap-3">
                     {filteredSectors.map((sector) => (
                       <button
                         key={sector.id}
@@ -1684,7 +1693,9 @@ const Sectors = () => {
                       <div className="relative z-10 mb-8 pb-8 border-b border-gray-100">
                         <div className="flex items-start gap-5">
                           <div className="w-14 h-14 bg-[#ee2039] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#ee2039]/30 shrink-0">
-                            {React.cloneElement(activeSector.icon, { size: 28 })}
+                            {React.cloneElement(activeSector.icon, {
+                              size: 28,
+                            })}
                           </div>
                           <div className="flex-1">
                             <h2 className="text-3xl font-bold text-slate-900">
@@ -1761,7 +1772,7 @@ const Sectors = () => {
                               </span>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto max-h-[500px] pr-2 scrollbar-thin scrollbar-thumb-gray-200">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {activeArea.products.map((product, idx) => (
                                 <ProductCard key={idx} name={product} />
                               ))}
@@ -1800,9 +1811,7 @@ const Sectors = () => {
                         {React.cloneElement(sector.icon, { size: 18 })}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-bold text-sm">
-                          {sector.title}
-                        </h4>
+                        <h4 className="font-bold text-sm">{sector.title}</h4>
                         <p className="text-[10px] mt-0.5 text-gray-400">
                           {sector.areas.length} Areas
                         </p>
@@ -1824,7 +1833,9 @@ const Sectors = () => {
                         <div className="mb-6 pb-6 border-b border-gray-100">
                           <div className="flex items-start gap-4">
                             <div className="w-12 h-12 bg-[#ee2039] rounded-xl flex items-center justify-center text-white shadow-lg shadow-[#ee2039]/30 shrink-0">
-                              {React.cloneElement(activeSector.icon, { size: 24 })}
+                              {React.cloneElement(activeSector.icon, {
+                                size: 24,
+                              })}
                             </div>
                             <div className="flex-1">
                               <h2 className="text-xl font-bold text-slate-900">
@@ -1835,19 +1846,23 @@ const Sectors = () => {
                               </p>
 
                               {/* Tabs */}
-                              {activeSector.tabs && activeSector.tabs.length > 0 && (
-                                <div className="mt-3 flex flex-wrap gap-1.5">
-                                  {activeSector.tabs.map((tab, idx) => (
-                                    <span
-                                      key={idx}
-                                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wide bg-red-50 text-[#ee2039] border border-[#ee2039]/10"
-                                    >
-                                      <CheckCircle2 size={10} strokeWidth={3} />
-                                      {tab}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
+                              {activeSector.tabs &&
+                                activeSector.tabs.length > 0 && (
+                                  <div className="mt-3 flex flex-wrap gap-1.5">
+                                    {activeSector.tabs.map((tab, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wide bg-red-50 text-[#ee2039] border border-[#ee2039]/10"
+                                      >
+                                        <CheckCircle2
+                                          size={10}
+                                          strokeWidth={3}
+                                        />
+                                        {tab}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
                             </div>
                           </div>
                         </div>
@@ -1898,7 +1913,7 @@ const Sectors = () => {
                               </span>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200">
+                            <div className="grid grid-cols-1 gap-3">
                               {activeArea.products.map((product, idx) => (
                                 <ProductCard key={idx} name={product} />
                               ))}

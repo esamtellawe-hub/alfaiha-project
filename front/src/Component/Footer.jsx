@@ -11,7 +11,11 @@ import {
   Send,
 } from "lucide-react";
 
+import useSiteSettings from "../hooks/useSiteSettings";
+
 const Footer = () => {
+  const { settings, regionalOffices } = useSiteSettings();
+
   return (
     <footer className="bg-[#0a0a0a] text-white pt-12 pb-6 border-t border-gray-900 font-sans">
       <div className="container mx-auto px-4">
@@ -25,7 +29,7 @@ const Footer = () => {
                 className="inline-block transition-transform duration-300 hover:scale-105"
               >
                 <img
-                  src="/images/Al Faiha-Logo-EN-WT-landscape.png"
+                  src={settings.site_logo || "/images/Al Faiha-Logo-EN-WT-landscape.png"}
                   alt="Logo"
                   /* التعديل هنا: إضافة -mt-2 لرفع الصورة للأعلى */
                   className="h-20 md:h-24 lg:h-28 w-auto object-contain object-left -mt-2 md:-mt-3 lg:-mt-4"
@@ -38,18 +42,30 @@ const Footer = () => {
             </p>
 
             <div className="flex gap-4 pt-4">
-              <SocialIcon
-                icon={<Linkedin size={18} />}
-                href="https://www.linkedin.com/company/alfaihaengineering/"
-              />
-              <SocialIcon
-                icon={<Facebook size={18} />}
-                href="https://www.facebook.com/alfaihajo/"
-              />
-              <SocialIcon
-                icon={<Instagram size={18} />}
-                href="https://www.instagram.com/alfaihajo/"
-              />
+              {settings.linkedin_url && (
+                <SocialIcon
+                  icon={<Linkedin size={18} />}
+                  href={settings.linkedin_url}
+                />
+              )}
+              {settings.facebook_url && (
+                <SocialIcon
+                  icon={<Facebook size={18} />}
+                  href={settings.facebook_url}
+                />
+              )}
+              {settings.instagram_url && (
+                <SocialIcon
+                  icon={<Instagram size={18} />}
+                  href={settings.instagram_url}
+                />
+              )}
+              {settings.twitter_url && (
+                <SocialIcon
+                  icon={<Twitter size={18} />}
+                  href={settings.twitter_url}
+                />
+              )}
             </div>
           </div>
 
@@ -75,21 +91,14 @@ const Footer = () => {
               Our Offices
             </h3>
             <div className="space-y-6 text-sm text-gray-400">
-              <OfficeItem
-                country="Jordan"
-                location="Amman, Industrial Area"
-                phone="+962 6 123 4567"
-              />
-              <OfficeItem
-                country="Saudi Arabia"
-                location="Riyadh, Business District"
-                phone="+966 11 123 4567"
-              />
-              <OfficeItem
-                country="Iraq"
-                location="Baghdad, Al-Jadriyah"
-                phone="+964 77 123 4567"
-              />
+              {regionalOffices.slice(0, 3).map((office) => (
+                <OfficeItem
+                  key={office.id}
+                  country={office.country_name_en}
+                  location={office.email} 
+                  phone={office.phone}
+                />
+              ))}
 
               {/* Collapsible or Link for more */}
               <a
