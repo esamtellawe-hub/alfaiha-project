@@ -59,15 +59,13 @@ const Footer = () => {
               Media & Careers
             </h3>
             <ul className="space-y-4 text-sm text-gray-400">
-              <FooterLink href="#">News & Press Releases</FooterLink>
-              <FooterLink href="#">Our Blogs</FooterLink>
-              <FooterLink href="#">Company Profile</FooterLink>
+              <FooterLink href="/news">News & Press Releases</FooterLink>
+              <FooterLink href="/blog">Our Blogs</FooterLink>
+              <FooterLink href="/about">Company Profile</FooterLink>
               <li className="pt-2 border-t border-gray-800"></li>
-              <FooterLink href="#" highlight>
-                Join Our Team (Careers)
-              </FooterLink>
-              <FooterLink href="#">Job Descriptions</FooterLink>
-              <FooterLink href="#">Application Form</FooterLink>
+              
+              <FooterLink href="/careers">Job Descriptions</FooterLink>
+              <FooterLink href="/application-form">Application Form</FooterLink>
             </ul>
           </div>
 
@@ -78,7 +76,7 @@ const Footer = () => {
             </h3>
             <div className="space-y-6 text-sm text-gray-400">
               <OfficeItem
-                country="Jordan (HQ)"
+                country="Jordan"
                 location="Amman, Industrial Area"
                 phone="+962 6 123 4567"
               />

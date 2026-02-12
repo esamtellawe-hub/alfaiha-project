@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   ChevronRight,
@@ -54,30 +55,26 @@ const Counter = ({ end, duration = 2000, isVisible }) => {
 
 const EngineeringConfidence = () => {
   const [isVisible, setIsVisible] = useState(false);
-
   const sectionRef = useRef(null);
 
   const coreValues = [
     "Always Exceed Expectations",
-
     "Delivering Our Promises",
-
     "Be Your Own Customer",
-
     "Continuous Improvement",
-
     "Honesty",
-
     "Courage",
-
     "We Listen, We Care, We Serve",
   ];
+
+  // هذا هو مسار الخط البياني
+  const pathData =
+    "M0,200 L180,200 L180,140 L210,140 L210,200 L240,200 L240,80 L280,80 L280,200 L310,200 L310,110 L350,110 L350,200 L380,200 L380,20 L420,20 L420,200 L450,200 L450,70 L490,70 L490,200 L520,200 L520,130 L560,130 L560,200 L590,200 L590,90 L630,90 L630,200 L800,200";
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
-
-      { threshold: 0.3 }, // قللت الـ threshold شوي عشان يشتغل أسرع عالموبايل
+      { threshold: 0.5 },
     );
 
     if (sectionRef.current) observer.observe(sectionRef.current);
@@ -92,17 +89,17 @@ const EngineeringConfidence = () => {
       ref={sectionRef}
       className="relative w-full py-16 md:py-24 bg-white overflow-hidden flex flex-col items-center justify-center text-center font-sans z-20 border-b border-gray-100"
     >
-      {/* شبكة هندسية خلفية */}
-
+      {/* خلفية الشبكة الهندسية */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#000000_1px,transparent_1px),linear-gradient(to_bottom,#000000_1px,transparent_1px)] bg-[size:20px_20px] md:bg-[size:40px_40px]"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4">
         {/* العناوين الرئيسية */}
-
         <div
-          className={`mb-12 md:mb-16 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+          className={`mb-12 md:mb-16 transition-all duration-1000 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
         >
           <h2 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-slate-900 tracking-tight leading-tight md:leading-[1.1]">
             Engineered Products.
@@ -111,8 +108,7 @@ const EngineeringConfidence = () => {
           </h2>
         </div>
 
-        {/* سكشن الأبراج الهندسية */}
-
+        {/* سكشن الرسم الهندسي */}
         <div className="relative w-full max-w-3xl mx-auto h-32 md:h-48 flex items-end justify-center">
           <svg
             width="100%"
@@ -121,37 +117,57 @@ const EngineeringConfidence = () => {
             preserveAspectRatio="none"
             className="overflow-visible"
           >
+            {/* الخط الأحمر المتحرك */}
             <path
-              d="M0,200 L180,200 L180,140 L210,140 L210,200 L240,200 L240,80 L280,80 L280,200 L310,200 L310,110 L350,110 L350,200 L380,200 L380,20 L420,20 L420,200 L450,200 L450,70 L490,70 L490,200 L520,200 L520,130 L560,130 L560,200 L590,200 L590,90 L630,90 L630,200 L800,200"
+              d={pathData}
               fill="none"
               stroke="#ee2039"
               strokeWidth="1.5"
               className="drop-shadow-[0_0_8px_rgba(238,32,57,0.4)]"
-              strokeDasharray="2500"
-              strokeDashoffset={isVisible ? "0" : "2500"}
+              // pathLength="1" هي السر لجعل طول المسار يعامل كـ 1 وبالتالي يتزامن مع النسبة المئوية للمثلث
+              pathLength="1"
+              strokeDasharray="1"
+              strokeDashoffset={isVisible ? "0" : "1"}
               style={{
-                transition: "stroke-dashoffset 3s cubic-bezier(0.4, 0, 0.2, 1)",
+                transition: "stroke-dashoffset 5s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
               strokeLinejoin="round"
               strokeLinecap="round"
             />
 
+            {/* المثلث المتحرك (Play Icon) الذي يتبع المسار */}
+            <g
+              style={{
+                offsetPath: `path('${pathData}')`,
+                offsetDistance: isVisible ? "100%" : "0%",
+                transition: "offset-distance 5s cubic-bezier(0.4, 0, 0.2, 1)",
+                offsetRotate: "0deg",
+              }}
+            >
+              <polygon
+                points="-6,-6 6,0 -6,6"
+                fill="#ee2039"
+                className={`drop-shadow-[0_0_10px_rgba(238,32,57,0.8)] transition-opacity duration-300 ${
+                  isVisible ? "opacity-100" : "opacity-0"
+                }`}
+                transform="translate(0, 0)"
+              />
+            </g>
+
+            {/* الدوائر البيضاء عند الزوايا */}
             {[
               { x: 180, y: 140 },
               { x: 210, y: 140 },
               { x: 240, y: 80 },
               { x: 280, y: 80 },
-
               { x: 310, y: 110 },
               { x: 350, y: 110 },
               { x: 380, y: 20 },
               { x: 420, y: 20 },
-
               { x: 450, y: 70 },
               { x: 490, y: 70 },
               { x: 520, y: 130 },
               { x: 560, y: 130 },
-
               { x: 590, y: 90 },
               { x: 630, y: 90 },
             ].map((point, i) => (
@@ -163,38 +179,29 @@ const EngineeringConfidence = () => {
                 fill="white"
                 stroke="#ee2039"
                 strokeWidth="1"
-                className={`transition-opacity duration-500 delay-[2.5s] ${isVisible ? "opacity-100" : "opacity-0"}`}
+                className={`transition-opacity duration-500 delay-[2.5s] ${
+                  isVisible ? "opacity-100" : "opacity-0"
+                }`}
               />
             ))}
           </svg>
-
-          {/* نقطة التوهج - المعين صار مثلث (Polygon) */}
-
-          <div
-            className={`absolute -top-3 left-[50%] -translate-x-1/2 w-4 h-4 bg-[#ee2039] transition-all duration-1000 delay-[2.8s] shadow-[0_0_20px_rgba(238,32,57,0.8)] ${
-              isVisible ? "scale-100 opacity-100" : "scale-0 opacity-0"
-            }`}
-            style={{ clipPath: "polygon(0% 0%, 100% 50%, 0% 100%)" }}
-          ></div>
         </div>
 
-        {/* القيم الجوهرية الـ 7 الجديدة */}
-
+        {/* القيم الجوهرية */}
         <div
-          className={`mt-16 flex flex-wrap justify-center gap-y-6 gap-x-8 md:gap-x-12 max-w-6xl mx-auto transition-all duration-1000 delay-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+          className={`mt-16 flex flex-wrap justify-center gap-y-6 gap-x-8 md:gap-x-12 max-w-6xl mx-auto transition-all duration-1000 delay-700 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
         >
           {coreValues.map((item, i) => (
             <span
               key={i}
-              className="flex items-center gap-3 text-gray-600 hover:text-black transition-colors duration-300 group cursor-default whitespace-nowrap"
+              className="flex items-center gap-3 text-gray-800 hover:text-black transition-colors duration-300 group cursor-default whitespace-nowrap"
             >
-              {/* أيقونة المثلث الصغير */}
-
               <div
                 className="w-2.5 h-2.5 bg-[#ee2039] group-hover:translate-x-1 transition-transform "
                 style={{ clipPath: "polygon(0% 0%, 100% 50%, 0% 100%)" }}
               ></div>
-
               <span className="font-bold tracking-wider uppercase text-[10px] sm:text-xs md:text-sm">
                 {item}
               </span>
@@ -205,7 +212,6 @@ const EngineeringConfidence = () => {
     </section>
   );
 };
-
 const StatsSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -284,10 +290,10 @@ const StatsSection = () => {
                   {stat.suffix}
                 </span>
               </div>
-              <h3 className="text-sm md:text-base font-bold text-gray-200 uppercase tracking-wider mb-1">
+              <h3 className="text-sm md:text-base font-bold text-gray-500 uppercase tracking-wider mb-1">
                 {stat.label}
               </h3>
-              <p className="text-xs text-gray-500">{stat.sub}</p>
+              <p className="text-xs text-gray-700">{stat.sub}</p>
             </div>
           ))}
         </div>
@@ -333,7 +339,7 @@ const FeaturedProducts = () => {
       image: "/images/mock ups paper.png",
       description:
         "High-performance superplasticizers for superior flow and strength. Engineered for the toughest site conditions.",
-      link: "#product-1",
+      link: "/solutions#concrete-admixtures",
     },
     {
       id: 2,
@@ -342,7 +348,7 @@ const FeaturedProducts = () => {
       image: "/images/mock ups paper 2.png",
       description:
         "Advanced crystalline technology for permanent water sealing. Ensures structural durability for a lifetime.",
-      link: "#product-2",
+      link: "/solutions#waterproofing",
     },
     {
       id: 3,
@@ -351,7 +357,7 @@ const FeaturedProducts = () => {
       image: "/images/mock ups waterproofing.png",
       description:
         "Heavy-duty chemical resistant grouts for industrial applications. Perfect for factories and warehouses.",
-      link: "#product-3",
+      link: "/solutions#tile-adhesives",
     },
     {
       id: 4,
@@ -360,7 +366,7 @@ const FeaturedProducts = () => {
       image: "/images/product4.png",
       description:
         "Structural grade repair systems for aging infrastructure. Restoring strength with precision.",
-      link: "#product-4",
+      link: "/solutions#repair",
     },
     {
       id: 5,
@@ -369,7 +375,7 @@ const FeaturedProducts = () => {
       image: "/images/plastic bag-mock up.png",
       description:
         "Long-lasting protection against corrosion and weathering. Tested under extreme MENA climates.",
-      link: "#product-5",
+      link: "/solutions#protective-coatings",
     },
   ];
 
@@ -396,9 +402,9 @@ const FeaturedProducts = () => {
               key={product.id}
               onMouseEnter={() => setActiveIndex(index)}
               onClick={() => setActiveIndex(index)}
-              className={`relative rounded-3xl overflow-hidden cursor-pointer transition-[flex] duration-500 ease-out transform-gpu 
+              className={`relative rounded-3xl overflow-hidden cursor-pointer transition-[flex] duration-1000 ease-out transform-gpu 
         ${
-          isActive
+          isActive 
             ? "flex-[10] md:flex-[5] z-10 shadow-2xl bg-transparent"
             : "flex-[1] z-0 bg-[#ee2039]" // اللون المطلوبة للخلفية لما يكون مطفي
         }`}
@@ -456,14 +462,14 @@ const FeaturedProducts = () => {
                     </p>
 
                     {/* Action Button */}
-                    <div className="inline-flex items-center gap-2 text-white text-xs md:text-sm font-bold group/btn cursor-pointer">
+                    <Link to={product.link} className="inline-flex items-center gap-2 text-white text-xs md:text-sm font-bold group/btn cursor-pointer">
                       <span className="border-b-2 border-[#ee2039] pb-0.5 transition-all">
                         View Details
                       </span>
                       <div className="bg-[#ee2039] p-1 rounded-full text-white transition-transform group-hover:translate-x-1">
                         <ChevronRight size={14} />
                       </div>
-                    </div>
+                    </Link>
                   </div>
                 </div>
               )}
@@ -544,7 +550,7 @@ const Certifications = () => {
         <h3 className="text-xl md:text-2xl font-bold text-slate-900 uppercase tracking-widest mb-2">
           Accredited Excellence
         </h3>
-        <p className="text-gray-500 text-sm md:text-base">
+        <p className="text-gray-400 text-sm md:text-base">
           Certified quality, trusted partnerships, and global standards.
         </p>
       </div>
@@ -571,7 +577,7 @@ const Certifications = () => {
               <h4 className="font-bold text-slate-700 text-sm md:text-base group-hover:text-black transition-colors">
                 {cert.name}
               </h4>
-              <p className="text-xs text-gray-400 uppercase tracking-wider font-medium group-hover:text-[#ee2039] transition-colors mt-1">
+              <p className="text-xs text-gray-300 uppercase tracking-wider font-medium group-hover:text-[#ee2039] transition-colors mt-1">
                 {cert.type}
               </p>
             </div>
@@ -590,7 +596,8 @@ const HomeCTA = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           <div className="relative rounded-3xl overflow-hidden min-h-[300px] md:min-h-[400px] group cursor-pointer transform-gpu">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"></div>
-            <div className="absolute inset-0 bg-slate-900/80 group-hover:bg-slate-900/70 transition-colors duration-300"></div>
+            <div className="absolute inset-0 bg-slate-900/80 group-hover:bg-slate-900/70 transition-colors duration-300"></ div>
+            <a href="Academy">
             <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 border border-blue-400/30">
@@ -599,23 +606,25 @@ const HomeCTA = () => {
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 md:mb-4">
                   AFG Academy
                 </h3>
-                <p className="text-gray-300 leading-relaxed max-w-md text-sm md:text-base">
+                <p className="text-gray-200 leading-relaxed max-w-md text-sm md:text-base">
                   Empowering the next generation of engineers with hands-on
                   training, technical workshops, and certification programs.
                 </p>
               </div>
-              <a
-                href="#academy"
+              <p
                 className="inline-flex items-center gap-2 text-white font-bold hover:gap-4 transition-all group-hover:text-blue-400 text-sm md:text-base"
               >
                 Join the Program{" "}
                 <ArrowRight size={18} className="md:w-5 md:h-5" />
-              </a>
+              </p>
             </div>
+            </a>
           </div>
           <div className="relative rounded-3xl overflow-hidden min-h-[300px] md:min-h-[400px] group cursor-pointer transform-gpu">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"></div>
+            
             <div className="absolute inset-0 bg-[#ee2039]/60 group-hover:bg-[#ee2039]/50 transition-colors duration-300"></div>
+            <a href="Partners">
             <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 border border-white/30">
@@ -629,14 +638,14 @@ const HomeCTA = () => {
                   across the MENA region. Let's build success together.
                 </p>
               </div>
-              <a
-                href="#partner"
+              <p
                 className="inline-flex items-center gap-2 text-white font-bold hover:gap-4 transition-all text-sm md:text-base"
               >
                 Apply for Partnership{" "}
                 <ArrowRight size={18} className="md:w-5 md:h-5" />
-              </a>
+              </p>
             </div>
+            </a>
           </div>
         </div>
       </div>
@@ -737,21 +746,21 @@ const Home = () => {
               </h1>
 
               {/* Description */}
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 mb-10 leading-relaxed max-w-2xl mx-auto font-light">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 mb-10 leading-relaxed max-w-2xl mx-auto font-light">
                 {slides[currentSlide].description}
               </p>
 
               {/* Call to Actions */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md sm:max-w-none">
                 <a
-                  href="#products"
+                  href="Solutions"
                   className="w-full sm:w-auto px-10 py-4 bg-[#ee2039] hover:bg-[#c41229] text-white rounded-md font-bold text-base transition-all duration-300 shadow-lg shadow-[#ee2039]/20 text-center active:scale-95"
                 >
                   Explore Solutions
                 </a>
 
                 <a
-                  href="#projects"
+                  href="Projects"
                   className="w-full sm:w-auto px-10 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-md font-bold text-base backdrop-blur-md transition-all duration-300 text-center active:scale-95"
                 >
                   View Projects

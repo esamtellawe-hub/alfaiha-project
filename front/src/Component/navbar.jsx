@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown, Menu, X, Globe, ChevronRight } from "lucide-react";
+import { Link, useLocation } from "react-router-dom"; // استيراد Link و useLocation
 
 // --- بيانات القائمة ---
 const NAV_DATA = [
@@ -7,115 +8,133 @@ const NAV_DATA = [
     id: "services",
     label: "Services",
     type: "mega",
+    path: "/services",
     columns: 2,
     children: [
       {
         label: "Chemical Formulation",
         desc: "Tailor-made solutions for Cement & Concrete",
+        path: "/services#chemical-formulation",
       },
       {
         label: "Technical Support",
         desc: "Inspection, Optimization & Testing",
+        path: "/services#technical-support",
       },
       {
         label: "Consultancy & Specs",
         desc: "Guidance, Recommendations & Training",
+        path: "/services#consultancy-specs",
       },
       {
         label: "Quality Control",
         desc: "Raw Material & Finished Goods Testing",
+        path: "/services#quality-control",
       },
       {
         label: "Waterproofing Support",
         desc: "Inspection, Recommendation & Application",
+        path: "/services#waterproofing-support",
       },
-      { label: "Supply Chain", desc: "Logistics, Planning & Delivery" },
-      { label: "Turnkey Solutions", desc: "Storage, Dosing & Calibration" },
+      { 
+        label: "Supply Chain", 
+        desc: "Logistics, Planning & Delivery",
+        path: "/services#supply-chain",
+      },
+      { 
+        label: "Turnkey Solutions", 
+        desc: "Storage, Dosing & Calibration",
+        path: "/services#turnkey-solutions",
+      },
       {
         label: "Maintenance & Repair",
         desc: "Analysis, Recommendation & Execution",
+        path: "/services#maintenance-repair",
       },
     ],
   },
   {
     id: "solutions",
     label: "Solutions",
+    path: "/solutions",
     type: "mega",
     columns: 3,
     children: [
-      { label: "Concrete Admixtures" },
-      { label: "Cement Additives" },
-      { label: "Tile Adhesives & Grout" },
-      { label: "Cementitious Grout" },
-      { label: "Protective Coating" },
-      { label: "Waterproofing" },
-      { label: "Surface Treatment" },
-      { label: "Decorative Plastering" },
-      { label: "Flooring Products" },
-      { label: "Concrete Repair" },
-      { label: "Concrete Fibers" },
-      { label: "Sealants" },
+      { label: "Concrete Admixtures", path: "/solutions#concrete-admixtures" },
+      { label: "Cement Additives", path: "/solutions#cement-additives" },
+      { label: "Tile Adhesives & Grout", path: "/solutions#tile-adhesives" },
+      { label: "Concrete Repair", path: "/solutions#cementitious-repair" },
+      { label: "Protective Coating", path: "/solutions#protective-coating" },
+      { label: "Waterproofing", path: "/solutions#waterproofing" },
+      { label: "Surface Treatment", path: "/solutions#surface-treatments" },
+      { label: "Decorative Plastering", path: "/solutions#decorative" },
+      { label: "Flooring Products", path: "/solutions#flooring" },
+      { label: "Concrete Fibers", path: "/solutions#concrete-fibers" },
+      { label: "Sealants", path: "/solutions#sealants" },
     ],
   },
   {
     id: "sectors",
     label: "Sectors",
+    path: "/sectors",
     type: "dropdown",
     children: [
-      { label: "View All Sectors" },
-      { label: "Example Building Types" },
-      { label: "Engineered Areas" },
-      { label: "Relevant Products" },
-      { label: "Case Studies" },
+      { label: "Residential", path: "/sectors#residential" },
+      { label: "Commercial", path: "/sectors#commercial" },
+      { label: "Infrastructure", path: "/sectors#infrastructure" },
+      { label: "Industrial", path: "/sectors#industrial" },
+      { label: "Marine", path: "/sectors#marine" },
+      { label: "Oil & Gas", path: "/sectors#oil-gas" },
     ],
   },
   {
     id: "projects",
     label: "Projects",
+    path: "/projects",
     type: "dropdown",
     children: [
-      { label: "Algeria" },
-      { label: "Jordan" },
-      { label: "Iraq" },
-      { label: "Lebanon" },
-      { label: "Libya" },
+      { label: "Algeria", path: "/projects?country=algeria" },
+      { label: "Jordan", path: "/projects?country=jordan" },
+      { label: "Iraq", path: "/projects?country=iraq" },
+      { label: "Lebanon", path: "/projects?country=lebanon" },
+      { label: "Saudi Arabia", path: "/projects?country=saudi-arabia" },
     ],
   },
   {
     id: "partners",
     label: "Partners",
+    path: "/partners",
     type: "dropdown",
-    children: [{ label: "ECA Partners" }, { label: "Become a Partner" }],
+    children: [
+      { label: "ECA Partners", path: "/partners#eca-partnership" },
+      { label: "Become a Partner", path: "/partners#become-partner" },
+    ],
   },
   {
     id: "sustainability",
     label: "Sustainability",
-    type: "dropdown",
-    children: [
-      { label: "Sustainability Strategy" },
-      { label: "ESG & QHSE" },
-      { label: "R&D" },
-      { label: "CSR" },
-      { label: "Innovation" },
-    ],
+    type: "link",
+    href: "/sustainability",
+    path: "/sustainability", // Added path for consistency
   },
   {
     id: "about",
     label: "About Us",
+    path: "/about",
     type: "dropdown",
     children: [
-      { label: "Message from Founder" },
-      { label: "Vision & Values" },
-      { label: "Our Story" },
-      { label: "Our Presence" },
-      { label: "Why Us" },
+      { label: "Message from Founder", path: "/about#founder-message" },
+      { label: "Vision & Values", path: "/about#vision-values" },
+      { label: "Our Story", path: "/about#our-story" },
+      { label: "Why Us", path: "/about#why-us" },
     ],
   },
   {
     id: "academy",
     label: "AFG Academy",
     type: "link",
-    href: "#academy",
+    href: "/academy",
+    path: "/academy", // Added path for consistency
   },
 ];
 
@@ -124,6 +143,17 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [mobileExpanded, setMobileExpanded] = useState({});
+  const location = useLocation(); // Get current location
+
+  // Helper to check if a path is active
+  const isPathActive = (path) => {
+    if (!path) return false;
+    // Check for exact match or if it starts with the path (for sub-routes)
+    // using startsWith allows /services/detail to keep Services active if needed
+    // But for now strict check on base path might be cleaner
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -142,7 +172,7 @@ const Header = () => {
   const countries = [
     { code: "jo", name: "Jordan" },
     { code: "lb", name: "Lebanon" },
-    { code: "ly", name: "Libya" },
+    { code: "sa", name: "Saudi Arabia" },
     { code: "dz", name: "Algeria" },
     { code: "iq", name: "Iraq" },
   ];
@@ -164,7 +194,6 @@ const Header = () => {
                 <img
                   src={`https://flagcdn.com/w80/${country.code}.png`}
                   alt={country.name}
-                  // FIX: Added conditional class to align Jordan flag to the left
                   className={`w-full h-full object-cover opacity-90 hover:opacity-100 ${
                     country.code === "jo" ? "object-left" : "object-center"
                   }`}
@@ -197,27 +226,34 @@ const Header = () => {
       <div
         className={`bg-white shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] transition-all duration-300 border-b border-gray-100 h-20 min-[1089px]:h-20 px-4 md:px-12 flex justify-between items-center relative -translate-y-[1px] `}
       >
-        <a href="/" className="flex-shrink-0 flex items-center gap-3 z-50">
+        {/* LOGO */}
+        <Link 
+          to="/" 
+          className="flex-shrink-0 flex items-center gap-3 z-50"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
           <img
             src="/images/Al Faiha-Logo-EN-Blk-landscape.png"
             alt="Logo"
             className="h-10 min-[1089px]:h-12 w-auto object-contain"
           />
-        </a>
+        </Link>
 
         {/* Desktop Nav */}
         <nav className="hidden min-[1089px]:flex items-center gap-6 xl:gap-9 font-semibold text-slate-800 text-[14px]">
           {NAV_DATA.map((item, index) => {
+            const isActive = isPathActive(item.path || item.href);
+
             if (item.type === "link") {
               return (
-                <a
+                <Link
                   key={item.id}
-                  href={item.href}
-                  className="relative group py-6 flex items-center gap-1 transition-colors hover:text-[#ee2039]"
+                  to={item.href || item.path}
+                  className={`relative group py-6 flex items-center gap-1 transition-colors ${isActive ? "text-[#ee2039]" : "hover:text-[#ee2039]"}`}
                 >
                   {item.label}
-                  <span className="absolute bottom-6 left-0 w-0 h-[2px] bg-[#ee2039] transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"></span>
-                </a>
+                  <span className={`absolute bottom-6 left-0 h-[2px] bg-[#ee2039] transition-all duration-300 ${isActive ? "w-full opacity-100" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-100"}`}></span>
+                </Link>
               );
             }
 
@@ -228,9 +264,12 @@ const Header = () => {
                 onMouseEnter={() => setActiveDropdown(item.id)}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <a
-                  href={`#${item.id}`}
-                  className={`flex items-center gap-1 py-6 transition-colors ${activeDropdown === item.id ? "text-[#ee2039]" : "hover:text-[#ee2039]"}`}
+                <Link
+                  to={item.path || "#"}
+                  className={`flex items-center gap-1 py-6 transition-colors cursor-pointer ${activeDropdown === item.id || isActive ? "text-[#ee2039]" : "hover:text-[#ee2039]"}`}
+                  onClick={(e) => {
+                    if (!item.path) e.preventDefault();
+                  }}
                 >
                   {item.label}
                   <ChevronDown
@@ -238,10 +277,12 @@ const Header = () => {
                     strokeWidth={3}
                     className={`transition-transform duration-300 mt-0.5 ${activeDropdown === item.id ? "rotate-180" : ""}`}
                   />
-                </a>
+                  {/* Underline for Mega/Dropdown parent */}
+                  <span className={`absolute bottom-6 left-0 h-[2px] bg-[#ee2039] transition-all duration-300 ${isActive ? "w-full opacity-100" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-100"}`}></span>
+                </Link>
 
                 <div
-                  className={`absolute  top-full bg-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] border-t-[3px] border-[#ee2039] 
+                  className={`absolute top-full bg-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] border-t-[3px] border-[#ee2039] 
                   transition-all duration-200 transform translate-y-[5px] origin-top 
                   ${activeDropdown === item.id ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"} 
                   ${
@@ -256,10 +297,11 @@ const Header = () => {
                       className={`grid ${item.columns === 3 ? "grid-cols-3" : "grid-cols-2"} gap-x-12 gap-y-8`}
                     >
                       {item.children?.map((subItem, idx) => (
-                        <a
+                        <Link
                           key={idx}
-                          href="#"
+                          to={subItem.path || "#"}
                           className="group/item flex items-start gap-4 p-1 hover:translate-x-1 transition-transform duration-300"
+                          onClick={() => setActiveDropdown(null)}
                         >
                           <div className="w-[3px] h-0 bg-[#ee2039] group-hover/item:h-full transition-all duration-300 rounded-full mt-1"></div>
                           <div className="flex flex-col">
@@ -272,19 +314,20 @@ const Header = () => {
                               </span>
                             )}
                           </div>
-                        </a>
+                        </Link>
                       ))}
                     </div>
                   ) : (
                     <div className="flex flex-col space-y-1">
                       {item.children?.map((subItem, idx) => (
-                        <a
+                        <Link
                           key={idx}
-                          href="#"
+                          to={subItem.path || "#"}
                           className="block px-4 py-2.5 text-[13px] text-slate-600 hover:text-[#ee2039] hover:bg-gray-50 rounded-md transition-all font-medium text-left"
+                          onClick={() => setActiveDropdown(null)}
                         >
                           {subItem.label}
-                        </a>
+                        </Link>
                       ))}
                     </div>
                   )}
@@ -328,15 +371,17 @@ const Header = () => {
           <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
             <nav className="flex flex-col space-y-2">
               {NAV_DATA.map((item) => {
+                const isActive = isPathActive(item.path || item.href);
                 if (item.type === "link") {
                   return (
-                    <a
+                    <Link
                       key={item.id}
-                      href={item.href}
-                      className="block py-3 px-2 font-bold text-[15px] text-slate-800 hover:text-[#ee2039] border-b border-gray-50 last:border-0"
+                      to={item.href || item.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`block py-3 px-2 font-bold text-[15px] border-b border-gray-50 last:border-0 ${isActive ? "text-[#ee2039]" : "text-slate-800 hover:text-[#ee2039]"}`}
                     >
                       {item.label}
-                    </a>
+                    </Link>
                   );
                 }
                 return (
@@ -346,7 +391,7 @@ const Header = () => {
                   >
                     <button
                       onClick={() => toggleMobileGroup(item.id)}
-                      className={`flex w-full justify-between items-center py-4 px-2 font-bold text-[15px] transition-colors ${mobileExpanded[item.id] ? "text-[#ee2039]" : "text-slate-800"}`}
+                      className={`flex w-full justify-between items-center py-4 px-2 font-bold text-[15px] transition-colors ${mobileExpanded[item.id] || isActive ? "text-[#ee2039]" : "text-slate-800"}`}
                     >
                       {item.label}
                       <ChevronRight
@@ -359,13 +404,14 @@ const Header = () => {
                     >
                       <div className="bg-gray-50/80 rounded-xl p-3 space-y-1 mx-1 mb-3">
                         {item.children?.map((sub, idx) => (
-                          <a
+                          <Link
                             key={idx}
-                            href="#"
+                            to={sub.path || "#"}
+                            onClick={() => setIsMobileMenuOpen(false)}
                             className="block py-2.5 px-4 text-[13px] text-gray-600 hover:text-[#ee2039] hover:bg-white rounded-lg transition-all font-medium"
                           >
                             {sub.label}
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -382,7 +428,7 @@ const Header = () => {
               <span className="hover:text-slate-800 cursor-pointer transition-colors pb-1">
                 AR
               </span>
-              <span className="hover:text-slate-800 cursor-pointer transition-colors pb-1">
+              <span className="hover:text-slate-800 cursor-pointer transition-colors pb-1"> 
                 FR
               </span>
             </div>
