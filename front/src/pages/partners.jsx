@@ -14,9 +14,12 @@ import {
 } from "lucide-react";
 import ServiceRequestModal from "../Component/ServiceRequestModal.jsx";
 
+import usePartners from "../hooks/usePartners";
+
 const Partners = () => {
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { sections, loading, error } = usePartners();
 
   useEffect(() => {
     // Handle scroll to section if hash is present
@@ -32,6 +35,14 @@ const Partners = () => {
     }
   }, [location]);
 
+  if (loading) {
+    return (
+      <div className="bg-white min-h-screen flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-[#ee2039] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
@@ -42,16 +53,21 @@ const Partners = () => {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 border border-[#ee2039]/30 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 text-white">
               <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
-              Strategic Partnerships
+              {sections?.hero?.subtitle_en || "Strategic Partnerships"}
             </div>
 
             <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white">
-              Building <span className="text-[#ee2039]">Together</span>
+              {sections?.hero?.title_en ? (
+                <>
+                  {sections.hero.title_en.split(' ')[0]} <span className="text-[#ee2039]">{sections.hero.title_en.split(' ').slice(1).join(' ')}</span>
+                </>
+              ) : (
+                <>Building <span className="text-[#ee2039]">Together</span></>
+              )}
             </h1>
 
-            <p className="text-gray-400 text-xl max-w-2xl mx-auto">
-              Partnering with industry leaders to deliver excellence across the
-              MENA region
+            <p className="text-gray-400 text-xl max-w-2xl mx-auto whitespace-pre-line">
+              {sections?.hero?.description_en || "Partnering with industry leaders to deliver excellence across the MENA region"}
             </p>
           </div>
         </div>
@@ -65,11 +81,10 @@ const Partners = () => {
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039] border border-[#ee2039]/20 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 text-white">
                 <Building2 size={12} />
-                Our Main Partner
+                {sections?.eca_partnership?.subtitle_en || "Our Main Partner"}
               </div>
               <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
-                European Concrete Additives
-                <span className="text-[#ee2039]"> (ECA)</span>
+                {sections?.eca_partnership?.title_en || "European Concrete Additives (ECA)"}
               </h2>
             </div>
 
@@ -103,93 +118,62 @@ const Partners = () => {
 
               {/* Right: Description */}
               <div className="space-y-6">
-                <div className="space-y-4">
-                  <p className="text-gray-600 leading-relaxed">
-                    European Concrete Additives (ECA), established in{" "}
-                    <span className="font-bold text-slate-800">2014</span> and
-                    headquartered in{" "}
-                    <span className="font-bold text-slate-800">Luxembourg</span>
-                    , is a leading construction products and materials
-                    technology company specializing in advanced solutions for
-                    concrete and cement innovation.
-                  </p>
+                <div className="space-y-4 text-gray-600 leading-relaxed font-medium whitespace-pre-line">
+                  {sections?.eca_partnership?.description_en || (
+                    <>
+                      <p>
+                        European Concrete Additives (ECA), established in{" "}
+                        <span className="font-bold text-slate-800">2014</span> and
+                        headquartered in{" "}
+                        <span className="font-bold text-slate-800">Luxembourg</span>
+                        , is a leading construction products and materials
+                        technology company specializing in advanced solutions for
+                        concrete and cement innovation.
+                      </p>
 
-                  <p className="text-gray-600 leading-relaxed">
-                    Al Faiha Group proudly serves as{" "}
-                    <span className="font-bold text-[#ee2039]">
-                      ECA's sole licensed manufacturer and regional partner
-                    </span>{" "}
-                    across the MENA region, bringing European expertise and
-                    technology to local markets.
-                  </p>
+                      <p>
+                        Al Faiha Group proudly serves as{" "}
+                        <span className="font-bold text-[#ee2039]">
+                          ECA's sole licensed manufacturer and regional partner
+                        </span>{" "}
+                        across the MENA region, bringing European expertise and
+                        technology to local markets.
+                      </p>
 
-                  <p className="text-gray-600 leading-relaxed">
-                    Through this strategic partnership, Al Faiha Group leverages
-                    ECA's research, formulations, and technical know-how to
-                    produce high-performance concrete admixtures, cement
-                    additives, and specialty building materials tailored for
-                    regional needs.
-                  </p>
+                      <p>
+                        Through this strategic partnership, Al Faiha Group leverages
+                        ECA's research, formulations, and technical know-how to
+                        produce high-performance concrete admixtures, cement
+                        additives, and specialty building materials tailored for
+                        regional needs.
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 {/* Key Benefits */}
                 <div className="grid grid-cols-2 gap-4 pt-6">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2
-                      size={20}
-                      className="text-[#ee2039] shrink-0 mt-1"
-                    />
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">
-                        European Innovation
-                      </h4>
-                      <p className="text-xs text-gray-500">
-                        Cutting-edge technology
-                      </p>
+                  {(sections?.eca_partnership?.extra_data?.benefits || [
+                    { title_en: 'European Innovation', desc_en: 'Cutting-edge technology' },
+                    { title_en: 'Local Manufacturing', desc_en: 'Regional excellence' },
+                    { title_en: 'Quality Standards', desc_en: 'International compliance' },
+                    { title_en: 'Sustainability', desc_en: 'Eco-friendly solutions' }
+                  ]).map((benefit, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <CheckCircle2
+                        size={20}
+                        className="text-[#ee2039] shrink-0 mt-1"
+                      />
+                      <div>
+                        <h4 className="font-bold text-slate-800 text-sm">
+                          {benefit.title_en}
+                        </h4>
+                        <p className="text-xs text-gray-500">
+                          {benefit.desc_en}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2
-                      size={20}
-                      className="text-[#ee2039] shrink-0 mt-1"
-                    />
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">
-                        Local Manufacturing
-                      </h4>
-                      <p className="text-xs text-gray-500">
-                        Regional excellence
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2
-                      size={20}
-                      className="text-[#ee2039] shrink-0 mt-1"
-                    />
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">
-                        Quality Standards
-                      </h4>
-                      <p className="text-xs text-gray-500">
-                        International compliance
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2
-                      size={20}
-                      className="text-[#ee2039] shrink-0 mt-1"
-                    />
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">
-                        Sustainability
-                      </h4>
-                      <p className="text-xs text-gray-500">
-                        Eco-friendly solutions
-                      </p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -203,20 +187,24 @@ const Partners = () => {
                     <Handshake size={24} className="text-[#ee2039]" />
                   </div>
                   <h3 className="text-2xl font-bold text-white">
-                    Partnership Excellence
+                    {sections?.eca_partnership?.extra_data?.highlight_title_en || "Partnership Excellence"}
                   </h3>
                 </div>
-                <p className="text-gray-300 text-lg leading-relaxed max-w-3xl">
-                  Together, ECA and Al Faiha Group combine{" "}
-                  <span className="text-white font-bold">
-                    European innovation
-                  </span>{" "}
-                  with{" "}
-                  <span className="text-white font-bold">
-                    local manufacturing excellence
-                  </span>
-                  , ensuring that every product meets the highest international
-                  standards of quality, performance, and sustainability.
+                <p className="text-gray-300 text-lg leading-relaxed max-w-3xl whitespace-pre-line">
+                  {sections?.eca_partnership?.extra_data?.highlight_desc_en || (
+                    <>
+                      Together, ECA and Al Faiha Group combine{" "}
+                      <span className="text-white font-bold">
+                        European innovation
+                      </span>{" "}
+                      with{" "}
+                      <span className="text-white font-bold">
+                        local manufacturing excellence
+                      </span>
+                      , ensuring that every product meets the highest international
+                      standards of quality, performance, and sustainability.
+                    </>
+                  )}
                 </p>
               </div>
             </div>
@@ -232,90 +220,75 @@ const Partners = () => {
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039] border border-[#ee2039]/20 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 text-white">
                 <Users size={12} />
-                Join Our Network
+                {sections?.become_partner?.subtitle_en || "Join Our Network"}
               </div>
               <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">
-                Become a <span className="text-[#ee2039]">Partner</span>
+                {sections?.become_partner?.title_en ? (
+                  <>
+                    {sections.become_partner.title_en.split(' ')[0]} {sections.become_partner.title_en.split(' ')[1]} <span className="text-[#ee2039]">{sections.become_partner.title_en.split(' ').slice(2).join(' ')}</span>
+                  </>
+                ) : (
+                  <>Become a <span className="text-[#ee2039]">Partner</span></>
+                )}
               </h2>
-              <p className="text-gray-600 text-lg max-w-3xl mx-auto">
-                At Al Faiha Group, we believe in building strong partnerships
-                that drive innovation, quality, and sustainable growth across
-                the construction industry.
-              </p>
             </div>
 
             {/* Partnership Story */}
             <div className="bg-gray-50 rounded-3xl p-8 md:p-12 mb-12">
-              <div className="space-y-6 text-gray-600 leading-relaxed">
-                <p>
-                  Since our establishment in{" "}
-                  <span className="font-bold text-slate-800">1987</span> as
-                  Jordan's first construction chemicals company, we've continued
-                  to expand our expertise, from concrete admixtures and cement
-                  additives to a full range of specialty building materials,
-                  powered by cutting-edge European technology from our partner
-                  European Concrete Additives (ECA).
-                </p>
+              <div className="space-y-6 text-gray-600 leading-relaxed whitespace-pre-line font-medium">
+                {sections?.become_partner?.description_en || (
+                  <>
+                    <p>
+                      At Al Faiha Group, we believe in building strong partnerships
+                      that drive innovation, quality, and sustainable growth across
+                      the construction industry.
+                    </p>
+                    <p>
+                      Since our establishment in{" "}
+                      <span className="font-bold text-slate-800">1987</span> as
+                      Jordan's first construction chemicals company, we've continued
+                      to expand our expertise, from concrete admixtures and cement
+                      additives to a full range of specialty building materials,
+                      powered by cutting-edge European technology from our partner
+                      European Concrete Additives (ECA).
+                    </p>
 
-                <p>
-                  As we continue to grow across the MENA region, Al Faiha Group
-                  welcomes strategic partners, distributors, contractors, and
-                  suppliers who share our commitment to excellence, performance,
-                  and integrity.
-                </p>
+                    <p>
+                      As we continue to grow across the MENA region, Al Faiha Group
+                      welcomes strategic partners, distributors, contractors, and
+                      suppliers who share our commitment to excellence, performance,
+                      and integrity.
+                    </p>
+                  </>
+                )}
               </div>
             </div>
 
             {/* Why Partner With Us */}
             <div className="grid md:grid-cols-3 gap-8 mb-16">
-              <div className="group bg-white rounded-2xl p-8 border border-gray-100 hover:border-[#ee2039] hover:shadow-xl transition-all duration-300">
-                <div className="w-14 h-14 rounded-xl bg-[#ee2039]/10 flex items-center justify-center mb-6 group-hover:bg-[#ee2039] transition-colors">
-                  <Award
-                    size={28}
-                    className="text-[#ee2039] group-hover:text-white transition-colors"
-                  />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  Trusted Legacy
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  Over 35 years of experience and leadership in construction
-                  chemicals, combining a trusted legacy with exclusive
-                  technology.
-                </p>
-              </div>
-
-              <div className="group bg-white rounded-2xl p-8 border border-gray-100 hover:border-[#ee2039] hover:shadow-xl transition-all duration-300">
-                <div className="w-14 h-14 rounded-xl bg-[#ee2039]/10 flex items-center justify-center mb-6 group-hover:bg-[#ee2039] transition-colors">
-                  <Globe
-                    size={28}
-                    className="text-[#ee2039] group-hover:text-white transition-colors"
-                  />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  Exclusive Technology
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  Sole licensed manufacturer of ECA products in the MENA region,
-                  bringing European innovation to local markets.
-                </p>
-              </div>
-
-              <div className="group bg-white rounded-2xl p-8 border border-gray-100 hover:border-[#ee2039] hover:shadow-xl transition-all duration-300">
-                <div className="w-14 h-14 rounded-xl bg-[#ee2039]/10 flex items-center justify-center mb-6 group-hover:bg-[#ee2039] transition-colors">
-                  <TrendingUp
-                    size={28}
-                    className="text-[#ee2039] group-hover:text-white transition-colors"
-                  />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  Collaborative Growth
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  Technical training, marketing support, and long-term
-                  opportunities built on mutual success.
-                </p>
-              </div>
+              {(sections?.become_partner?.extra_data?.features || [
+                { icon: 'Award', title_en: 'Trusted Legacy', desc_en: 'Over 35 years of experience and leadership in construction chemicals, combining a trusted legacy with exclusive technology.' },
+                { icon: 'Globe', title_en: 'Exclusive Technology', desc_en: 'Sole licensed manufacturer of ECA products in the MENA region, bringing European innovation to local markets.' },
+                { icon: 'TrendingUp', title_en: 'Collaborative Growth', desc_en: 'Technical training, marketing support, and long-term opportunities built on mutual success.' }
+              ]).map((feature, idx) => {
+                const Icon = feature.icon === 'Award' ? Award : feature.icon === 'Globe' ? Globe : TrendingUp;
+                return (
+                  <div key={idx} className="group bg-white rounded-2xl p-8 border border-gray-100 hover:border-[#ee2039] hover:shadow-xl transition-all duration-300">
+                    <div className="w-14 h-14 rounded-xl bg-[#ee2039]/10 flex items-center justify-center mb-6 group-hover:bg-[#ee2039] transition-colors">
+                      <Icon
+                        size={28}
+                        className="text-[#ee2039] group-hover:text-white transition-colors"
+                      />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">
+                      {feature.title_en}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {feature.desc_en}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
 
             {/* CTA Section */}
@@ -325,13 +298,10 @@ const Partners = () => {
 
               <div className="relative z-10 max-w-3xl mx-auto text-center">
                 <h3 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                  Let's Build the Future Together
+                  {sections?.become_partner?.extra_data?.cta_title_en || "Let's Build the Future Together"}
                 </h3>
-                <p className="text-gray-300 text-lg mb-10 leading-relaxed">
-                  Whether you're looking to represent our products, integrate
-                  our solutions into your projects, or explore new opportunities
-                  across the region, we welcome you to join our growing network
-                  of partners.
+                <p className="text-gray-300 text-lg mb-10 leading-relaxed whitespace-pre-line">
+                  {sections?.become_partner?.extra_data?.cta_desc_en || "Whether you're looking to represent our products, integrate our solutions into your projects, or explore new opportunities across the region, we welcome you to join our growing network of partners."}
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -339,7 +309,7 @@ const Partners = () => {
                     onClick={() => setIsModalOpen(true)}
                     className="inline-flex items-center gap-3 bg-[#ee2039] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#c41229] transition-all group hover:scale-105 active:scale-95 shadow-xl shadow-[#ee2039]/30"
                   >
-                    Get in Touch
+                    {sections?.become_partner?.btn_text_en || "Get in Touch"}
                     <ArrowRight
                       size={20}
                       className="group-hover:translate-x-2 transition-transform"
@@ -351,7 +321,7 @@ const Partners = () => {
                     className="inline-flex items-center gap-3 bg-white/10 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/20 transition-all border border-white/20"
                   >
                     <Mail size={20} />
-                    Email Us
+                    {sections?.become_partner?.extra_data?.email_btn_en || "Email Us"}
                   </a>
                 </div>
 

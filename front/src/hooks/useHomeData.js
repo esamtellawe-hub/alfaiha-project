@@ -13,8 +13,8 @@ const useHomeData = () => {
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const response = await api.get('/home');
-        // Response structure: { hero: [], sections: { key: obj }, certifications: [] }
+        const response = await api.get('/content/home');
+        
         setData({
           hero: response.data.hero || [],
           sections: response.data.sections || {},

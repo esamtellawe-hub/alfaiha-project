@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, Link } from "react-router-dom";
-import productsData from "../products.json";
+import useSolutions from "../hooks/useSolutions";
 import {
   ChevronDown,
   FileText,
@@ -19,305 +19,32 @@ import {
   Box,
 } from "lucide-react";
 
-// Helper function to convert product name to ID
-const generateProductId = (productName) => {
-  return productName
-    .toLowerCase()
-    .replace(/[()]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '');
+// Map database icon names to Lucide components
+const ICON_MAP = {
+  "Beaker": <Beaker />,
+  "Grid": <Grid />,
+  "Layers": <Layers />,
+  "Hammer": <Hammer />,
+  "PaintBucket": <PaintBucket />,
+  "Droplets": <Droplets />,
+  "FileText": <FileText />,
+  "Box": <Box />
 };
 
-// --- 1. البيانات المهيكلة ---
-const SOLUTIONS_DATA = [
-  {
-    id: "concrete-admixtures",
-    title: "Concrete Admixtures",
-    icon: <Beaker />,
-    description:
-      "Formulations designed for increased strength, durability, and workability.",
-    hasSubCategories: true,
-    subCategories: [
-      {
-        id: "air-entrainers",
-        title: "Air Entrainers & Foaming Agents",
-        products: ["ECA Stabilizer", "EUNIAIR AE4", "EUNIAIR AE3"],
-      },
-      {
-        id: "high-range",
-        title: "High Range Superplasticizers",
-        products: [
-          "EUNICEM 800",
-          "EUNICEM SP6 (R)",
-          "EUNICEM 1290",
-          "EUNICEM 1350",
-          "EUNICEM 1400",
-          "EUNICEM 150 B",
-          "EUNICEM 180 K",
-          "EUNICEM 205",
-          "EUNICEM 2100",
-          "EUNICEM 2200 F",
-          "EUNICEM 2200",
-          "EUNICEM 250 A",
-          "EUNICEM 250 E",
-          "EUNICEM 300 F",
-          "EUNICEM 350",
-          "EUNICEM 400",
-          "EUNICEM 420",
-          "EUNICEM 810",
-          "EUNICEM 400 KO",
-          "EUNICEM 850",
-          "EUNICEM 1000",
-        ],
-      },
-      {
-        id: "mid-range",
-        title: "Mid Range Superplasticizers",
-        products: [
-          "EUNICEM SP4",
-          "EUNICEM P9",
-          "EUNICEM P7",
-          "EUNICEM P4",
-          "EUNICEM P20",
-        ],
-      },
-      {
-        id: "polycarboxylate",
-        title: "Polycarboxylate Superplasticizers",
-        products: [
-          "EUNIFLOW EC 200",
-          "EUNIFLOW 260 ACC",
-          "EUNIFLOW 200 N",
-          "EUNIFLOW ES 545",
-          "EUNIFLOW 720 (Iraq)",
-          "EUNIFLOW 241 G (KSA)",
-          "EUNIFLOW 280 G",
-          "EUNIFLOW 110",
-          "EUNIFLOW 165 M",
-          "EUNIFLOW 200 R",
-          "EUNIFLOW 200",
-          "EUNIFLOW 250 M",
-          "EUNIFLOW 250",
-          "EUNIFLOW 260",
-          "EUNIFLOW 680",
-          "EUNIFLOW 2600",
-          "EUNIFLOW 2700",
-          "EUNIFLOW 290",
-          "EUNIFLOW 500 ACC",
-          "EUNIFLOW 585",
-          "EUNIFLOW 600",
-          "EUNIFLOW 612 R18",
-        ],
-      },
-      {
-        id: "shrinkage",
-        title: "Shrinkage Reducing",
-        products: ["EUNISHRINK ECLIPSE"],
-      },
-      {
-        id: "silica-fume",
-        title: "Silica Fume",
-        products: ["ECA MICROSILICA", "ECA MICROSILICA (D)"],
-      },
-      {
-        id: "slag",
-        title: "Slag",
-        products: ["GGBFS"],
-      },
-      {
-        id: "troweling",
-        title: "Troweling Admixtures",
-        products: ["EUNICEM 400 F"],
-      },
-      {
-        id: "underwater",
-        title: "Underwater Admixtures",
-        products: ["EUNIMAR 3"],
-      },
-      {
-        id: "waterproofing-adm",
-        title: "Waterproofing Admixtures",
-        products: [
-          "EURIPEL W2",
-          "EURIPEL W5",
-          "EURIPEL 75ME",
-          "EURIPEL CP 360",
-        ],
-      },
-      {
-        id: "corrosion",
-        title: "Corrosion Inhibitors",
-        products: [
-          "EUNICOR DCIS",
-          "EUNICOR DCIS 5",
-          "EUNICOR DCIS+",
-          "EUNICOR DCIS (L)",
-        ],
-      },
-    ],
-  },
-  {
-    id: "cement-additives",
-    title: "Cement Additives",
-    icon: <Grid />,
-    description: "Customized additives for increased cement performance.",
-    hasSubCategories: true,
-    subCategories: [
-      {
-        id: "coloring",
-        title: "Coloring Agent",
-        products: ["EUROGRIND SP20", "EUROGRIND SP10"],
-      },
-      {
-        id: "grinding-aids",
-        title: "Grinding Aids & Performance Enhancers",
-        products: [
-          "EUROGRIND 500G+",
-          "EUROGRIND GS 212A",
-          "EUROGRIND GS 212",
-          "EUROGRIND GS212 P",
-          "EUROGRIND GS 212 O",
-          "EUROGRIND GS 211",
-        ],
-      },
-      {
-        id: "mineral-grinding",
-        title: "Mineral Grinding Aid",
-        products: ["EUROGRIND MGA", "EUROGRIND MGA PURITY"],
-      },
-    ],
-  },
-  {
-    id: "tile-adhesives",
-    title: "Tile Adhesives & Grout",
-    icon: <Layers />,
-    description: "Solutions for fixing ceramic tiles on stable surfaces.",
-    hasSubCategories: false,
-    products: [
-      "EUNITILE A1",
-      "EUNITILE A1+",
-      "Eunitile A2",
-      "EUNITILE A2(H)",
-      "EUNITILE GP",
-      "EUNITILE A2 MAX",
-      "EUNITILE G2",
-      "EUNITILE G2 (H)",
-    ],
-  },
-  {
-    id: "cementitious-repair",
-    title: "Concrete Repair Products",
-    icon: <Hammer />,
-    description:
-      "Restoration systems including repair mortars and fairing coats.",
-    hasSubCategories: false,
-    products: [
-      "EURIPARE BA9",
-      "EURIPARE BA3",
-      "EURIPARE BA 12",
-      "EURIPARE UPM PUTTY",
-      "EURIPARE 504",
-      "EURIPARE 503",
-      "EURIPARE 502",
-      "EURIPARE 502 S",
-      "EURIPARE 501",
-      "ECA WATERPLUG",
-      "ECA WATERPLUG +",
-    ],
-  },
-  {
-    id: "protective-coating",
-    title: "Protective Coating",
-    icon: <PaintBucket />,
-    description: "Protection for concrete against carbonation and chemicals.",
-    hasSubCategories: false,
-    products: ["EUNICOTE WSS (W)", "EUNICOTE WSS (W)+", "EUNICOTE AC14"],
-  },
-  {
-    id: "waterproofing",
-    title: "Waterproofing",
-    icon: <Droplets />,
-    description: "Comprehensive waterproofing systems for roofs and basements.",
-    hasSubCategories: false,
-    products: [
-      "EUNICOTE AQUAGARD",
-      "EUNICOTE AQUAGARD 200",
-      "EUNICOTE 512 W",
-      "EUNICOTE 512 W+",
-      "EUNICOTE RBE",
-      "EUNICOTE RBE F",
-      "EUNICOTE BE",
-      "EUNICOTE BBP",
-      "EUNICOTE AQUASHEILD",
-    ],
-  },
-  {
-    id: "flooring",
-    title: "Flooring Products",
-    icon: <Grid />,
-    description: "Industrial and decorative flooring solutions.",
-    hasSubCategories: false,
-    products: ["EURIPARE EMERY TOP", "EUNICOTE PU 3600"],
-  },
-  {
-    id: "sealants",
-    title: "Sealants",
-    icon: <Droplets />,
-    description: "Flexible joint sealants for construction.",
-    hasSubCategories: false,
-    products: [
-      "EUNISEAL Paraseal",
-      "EUNISEAL AS",
-      "EUNISEAL SGP",
-      "EUNISEAL SW+",
-    ],
-  },
-  {
-    id: "concrete-fibers",
-    title: "Concrete Fibers",
-    icon: <Grid />,
-    description: "Fiber reinforcement to control cracking.",
-    hasSubCategories: false,
-    products: ["ECA POLYFIBER", "ECA HE Steel Fiber"],
-  },
-  {
-    id: "surface-treatments",
-    title: "Surface Treatment",
-    icon: <Layers />,
-    description: "Curing compounds and mold release agents.",
-    hasSubCategories: false,
-    products: [
-      "EUNICURE CUREX",
-      "EUNICURE CUREX 90",
-      "EUNICOTE MRA1",
-      "EUNICOTE MRA BIO",
-      "EUNICOTE CLEANSTRIKE",
-    ],
-  },
-  {
-    id: "decorative",
-    title: "Decorative Plastering",
-    icon: <PaintBucket />,
-    description: "Decorative finish plaster.",
-    hasSubCategories: false,
-    products: [
-      "EUROPLAST EXPO S",
-      "EUROPLAST EXPO C",
-      "EUROPLAST EXPO 101",
-      "EUROPLAST 100",
-    ],
-  },
-];
+// Fallback icon if not found
+const DEFAULT_ICON = <Box />;
 
 // --- 2. مكون عرض المنتجات ---
-const ProductItem = ({ name }) => {
-  const productId = generateProductId(name);
-  const productExists = Object.values(productsData).find(p => p.id === productId);
+const ProductItem = ({ product }) => {
+  // Use data from DB
+  const name = product.name_en || product.name_ar;
+  const productId = product.slug || product.id; // Prefer slug for URLs
   
   // Function to get product image or placeholder
   const getProductImage = () => {
-    // Check if product has specific image in public/images/
-    // For now, use different product images as placeholders
+    if (product.image_url) return `http://localhost:5000${product.image_url}`;
+    
+    // For now, use different product images as placeholders if no image in DB
     const productImages = [
       '/images/product1.png',
       '/images/product2.png',
@@ -338,7 +65,7 @@ const ProductItem = ({ name }) => {
         <img 
           src={getProductImage()} 
           alt={name}
-          className="w-full h-full object-contain p-6 group-hover/product:scale-110 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover/product:scale-110 transition-transform duration-500"
           onError={(e) => {
             // Fallback to placeholder if image fails to load
             e.target.src = '/images/product1.png';
@@ -347,7 +74,7 @@ const ProductItem = ({ name }) => {
         {/* Product Badge */}
         <div className="absolute top-3 left-3">
           <div className="bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full border border-gray-200">
-            <span className="text-[9px] font-bold text-gray-600 uppercase tracking-wider">Product</span>
+            <span className="text-[9px] font-bold text-gray-600 uppercase tracking-wider">Solution</span>
           </div>
         </div>
       </div>
@@ -373,47 +100,27 @@ const ProductItem = ({ name }) => {
             </span>
           </div>
           
-          {productExists ? (
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#ee2039]">
-              <span>View Details</span>
-              <ArrowRight size={12} className="group-hover/product:translate-x-1 transition-transform" />
-            </div>
-          ) : (
-            <button
-              className="p-1.5 rounded-lg bg-gray-50 text-gray-400 hover:bg-[#ee2039] hover:text-white transition-colors group/btn relative"
-              title="Download Coming Soon"
-            >
-              <Download size={12} />
-              <span className="absolute bottom-full right-0 mb-2 w-max px-2 py-1 bg-black text-white text-[9px] rounded opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none">
-                Available Soon
-              </span>
-            </button>
-          )}
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#ee2039]">
+            <span>View Details</span>
+            <ArrowRight size={12} className="group-hover/product:translate-x-1 transition-transform" />
+          </div>
         </div>
       </div>
     </>
   );
 
-  if (productExists) {
-    return (
-      <Link 
-        to={`/product/${productId}`} 
-        className="bg-white rounded-xl border border-gray-100 hover:border-[#ee2039] hover:shadow-xl transition-all duration-300 group/product flex flex-col h-full overflow-hidden cursor-pointer"
-      >
-        {content}
-      </Link>
-    );
-  }
-
   return (
-    <div className="bg-white rounded-xl border border-gray-100 hover:border-gray-300 transition-all duration-300 group/product flex flex-col h-full overflow-hidden opacity-70">
+    <Link 
+      to={`/product/${productId}`} 
+      className="bg-white rounded-xl border border-gray-100 hover:border-[#ee2039] hover:shadow-xl transition-all duration-300 group/product flex flex-col h-full overflow-hidden cursor-pointer"
+    >
       {content}
-    </div>
+    </Link>
   );
 };
 
 // --- 3. مكون القسم الرئيسي ---
-const CategorySection = ({ category, isOpen, toggleOpen }) => {
+const CategorySection = ({ category, sections, isOpen, toggleOpen }) => {
   const [activeSubCategory, setActiveSubCategory] = useState(null);
 
   useEffect(() => {
@@ -423,9 +130,16 @@ const CategorySection = ({ category, isOpen, toggleOpen }) => {
 
   if (!category) return null;
 
+  // Resolve icon
+  const icon = ICON_MAP[category.icon_name] || DEFAULT_ICON;
+
+  // Determine if it has subcategories (children) or direct products
+  const hasSubCategories = category.children && category.children.length > 0;
+  const directSolutions = category.solutions || [];
+
   return (
     <div
-      id={category.id}
+      id={category.slug || category.id}
       className={`group relative bg-white rounded-3xl border transition-all duration-500 overflow-hidden ${
         isOpen
           ? "border-[#ee2039] shadow-2xl"
@@ -454,11 +168,10 @@ const CategorySection = ({ category, isOpen, toggleOpen }) => {
                 : "bg-gray-50 text-[#ee2039] group-hover:scale-110"
             }`}
           >
-            {category.icon &&
-              React.cloneElement(category.icon, {
-                size: isOpen ? 28 : 24,
-                strokeWidth: 1.5,
-              })}
+            {React.cloneElement(icon, {
+              size: isOpen ? 28 : 24,
+              strokeWidth: 1.5,
+            })}
           </div>
           <div>
             <h3
@@ -468,10 +181,10 @@ const CategorySection = ({ category, isOpen, toggleOpen }) => {
                   : "text-slate-900 group-hover:text-[#ee2039]"
               }`}
             >
-              {category.title}
+              {category.name_en || category.name_ar}
             </h3>
             <p className="text-gray-500 text-xs md:text-sm mt-1 max-w-xl hidden md:block">
-              {category.description}
+              {category.description_en || category.description_ar}
             </p>
           </div>
         </div>
@@ -493,21 +206,28 @@ const CategorySection = ({ category, isOpen, toggleOpen }) => {
         }`}
       >
         <div className="p-6 md:p-8">
-          {/* Case 1: Direct Products */}
-          {!category.hasSubCategories && category.products && (
+          {/* Case 1: Direct Solutions */}
+          {!hasSubCategories && directSolutions.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {category.products.map((product, index) => (
-                <ProductItem key={index} name={product} />
+              {directSolutions.map((product) => (
+                <ProductItem key={product.id} product={product} />
               ))}
+            </div>
+          )}
+          
+          {/* Case 1.5: No solutions and no subcategories */}
+          {!hasSubCategories && directSolutions.length === 0 && (
+            <div className="text-center py-8 text-gray-400 italic">
+                {sections?.search?.description_en || "No solutions available in this category yet."}
             </div>
           )}
 
           {/* Case 2: Sub Categories */}
-          {category.hasSubCategories && category.subCategories && (
+          {hasSubCategories && (
             <div>
               {!activeSubCategory ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {category.subCategories.map((sub) => (
+                  {category.children.map((sub) => (
                     <div
                       key={sub.id}
                       onClick={(e) => {
@@ -522,10 +242,10 @@ const CategorySection = ({ category, isOpen, toggleOpen }) => {
                         </div>
                         <div>
                           <h4 className="font-bold text-slate-800 text-lg group-hover/sub:text-[#ee2039] transition-colors">
-                            {sub.title}
+                            {sub.name_en || sub.name_ar}
                           </h4>
                           <span className="text-xs text-gray-400 font-medium bg-gray-100 px-2 py-1 rounded-full mt-1 inline-block">
-                            {sub.products?.length || 0} Products
+                            {sub.solutions?.length || 0} Solutions
                           </span>
                         </div>
                       </div>
@@ -546,15 +266,19 @@ const CategorySection = ({ category, isOpen, toggleOpen }) => {
                     </button>
                     <span className="h-4 w-[1px] bg-gray-300"></span>
                     <h4 className="text-xl font-bold text-[#ee2039]">
-                      {activeSubCategory.title}
+                      {activeSubCategory.name_en || activeSubCategory.name_ar}
                     </h4>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {(activeSubCategory.products || []).map(
-                      (product, index) => (
-                        <ProductItem key={index} name={product} />
-                      ),
+                    {(activeSubCategory.solutions || []).length > 0 ? (
+                        activeSubCategory.solutions.map((product) => (
+                            <ProductItem key={product.id} product={product} />
+                        ))
+                    ) : (
+                        <div className="col-span-full text-center py-8 text-gray-400 italic">
+                             {sections?.search?.description_en || "No solutions available in this sub-category yet."}
+                        </div>
                     )}
                   </div>
                 </div>
@@ -566,8 +290,7 @@ const CategorySection = ({ category, isOpen, toggleOpen }) => {
           <div className="mt-8 flex items-center gap-2 text-xs text-gray-500 bg-white p-3 rounded-lg border border-dashed border-gray-300 justify-center">
             <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
             <span>
-              Technical Data Sheets (TDS) & Material Safety Data Sheets (MSDS)
-              will be available for download shortly.
+              {sections?.footer_note?.description_en || "Technical Data Sheets (TDS) & Material Safety Data Sheets (MSDS) will be available for download shortly."}
             </span>
           </div>
         </div>
@@ -578,11 +301,23 @@ const CategorySection = ({ category, isOpen, toggleOpen }) => {
 
 // --- المكون الرئيسي ---
 const Solutions = () => {
-  // 1. التعديل هنا: State لمصفوفة الأقسام المفتوحة (Array) بدلاً من نص واحد
-  const [openSections, setOpenSections] = useState(["concrete-admixtures"]);
+  const { sections, solutions, loading, error } = useSolutions();
+  const [openSections, setOpenSections] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const location = useLocation();
+
+  // Initialize open sections when data loads (e.g. open first one)
+  useEffect(() => {
+    if (solutions.length > 0 && openSections.length === 0 && !searchTerm) {
+        // Optionally open the first one by default, or leave closed. 
+        // Original code opened "concrete-admixtures". 
+        // Let's open the first one from DB
+        if (solutions[0]) {
+            setOpenSections([solutions[0].slug || solutions[0].id]);
+        }
+    }
+  }, [solutions]);
 
   // Handle URL search parameters (for fallback navigation from Sectors)
   useEffect(() => {
@@ -595,46 +330,52 @@ const Solutions = () => {
 
   useEffect(() => {
     // Handle scroll to section if hash is present in URL
-    if (location.hash) {
+    if (location.hash && solutions.length > 0) {
       const element = document.getElementById(location.hash.replace("#", ""));
       if (element) {
         setTimeout(() => {
           element.scrollIntoView({ behavior: "smooth", block: "center" });
           // Also open the section
           const sectionId = location.hash.replace("#", "");
-          if (!openSections.includes(sectionId)) {
-            setOpenSections([...openSections, sectionId]);
-          }
+          // Check if it's already open to avoid loop
+          setOpenSections(prev => {
+              if(!prev.includes(sectionId)) return [...prev, sectionId];
+              return prev;
+          });
         }, 100);
       }
     } else {
       window.scrollTo(0, 0);
     }
-  }, [location]);
+  }, [location, solutions]);
 
   // دالة الحساب (Filtering)
   const filteredData = useMemo(() => {
-    if (!searchTerm) return SOLUTIONS_DATA;
+    if (!searchTerm) return solutions;
     const lowerTerm = searchTerm.toLowerCase();
 
-    return SOLUTIONS_DATA.reduce((acc, category) => {
-      const categoryTitle = category.title ? category.title.toLowerCase() : "";
+    return solutions.reduce((acc, category) => {
+      const catName = category.name_en || category.name_ar || "";
+      const categoryTitle = catName.toLowerCase();
       const categoryMatches = categoryTitle.includes(lowerTerm);
 
-      if (category.hasSubCategories) {
-        const subs = category.subCategories || [];
+      const hasSubs = category.children && category.children.length > 0;
+
+      if (hasSubs) {
+        const subs = category.children || [];
         const matchingSubCats = subs.reduce((subAcc, sub) => {
-          const subTitle = sub.title ? sub.title.toLowerCase() : "";
-          const subProducts = sub.products || [];
+          const subName = sub.name_en || sub.name_ar || "";
+          const subTitle = subName.toLowerCase();
+          const subSolutions = sub.solutions || [];
           const subTitleMatches = subTitle.includes(lowerTerm);
-          const matchingProducts = subProducts.filter(
-            (p) => p && p.toLowerCase().includes(lowerTerm),
+          const matchingSolutions = subSolutions.filter(
+            (p) => (p.name_en || p.name_ar || "").toLowerCase().includes(lowerTerm),
           );
 
-          if (subTitleMatches || matchingProducts.length > 0) {
+          if (subTitleMatches || matchingSolutions.length > 0) {
             subAcc.push({
               ...sub,
-              products: subTitleMatches ? subProducts : matchingProducts,
+              solutions: subTitleMatches ? subSolutions : matchingSolutions,
             });
           }
           return subAcc;
@@ -643,36 +384,33 @@ const Solutions = () => {
         if (categoryMatches || matchingSubCats.length > 0) {
           acc.push({
             ...category,
-            subCategories: categoryMatches ? subs : matchingSubCats,
+            children: categoryMatches ? subs : matchingSubCats,
           });
         }
       } else {
-        const prods = category.products || [];
-        const matchingProducts = prods.filter(
-          (p) => p && p.toLowerCase().includes(lowerTerm),
+        const prods = category.solutions || [];
+        const matchingSolutions = prods.filter(
+          (p) => (p.name_en || p.name_ar || "").toLowerCase().includes(lowerTerm),
         );
-        if (categoryMatches || matchingProducts.length > 0) {
+        if (categoryMatches || matchingSolutions.length > 0) {
           acc.push({
             ...category,
-            products: categoryMatches ? prods : matchingProducts,
+            solutions: categoryMatches ? prods : matchingSolutions,
           });
         }
       }
       return acc;
     }, []);
-  }, [searchTerm]);
+  }, [searchTerm, solutions]);
 
   // 2. التعديل هنا: useEffect يفتح الأقسام الناتجة عن البحث تلقائياً
   useEffect(() => {
-    if (searchTerm) {
+    if (searchTerm && filteredData.length > 0) {
       // افتح كل الأقسام التي ظهرت في نتائج البحث
-      const allIds = filteredData.map((c) => c.id);
+      const allIds = filteredData.map((c) => c.slug || c.id);
       setOpenSections(allIds);
-    } else {
-      // العودة للوضع الطبيعي (فتح الأول فقط أو إغلاق الكل)
-      setOpenSections(["concrete-admixtures"]);
     }
-  }, [searchTerm, filteredData]); // يعتمد على نتائج البحث
+  }, [searchTerm, filteredData]);
 
   // 3. التعديل هنا: دالة Toggle تدعم الفتح والإغلاق الحر
   const toggleSection = (id) => {
@@ -683,6 +421,31 @@ const Solutions = () => {
     }
   };
 
+  if (loading) {
+      return (
+          <div className="min-h-screen bg-white flex items-center justify-center">
+              <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 border-4 border-[#ee2039] border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-400">Loading Solutions...</p>
+              </div>
+          </div>
+      );
+  }
+
+  if (error) {
+    return (
+        <div className="min-h-screen bg-white flex items-center justify-center">
+            <div className="text-center p-8 bg-red-50 rounded-2xl">
+                <p className="text-red-500 font-bold mb-2">Error loading data</p>
+                <p className="text-sm text-gray-500">{error.message}</p>
+                <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-[#ee2039] text-white rounded-lg text-sm font-bold">
+                    Retry
+                </button>
+            </div>
+        </div>
+    );
+  }
+
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
@@ -692,16 +455,23 @@ const Solutions = () => {
         </div>
         <div className="container mx-auto px-4 relative z-10 ">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 text-white border border-[#ee2039]/30 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 ">
-              <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
-              Solutions Catalogue
-            </div>
+            {sections.hero?.subtitle_en && (
+              <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 text-white border border-[#ee2039]/30 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 ">
+                <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
+                {sections.hero.subtitle_en}
+              </div>
+            )}
             <h1 className="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              Engineered <span className="text-[#ee2039]">Solutions</span>
+              {sections.hero?.title_en ? (
+                <>
+                  {sections.hero.title_en.split(' ')[0]} <span className="text-[#ee2039]">{sections.hero.title_en.split(' ').slice(1).join(' ')}</span>
+                </>
+              ) : (
+                <>Engineered <span className="text-[#ee2039]">Solutions</span></>
+              )}
             </h1>
             <p className="text-gray-200 text-lg md:text-xl max-w-2xl leading-relaxed mx-auto">
-              Browse our comprehensive range of specialized construction
-              chemicals...
+              {sections.hero?.description_en || "Browse our comprehensive range of specialized construction chemicals..."}
             </p>
           </div>
         </div>
@@ -718,7 +488,7 @@ const Solutions = () => {
               />
               <input
                 type="text"
-                placeholder="Search categories, sub-categories, or products..."
+                placeholder={sections.search?.placeholder_en || "Search categories, sub-categories, or products..."}
                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-[#ee2039] focus:ring-1 focus:ring-[#ee2039] transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -727,7 +497,7 @@ const Solutions = () => {
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Filter size={16} />
               <span className="font-medium">
-                {filteredData.length} Categories Found
+                {filteredData.length} {sections.search?.title_en || "Categories Found"}
               </span>
             </div>
           </div>
@@ -743,22 +513,22 @@ const Solutions = () => {
                 <CategorySection
                   key={category.id}
                   category={category}
-                  // 4. التعديل هنا: الفتح يعتمد على وجود الـ ID في المصفوفة
-                  isOpen={openSections.includes(category.id)}
-                  toggleOpen={() => toggleSection(category.id)}
+                  sections={sections} // Pass sections mapping
+                  isOpen={openSections.includes(category.slug || category.id)}
+                  toggleOpen={() => toggleSection(category.slug || category.id)}
                 />
               ))
             ) : (
               <div className="text-center py-20">
                 <Box size={48} className="mx-auto text-gray-300 mb-4" />
                 <p className="text-xl text-gray-400 font-bold">
-                  No solutions found matching "{searchTerm}"
+                  {sections.search?.empty_text_en || "No solutions found matching"} "{searchTerm}"
                 </p>
                 <button
                   onClick={() => setSearchTerm("")}
                   className="mt-4 text-[#ee2039] font-bold hover:underline"
                 >
-                  Clear Search
+                  {sections.search?.subtitle_en || "Clear Search"}
                 </button>
               </div>
             )}

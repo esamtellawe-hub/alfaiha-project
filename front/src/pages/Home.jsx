@@ -1,47 +1,72 @@
-import useHomeData from "../hooks/useHomeData";
-import { useState, useEffect, useRef } from "react";
-import { ArrowRight,ChevronRight,GraduationCap , Award, Globe, Users, TrendingUp } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import api from "../api/axios";
+import {
+  ArrowRight,
+  ChevronRight,
+  GraduationCap,
+  Users,
+  Globe,
+  Award,
+  TrendingUp,
+} from "lucide-react";
+import useHomeData from "../hooks/useHomeData";
 
-
-// --- Helper Components ---
-
+// --- Helper Component: Number Counter ---
 const Counter = ({ end, duration = 2000, isVisible }) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!isVisible) return;
-    let startTimestamp = null;
-    const step = (timestamp) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      setCount(Math.floor(progress * end));
-      if (progress < 1) {
-        window.requestAnimationFrame(step);
+    let startTime = null;
+    let animationFrame;
+
+    const animate = (timestamp) => {
+      if (!isVisible) return;
+      if (!startTime) startTime = timestamp;
+
+      const progress = timestamp - startTime;
+      const percentage = Math.min(progress / duration, 1);
+      const ease = 1 - Math.pow(1 - percentage, 4);
+      const currentCount = Math.round(end * ease);
+
+      setCount(currentCount);
+
+      if (progress < duration) {
+        animationFrame = requestAnimationFrame(animate);
+      } else {
+        setCount(end);
       }
     };
-    window.requestAnimationFrame(step);
+
+    if (isVisible) {
+      animationFrame = requestAnimationFrame(animate);
+    } else {
+      setCount(0);
+    }
+
+    return () => cancelAnimationFrame(animationFrame);
   }, [end, duration, isVisible]);
 
-  return <>{count}</>;
+  return <span>{count}</span>;
+};
+
+// --- Helper Component: Icon Renderer ---
+const renderIcon = (iconName, className) => {
+    switch (iconName) {
+        case 'Award': return <Award className={className} />;
+        case 'Globe': return <Globe className={className} />;
+        case 'Users': return <Users className={className} />;
+        case 'TrendingUp': return <TrendingUp className={className} />;
+        case 'GraduationCap': return <GraduationCap className={className} />;
+        default: return <Award className={className} />;
+    }
 };
 
 const EngineeringConfidence = ({ data }) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const coreValues = data?.extra_data?.core_values_en || [
-    "Always Exceed Expectations",
-    "Delivering Our Promises",
-    "Be Your Own Customer",
-    "Continuous Improvement",
-    "Honesty",
-    "Courage",
-    "We Listen, We Care, We Serve",
-  ];
+  const coreValues = data?.extra_data?.core_values_en || [];
 
-  // هذا هو مسار الخط البياني
   const pathData =
     "M0,200 L180,200 L180,140 L210,140 L210,200 L240,200 L240,80 L280,80 L280,200 L310,200 L310,110 L350,110 L350,200 L380,200 L380,20 L420,20 L420,200 L450,200 L450,70 L490,70 L490,200 L520,200 L520,130 L560,130 L560,200 L590,200 L590,90 L630,90 L630,200 L800,200";
 
@@ -58,31 +83,31 @@ const EngineeringConfidence = ({ data }) => {
     };
   }, []);
 
+  if (!data) return null;
+
   return (
     <section
       ref={sectionRef}
       className="relative w-full py-16 md:py-24 bg-white overflow-hidden flex flex-col items-center justify-center text-center font-sans z-20 border-b border-gray-100"
     >
-      {/* خلفية الشبكة الهندسية */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#000000_1px,transparent_1px),linear-gradient(to_bottom,#000000_1px,transparent_1px)] bg-[size:20px_20px] md:bg-[size:40px_40px]"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4">
-        {/* العناوين الرئيسية */}
         <div
           className={`mb-12 md:mb-16 transition-all duration-1000 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
           <h2 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-slate-900 tracking-tight leading-tight md:leading-[1.1]">
-            {data?.title_en || "Engineered Products."}
+            {data.title_en}
             <br />
-            <span className="text-[#ee2039]">{data?.description_en || "Zero Compromise."}</span>
+            <span className="text-[#ee2039]">{data.description_en}</span>
           </h2>
         </div>
 
-        {/* سكشن الرسم الهندسي */}
+        {/* Engineering path SVG */}
         <div className="relative w-full max-w-3xl mx-auto h-32 md:h-48 flex items-end justify-center">
           <svg
             width="100%"
@@ -91,14 +116,12 @@ const EngineeringConfidence = ({ data }) => {
             preserveAspectRatio="none"
             className="overflow-visible"
           >
-            {/* الخط الأحمر المتحرك */}
             <path
               d={pathData}
               fill="none"
               stroke="#ee2039"
               strokeWidth="1.5"
               className="drop-shadow-[0_0_8px_rgba(238,32,57,0.4)]"
-              // pathLength="1" هي السر لجعل طول المسار يعامل كـ 1 وبالتالي يتزامن مع النسبة المئوية للمثلث
               pathLength="1"
               strokeDasharray="1"
               strokeDashoffset={isVisible ? "0" : "1"}
@@ -108,8 +131,6 @@ const EngineeringConfidence = ({ data }) => {
               strokeLinejoin="round"
               strokeLinecap="round"
             />
-
-            {/* المثلث المتحرك (Play Icon) الذي يتبع المسار */}
             <g
               style={{
                 offsetPath: `path('${pathData}')`,
@@ -127,23 +148,11 @@ const EngineeringConfidence = ({ data }) => {
                 transform="translate(0, 0)"
               />
             </g>
-
-            {/* الدوائر البيضاء عند الزوايا */}
             {[
-              { x: 180, y: 140 },
-              { x: 210, y: 140 },
-              { x: 240, y: 80 },
-              { x: 280, y: 80 },
-              { x: 310, y: 110 },
-              { x: 350, y: 110 },
-              { x: 380, y: 20 },
-              { x: 420, y: 20 },
-              { x: 450, y: 70 },
-              { x: 490, y: 70 },
-              { x: 520, y: 130 },
-              { x: 560, y: 130 },
-              { x: 590, y: 90 },
-              { x: 630, y: 90 },
+              { x: 180, y: 140 }, { x: 210, y: 140 }, { x: 240, y: 80 }, { x: 280, y: 80 },
+              { x: 310, y: 110 }, { x: 350, y: 110 }, { x: 380, y: 20 }, { x: 420, y: 20 },
+              { x: 450, y: 70 }, { x: 490, y: 70 }, { x: 520, y: 130 }, { x: 560, y: 130 },
+              { x: 590, y: 90 }, { x: 630, y: 90 },
             ].map((point, i) => (
               <circle
                 key={i}
@@ -161,7 +170,6 @@ const EngineeringConfidence = ({ data }) => {
           </svg>
         </div>
 
-        {/* القيم الجوهرية */}
         <div
           className={`mt-16 flex flex-wrap justify-center gap-y-6 gap-x-8 md:gap-x-12 max-w-6xl mx-auto transition-all duration-1000 delay-700 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
@@ -187,50 +195,14 @@ const EngineeringConfidence = ({ data }) => {
   );
 };
 
-// Update Child Components to accept props
-const StatsSection = ({ statsData }) => {
+const StatsSection = ({ sections }) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  // Map backend data to frontend structure
-  // statsData is an object: { stat_experience: { extra_data: { value: 37 } }, ... }
-  const stats = [
-    {
-      id: 1,
-      value: statsData?.stat_experience?.extra_data?.value || 37,
-      suffix: statsData?.stat_experience?.extra_data?.suffix || "+",
-      label: statsData?.stat_experience?.title_en || "Years of Experience",
-      sub: statsData?.stat_experience?.description_en || "Since 1987",
-      icon: <Award className="w-6 h-6 md:w-8 md:h-8 text-[#ee2039]" />,
-    },
-    {
-      id: 2,
-      value: statsData?.stat_countries?.extra_data?.value || 12,
-      suffix: statsData?.stat_countries?.extra_data?.suffix || "",
-      label: statsData?.stat_countries?.title_en || "Countries",
-      sub: statsData?.stat_countries?.description_en || "MENA Presence",
-      icon: <Globe className="w-6 h-6 md:w-8 md:h-8 text-[#ee2039]" />,
-    },
-    {
-      id: 3,
-      value: statsData?.stat_employees?.extra_data?.value || 150,
-      suffix: statsData?.stat_employees?.extra_data?.suffix || "+",
-      label: statsData?.stat_employees?.title_en || "Employees",
-      sub: statsData?.stat_employees?.description_en || "Dedicated Professionals",
-      icon: <Users className="w-6 h-6 md:w-8 md:h-8 text-[#ee2039]" />,
-    },
-    {
-      id: 4,
-      value: statsData?.stat_projects?.extra_data?.value || 500,
-      suffix: statsData?.stat_projects?.extra_data?.suffix || "M+",
-      label: statsData?.stat_projects?.title_en || "Project Value",
-      sub: statsData?.stat_projects?.description_en || "Delivered Excellence",
-      icon: <TrendingUp className="w-6 h-6 md:w-8 md:h-8 text-[#ee2039]" />,
-    },
-  ];
+  const statsKeys = ['stat_experience', 'stat_countries', 'stat_employees', 'stat_projects'];
+  const stats = statsKeys.map(key => sections[key]).filter(Boolean);
 
   useEffect(() => {
-    // ... (Keep existing observer logic)
     const observer = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
       { threshold: 0.2 },
@@ -240,6 +212,8 @@ const StatsSection = ({ statsData }) => {
       if (sectionRef.current) observer.unobserve(sectionRef.current);
     };
   }, []);
+
+  if (stats.length === 0) return null;
 
   return (
     <section
@@ -259,20 +233,20 @@ const StatsSection = ({ statsData }) => {
               style={{ transitionDelay: `${index * 300}ms` }}
             >
               <div className="mb-4 p-3 bg-white/5 rounded-2xl border border-white/10">
-                {stat.icon}
+                {renderIcon(stat.icon_name, "w-6 h-6 md:w-8 md:h-8 text-[#ee2039]")}
               </div>
               <div className="flex items-baseline mb-2">
                 <span className="text-4xl md:text-5xl font-bold text-white">
-                  <Counter end={stat.value} isVisible={isVisible} />
+                  <Counter end={stat.extra_data?.value || 0} isVisible={isVisible} />
                 </span>
                 <span className="text-2xl md:text-3xl font-bold text-[#ee2039] ml-1">
-                  {stat.suffix}
+                  {stat.extra_data?.suffix || ''}
                 </span>
               </div>
               <h3 className="text-sm md:text-base font-bold text-gray-500 uppercase tracking-wider mb-1">
-                {stat.label}
+                {stat.title_en}
               </h3>
-              <p className="text-xs text-gray-700">{stat.sub}</p>
+              <p className="text-xs text-gray-700">{stat.description_en}</p>
             </div>
           ))}
         </div>
@@ -281,7 +255,7 @@ const StatsSection = ({ statsData }) => {
   );
 };
 
-const FeaturedProducts = ({ products }) => {
+const FeaturedProducts = ({ data }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [showContent, setShowContent] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
@@ -310,10 +284,8 @@ const FeaturedProducts = ({ products }) => {
     };
   }, []);
 
-  // Use passed products or fallback
-  const displayProducts = products && products.length > 0 ? products : [];
-
-  if (displayProducts.length === 0) return null; // Don't render if no products
+  if (!data) return null;
+  const products = data.extra_data?.products_en || [];
 
   return (
     <section
@@ -324,31 +296,31 @@ const FeaturedProducts = ({ products }) => {
         className={`container mx-auto px-4 mb-10 text-center transition-all duration-1000 ${isVisible ? "opacity-100" : "opacity-0 translate-y-10"}`}
       >
         <h2 className="text-3xl md:text-5xl font-bold text-slate-900">
-          Featured <span className="text-[#ee2039]">Products</span>
+          {data.title_en} <span className="text-[#ee2039]">{data.description_en}</span>
         </h2>
       </div>
 
       <div className="flex flex-col md:flex-row h-[850px] md:h-[600px] w-full max-w-[1400px] mx-auto overflow-hidden gap-3 px-2 md:px-8">
-        {displayProducts.map((product, index) => {
+        {products.map((product, index) => {
           const isActive = activeIndex === index;
           const isContentVisible = showContent === index;
 
           return (
             <div
-              key={product.id}
+              key={index}
               onMouseEnter={() => setActiveIndex(index)}
               onClick={() => setActiveIndex(index)}
               className={`relative rounded-3xl overflow-hidden cursor-pointer transition-[flex] duration-1000 ease-out transform-gpu 
         ${
           isActive 
             ? "flex-[10] md:flex-[5] z-10 shadow-2xl bg-transparent"
-            : "flex-[1] z-0 bg-[#ee2039]" 
+            : "flex-[1] z-0 bg-[#ee2039]"
         }`}
             >
               {isActive && (
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
-                  style={{ backgroundImage: `url('${product.image_url || product.image}')` }}
+                  style={{ backgroundImage: `url('${product.image}')` }}
                 />
               )}
               {isActive && (
@@ -361,7 +333,7 @@ const FeaturedProducts = ({ products }) => {
               {!isActive && (
                 <div className="absolute inset-0 flex items-center  justify-center">
                   <h3 className="text-white font-bold uppercase tracking-widest text-lg md:rotate-[-90deg] whitespace-nowrap opacity-100">
-                    {product.category?.name_en || product.category}
+                    {product.category}
                   </h3>
                 </div>
               )}
@@ -376,15 +348,15 @@ const FeaturedProducts = ({ products }) => {
                 >
                   <div className="w-full max-w-[90%] md:max-w-[420px]">
                     <div className="inline-block py-1 px-2 rounded bg-[#ee2039] text-white text-[9px] md:text-[10px] font-bold uppercase mb-3 tracking-wider">
-                      {product.category?.name_en || product.category}
+                      {product.category}
                     </div>
                     <h3 className="text-xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3 leading-[1.1] break-words drop-shadow-xl">
-                      {product.name_en || product.name}
+                      {product.name}
                     </h3>
                     <p className="text-gray-200 text-xs md:text-sm lg:text-base mb-6 leading-relaxed opacity-90 line-clamp-3">
-                      {product.description_en || product.description}
+                      {product.description}
                     </p>
-                    <Link to={`/products/${product.slug}` || product.link} className="inline-flex items-center gap-2 text-white text-xs md:text-sm font-bold group/btn cursor-pointer">
+                    <Link to={product.link} className="inline-flex items-center gap-2 text-white text-xs md:text-sm font-bold group/btn cursor-pointer">
                       <span className="border-b-2 border-[#ee2039] pb-0.5 transition-all">
                         View Details
                       </span>
@@ -403,9 +375,10 @@ const FeaturedProducts = ({ products }) => {
   );
 };
 
+// --- 4. Certifications ---
 const Certifications = ({ certs }) => {
-  const displayCerts = certs || [];
-  
+  if (!certs || certs.length === 0) return null;
+
   return (
     <section className="py-16 bg-white border-t border-gray-100 overflow-hidden">
       <style>{`
@@ -432,7 +405,7 @@ const Certifications = ({ certs }) => {
         <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10"></div>
 
         <div className="flex w-max animate-scroll hover:[animation-play-state:paused]">
-          {[...displayCerts, ...displayCerts].map((cert, index) => (
+          {[...certs, ...certs].map((cert, index) => (
             <div
               key={index}
               className="flex flex-col items-center justify-center min-w-[200px] md:min-w-[280px] px-6 py-4 mx-2 group cursor-default transition-all duration-300"
@@ -441,7 +414,7 @@ const Certifications = ({ certs }) => {
                 className={`w-20 h-20 md:w-24 md:h-24 rounded-full bg-white flex items-center justify-center mb-4 transition-all duration-300 group-hover:shadow-xl border border-gray-100 group-hover:border-gray-200 overflow-hidden p-4`}
               >
                 <img
-                  src={cert.image_url || cert.image} 
+                  src={cert.image_url}
                   alt={cert.name}
                   className="w-full h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
                 />
@@ -449,7 +422,7 @@ const Certifications = ({ certs }) => {
               <h4 className="font-bold text-slate-700 text-sm md:text-base group-hover:text-black transition-colors">
                 {cert.name}
               </h4>
-              <p className="text-xs text-gray-500 uppercase tracking-wider font-bold group-hover:text-[#ee2039] transition-colors mt-2 text-center">
+              <p className="text-xs text-gray-300 uppercase tracking-wider font-medium group-hover:text-[#ee2039] transition-colors mt-1">
                 {cert.type}
               </p>
             </div>
@@ -460,69 +433,73 @@ const Certifications = ({ certs }) => {
   );
 };
 
+// --- 5. HomeCTA ---
 const HomeCTA = ({ sections }) => {
-  const academy = sections?.cta_academy;
-  const partners = sections?.cta_partners;
+  const cta1 = sections['cta_academy'];
+  const cta2 = sections['cta_partners'];
+
+  if (!cta1 || !cta2) return null;
 
   return (
     <section className="py-16 md:py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {/* Academy CTA */}
           <div className="relative rounded-3xl overflow-hidden min-h-[300px] md:min-h-[400px] group cursor-pointer transform-gpu">
-             <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"
-                  style={{ backgroundImage: `url('${academy?.image_url || "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop"}')` }}></div>
+            <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"
+                style={{ backgroundImage: `url('${cta1.image_url}')` }}
+            ></div>
             <div className="absolute inset-0 bg-slate-900/80 group-hover:bg-slate-900/70 transition-colors duration-300"></div>
-            <a href={academy?.link_url || "/academy"}>
+            <Link to={cta1.link_url}>
             <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 border border-blue-400/30">
-                  <GraduationCap className="text-blue-400 w-5 h-5 md:w-6 md:h-6" />
+                  {renderIcon(cta1.icon_name, "text-blue-400 w-5 h-5 md:w-6 md:h-6")}
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 md:mb-4">
-                  {academy?.title_en || "AFG Academy"}
+                  {cta1.title_en}
                 </h3>
                 <p className="text-gray-200 leading-relaxed max-w-md text-sm md:text-base">
-                  {academy?.description_en || "Empowering the next generation..."}
+                  {cta1.description_en}
                 </p>
               </div>
               <p
                 className="inline-flex items-center gap-2 text-white font-bold hover:gap-4 transition-all group-hover:text-blue-400 text-sm md:text-base"
               >
-                {academy?.btn_text_en || "Join the Program"}{" "}
+                {cta1.btn_text_en}{" "}
                 <ArrowRight size={18} className="md:w-5 md:h-5" />
               </p>
             </div>
-            </a>
+            </Link>
           </div>
-          
-          {/* Partners CTA */}
           <div className="relative rounded-3xl overflow-hidden min-h-[300px] md:min-h-[400px] group cursor-pointer transform-gpu">
-            <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"
-                 style={{ backgroundImage: `url('${partners?.image_url || "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=800&auto=format&fit=crop"}')` }}></div>
+            <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"
+                style={{ backgroundImage: `url('${cta2.image_url}')` }}
+            ></div>
             
             <div className="absolute inset-0 bg-[#ee2039]/60 group-hover:bg-[#ee2039]/50 transition-colors duration-300"></div>
-            <a href={partners?.link_url || "/partners"}>
+            <Link to={cta2.link_url}>
             <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 border border-white/30">
-                  <Users className="text-white w-5 h-5 md:w-6 md:h-6" />
+                  {renderIcon(cta2.icon_name, "text-white w-5 h-5 md:w-6 md:h-6")}
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 md:mb-4">
-                  {partners?.title_en || "Become a Partner"}
+                    {cta2.title_en}
                 </h3>
                 <p className="text-white/90 leading-relaxed max-w-md text-sm md:text-base">
-                  {partners?.description_en || "Join our growing network..."}
+                  {cta2.description_en}
                 </p>
               </div>
               <p
                 className="inline-flex items-center gap-2 text-white font-bold hover:gap-4 transition-all text-sm md:text-base"
               >
-                {partners?.btn_text_en || "Apply for Partnership"}{" "}
+                {cta2.btn_text_en}{" "}
                 <ArrowRight size={18} className="md:w-5 md:h-5" />
               </p>
             </div>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -532,24 +509,34 @@ const HomeCTA = ({ sections }) => {
 
 // --- 6. Main Home Page Component ---
 const Home = () => {
-  const { hero, sections, certifications, featuredProducts, loading } = useHomeData();
+    
+  const { loading, error, hero, sections, certifications } = useHomeData();
+
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    if (hero.length > 0) {
-      const interval = setInterval(() => {
-        setCurrentSlide((prev) => (prev === hero.length - 1 ? 0 : prev + 1));
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [hero.length]);
+    if (!hero || hero.length === 0) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev === hero.length - 1 ? 0 : prev + 1));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [hero]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-black text-white">Loading...</div>; // Simplistic loader
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="w-16 h-16 border-4 border-[#ee2039] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+    );
   }
 
-  // Fallback if hero is empty to prevent crash
-  if (!hero || hero.length === 0) return null; 
+  if (error || !hero || hero.length === 0) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-gray-500">
+            <p>Error loading home page content.</p>
+        </div>
+      )
+  }
 
   return (
     <div className="flex flex-col w-full">
@@ -590,12 +577,11 @@ const Home = () => {
               {/* Main Title */}
               <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 tracking-tight leading-[1.2]">
                 <span className="whitespace-nowrap sm:whitespace-normal block sm:inline">
-                  {hero[currentSlide].title_en}
+                  {hero[currentSlide].title_en}{" "}
                 </span>
 
                 <span className="block text-[#ee2039]">
-                  {/* Assuming extra_data contains highlight word for now as per seeder */}
-                  {hero[currentSlide].extra_data?.highlight_en || "Excellence"}
+                  {hero[currentSlide].highlight_text_en}
                 </span>
               </h1>
 
@@ -606,19 +592,23 @@ const Home = () => {
 
               {/* Call to Actions */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md sm:max-w-none">
+                {hero[currentSlide].btn_1_text_en && (
                 <Link
                   to={hero[currentSlide].btn_1_link || "/solutions"}
                   className="w-full sm:w-auto px-10 py-4 bg-[#ee2039] hover:bg-[#c41229] text-white rounded-md font-bold text-base transition-all duration-300 shadow-lg shadow-[#ee2039]/20 text-center active:scale-95"
                 >
                   {hero[currentSlide].btn_1_text_en}
                 </Link>
+                )}
 
+                {hero[currentSlide].btn_2_text_en && (
                 <Link
-                  to="/projects"
+                  to={hero[currentSlide].btn_2_link || "/projects"}
                   className="w-full sm:w-auto px-10 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-md font-bold text-base backdrop-blur-md transition-all duration-300 text-center active:scale-95"
                 >
-                  View Projects
+                  {hero[currentSlide].btn_2_text_en}
                 </Link>
+                )}
               </div>
             </div>
           </div>
@@ -641,11 +631,11 @@ const Home = () => {
         </div>
       </section>
 
-      <EngineeringConfidence data={sections?.engineering_confidence} />
+      <EngineeringConfidence data={sections.engineering_confidence} />
 
-      <StatsSection statsData={sections} />
+      <StatsSection sections={sections} />
 
-      <FeaturedProducts products={featuredProducts} />
+      <FeaturedProducts data={sections.featured_products} />
 
       <HomeCTA sections={sections} />
 

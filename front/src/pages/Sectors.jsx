@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, Link } from "react-router-dom";
+import useSectors from "../hooks/useSectors";
 import {
   Building2,
   Factory,
@@ -26,1420 +27,51 @@ import {
   Grid,
 } from "lucide-react";
 
-// --- 1. بيانات القطاعات ---
-const SECTORS_DATA = [
-  {
-    id: "educational",
-    title: "Educational",
-    icon: <GraduationCap />,
-    description:
-      "Supports schools & universities with durable learning environments.",
-    tabs: [
-      "Schools",
-      "Universities",
-      "Research Institutes",
-      "Training Centers",
-    ],
-    areas: [
-      {
-        id: "sub-structure",
-        title: "Sub-Structure Elements",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "roofs",
-        title: "Roofs",
-        products: [
-          "Waterproofing Products",
-          "Sealants",
-          "Protective Coatings",
-          "Plastering Textured Products",
-        ],
-      },
-      {
-        id: "facades",
-        title: "Façades",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured Products",
-          "Products Coatings",
-        ],
-      },
-      {
-        id: "walls",
-        title: "Walls",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured Products",
-        ],
-      },
-      {
-        id: "floors",
-        title: "Floors",
-        products: [
-          "Tile Adhesives & Grouts",
-          "Protective Coatings",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "kitchens",
-        title: "Kitchens & Bathrooms",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-          "Flooring Products",
-        ],
-      },
-      {
-        id: "submerged",
-        title: "Submerged Areas",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Concrete Repair",
-        ],
-      },
-      {
-        id: "gyms",
-        title: "Gyms",
-        products: [
-          "Flooring Products",
-          "Protective Coatings",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "pools",
-        title: "Swimming Pools",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-          "Protective Coatings",
-        ],
-      },
-      {
-        id: "parking",
-        title: "Car Parks",
-        products: [
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-          "Flooring Products",
-          "Sealants",
-        ],
-      },
-      {
-        id: "storage",
-        title: "Storage / Loading Bays",
-        products: [
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Protective Coatings",
-          "Anchoring and Grouts",
-        ],
-      },
-    ],
-  },
-  {
-    id: "infrastructure",
-    title: "Infrastructure",
-    icon: <Car />,
-    description: "High-performance solutions for bridges, tunnels, and roads.",
-    tabs: ["Bridges", "Roadworks", "Tunnels", "Drainage Systems"],
-    areas: [
-      {
-        id: "bridges",
-        title: "Bridges",
-        products: [
-          "Concrete Repair Products",
-          "Waterproofing Products",
-          "Concrete Fiber",
-          "Protective Coatings",
-          "Sealants",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "tunnels",
-        title: "Tunnels",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair Products",
-          "Concrete Fiber",
-          "Protective Coatings",
-          "Sealants",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "roadworks",
-        title: "Roadworks",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Concrete Fiber",
-          "Concrete Repair Products",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "pipelines",
-        title: "Pipelines",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair Products",
-          "Protective Coatings",
-          "Sealants",
-          "Anchoring and Grouts",
-        ],
-      },
-    ],
-  },
-  {
-    id: "power-energy",
-    title: "Power & Energy",
-    icon: <Zap />,
-    description:
-      "Critical infrastructure protection for power stations & wind farms.",
-    tabs: ["Power Stations", "Cooling Towers", "Substations", "Wind Farms"],
-    areas: [
-      {
-        id: "turbine",
-        title: "Turbine Halls",
-        products: [
-          "Protective Coatings",
-          "Surface Treatments",
-          "Flooring Products",
-          "Sealants",
-        ],
-      },
-      {
-        id: "cooling",
-        title: "Cooling Towers",
-        products: [
-          "Waterproofing Products",
-          "Sealants",
-          "Protective Coatings",
-          "Concrete Repair Products",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "substations",
-        title: "Substations",
-        products: [
-          "Sealants",
-          "Flooring Products",
-          "Protective Coatings",
-          "Concrete Repair Products",
-          "Surface Treatments",
-        ],
-      },
-    ],
-  },
-  {
-    id: "industrial",
-    title: "Industrial",
-    icon: <Factory />,
-    description: "Heavy-duty solutions for factories, warehouses, and plants.",
-    tabs: ["Factories", "Warehouses", "Data Centers", "Power Plants"],
-    areas: [
-      {
-        id: "production",
-        title: "Production Areas",
-        products: ["Flooring Products", "Sealants", "Protective Coatings"],
-      },
-      {
-        id: "warehouses",
-        title: "Warehouses",
-        products: ["Flooring Products", "Concrete Repair", "Joint Sealants"],
-      },
-      {
-        id: "tanks",
-        title: "Tanks & Silos",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair",
-          "Protective Coatings",
-        ],
-      },
-      {
-        id: "loading",
-        title: "Storage / Loading Bays",
-        products: [
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-        ],
-      },
-    ],
-  },
-  {
-    id: "high-rise",
-    title: "High Rise",
-    icon: <Building2 />,
-    description: "Complete building envelope solutions for residential towers.",
-    areas: [
-      {
-        id: "sub-struct",
-        title: "Sub-Structure",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair",
-          "Concrete Fibers",
-        ],
-      },
-      {
-        id: "roofs",
-        title: "Roofs & Terraces",
-        products: ["Waterproofing Products", "Sealants", "Protective Coatings"],
-      },
-      {
-        id: "facades",
-        title: "Façades",
-        products: ["Protective Coatings", "Sealants", "Textured Plastering"],
-      },
-      {
-        id: "interiors",
-        title: "Interiors",
-        products: ["Tile Adhesives & Grouts", "Waterproofing", "Sealants"],
-      },
-    ],
-  },
-  {
-    id: "healthcare",
-    title: "Healthcare",
-    icon: <Briefcase />,
-    description:
-      "Hygienic solutions for hospitals, clinics, and sterile areas.",
-    tabs: ["Hospitals", "Clinics", "Laboratories", "Sterile Rooms"],
-    areas: [
-      {
-        id: "operating",
-        title: "Operating Rooms",
-        products: [
-          "Sealants",
-          "Flooring Products",
-          "Protective Coatings",
-          "Concrete Repair",
-        ],
-      },
-      {
-        id: "labs",
-        title: "Laboratories",
-        products: ["Sealants", "Flooring Products", "Protective Coatings"],
-      },
-      {
-        id: "sterile",
-        title: "Sterile Areas",
-        products: ["Sealants", "Flooring Products", "Protective Coatings"],
-      },
-    ],
-  },
-  {
-    id: "hospitality",
-    title: "Hospitality",
-    icon: <LayoutGrid />,
-    description: "Aesthetic & durable solutions for hotels and resorts.",
-    tabs: ["Hotels", "Resorts", "Restaurants", "Recreational Facilities"],
-    areas: [
-      {
-        id: "lobbies",
-        title: "Lobbies & Ballrooms",
-        products: [
-          "Flooring Products",
-          "Protective Coatings",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "pools-spa",
-        title: "Pools & Spas",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-          "Protective Coatings",
-        ],
-      },
-      {
-        id: "kids",
-        title: "Kids Play Area",
-        products: [
-          "Flooring Products",
-          "Protective Coatings",
-          "Surface Treatments",
-        ],
-      },
-    ],
-  },
-  {
-    id: "residential",
-    title: "Residential",
-    icon: <Building2 />,
-    description:
-      "Supports apartments and villas with waterproofing systems, concrete repair and reinforcement solutions, sealants, protective coatings, surface treatments, textured plaster finishes, tile adhesives & grouts, and flooring products.",
-    tabs: ["Apartments", "Villas"],
-    areas: [
-      {
-        id: "sub-structure",
-        title: "Sub-Structure Elements",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "roofs",
-        title: "Roofs",
-        products: [
-          "Waterproofing Products",
-          "Sealants",
-          "Protective Coatings",
-          "Plastering Textured",
-        ],
-      },
-      {
-        id: "facades",
-        title: "Façades",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured Products",
-          "Products Coatings",
-        ],
-      },
-      {
-        id: "walls",
-        title: "Walls",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured",
-        ],
-      },
-      {
-        id: "floors",
-        title: "Floors",
-        products: [
-          "Tile Adhesives & Grouts",
-          "Protective Coatings",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "kitchens",
-        title: "Kitchens & Bathrooms",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-          "Flooring Products",
-        ],
-      },
-      {
-        id: "submerged",
-        title: "Submerged Areas",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Concrete Repair",
-        ],
-      },
-      {
-        id: "gyms",
-        title: "Gyms",
-        products: [
-          "Flooring Products",
-          "Protective Coatings",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "pools",
-        title: "Swimming Pools",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-          "Protective Coatings",
-        ],
-      },
-      {
-        id: "gardens",
-        title: "Gardens",
-        products: [
-          "Sealants",
-          "Flooring Products",
-          "Protective Coatings",
-          "Concrete Repair",
-          "Waterproofing Products",
-          "Surface Treatments",
-        ],
-      },
-    ],
-  },
-  {
-    id: "commercial-retail",
-    title: "Commercial & Retail",
-    icon: <Briefcase />,
-    description:
-      "Supports offices, malls, supermarkets, and showrooms with robust flooring systems, protective coatings, waterproofing solutions, concrete repair technologies, sealants, and finishing systems.",
-    tabs: ["Office Buildings", "Shopping Malls", "Supermarkets", "Showrooms"],
-    areas: [
-      {
-        id: "sub-structure",
-        title: "Sub-Structure Elements",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "roofs",
-        title: "Roofs",
-        products: [
-          "Waterproofing Products",
-          "Sealants",
-          "Protective Coatings",
-          "Plastering Textured",
-        ],
-      },
-      {
-        id: "facades",
-        title: "Façades",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured Products",
-          "Products Coatings",
-        ],
-      },
-      {
-        id: "walls",
-        title: "Walls",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured",
-        ],
-      },
-      {
-        id: "floors",
-        title: "Floors",
-        products: [
-          "Tile Adhesives & Grouts",
-          "Protective Coatings",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "kitchens",
-        title: "Kitchens & Bathrooms",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-          "Flooring Products",
-        ],
-      },
-      {
-        id: "submerged",
-        title: "Submerged Areas",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Concrete Repair",
-        ],
-      },
-      {
-        id: "gyms",
-        title: "Gyms",
-        products: [
-          "Flooring Products",
-          "Protective Coatings",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "storage",
-        title: "Storage / Loading Bays",
-        products: [
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "parking",
-        title: "Car Parks",
-        products: [
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-          "Flooring Products",
-          "Sealants",
-        ],
-      },
-      {
-        id: "food-halls",
-        title: "Food Halls",
-        products: [
-          "Flooring Products",
-          "Protective Coatings",
-          "Surface Treatments",
-          "Plastering Textured Products",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-        ],
-      },
-    ],
-  },
-  {
-    id: "correctional-security",
-    title: "Correctional & Security",
-    icon: <Factory />,
-    description:
-      "Supports jails, military bases, and secure facilities with high-strength concrete repair systems, protective coatings, secure flooring solutions, sealants, and waterproofing products.",
-    tabs: ["Jails", "Military Bases"],
-    areas: [
-      {
-        id: "sub-structure",
-        title: "Sub-Structure Elements",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "roofs",
-        title: "Roofs",
-        products: [
-          "Waterproofing Products",
-          "Sealants",
-          "Protective Coatings",
-          "Plastering Textured",
-        ],
-      },
-      {
-        id: "facades",
-        title: "Façades",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured Products",
-          "Products Coatings",
-        ],
-      },
-      {
-        id: "walls",
-        title: "Walls",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured",
-        ],
-      },
-      {
-        id: "floors",
-        title: "Floors",
-        products: [
-          "Tile Adhesives & Grouts",
-          "Protective Coatings",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "kitchens",
-        title: "Kitchens & Bathrooms",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-          "Flooring Products",
-        ],
-      },
-      {
-        id: "parking",
-        title: "Car Parks",
-        products: [
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-          "Flooring Products",
-          "Sealants",
-        ],
-      },
-      {
-        id: "secure-perimeters",
-        title: "Secure Perimeters",
-        products: ["Concrete Repair", "Protective Coatings"],
-      },
-      {
-        id: "workshops",
-        title: "Workshops",
-        products: [
-          "Concrete Repair",
-          "Protective Coatings",
-          "Flooring Products",
-          "Sealants",
-          "Waterproofing Products",
-          "Anchoring and Grouts",
-          "Tile Adhesives & Grouts",
-        ],
-      },
-    ],
-  },
-  {
-    id: "cultural-entertainment",
-    title: "Cultural & Entertainment",
-    icon: <LayoutGrid />,
-    description:
-      "Delivers solutions for theaters, museums, arenas, and cinemas using acoustic and decorative surface treatments, protective coatings, flooring systems, waterproofing products, and finishing solutions.",
-    tabs: ["Theaters", "Museums", "Sports Arenas", "Cinemas"],
-    areas: [
-      {
-        id: "sub-structure",
-        title: "Sub-Structure Elements",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "roofs",
-        title: "Roofs",
-        products: [
-          "Waterproofing Products",
-          "Sealants",
-          "Protective Coatings",
-          "Plastering Textured",
-        ],
-      },
-      {
-        id: "facades",
-        title: "Façades",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured Products",
-          "Products Coatings",
-        ],
-      },
-      {
-        id: "walls",
-        title: "Walls",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured",
-        ],
-      },
-      {
-        id: "floors",
-        title: "Floors",
-        products: [
-          "Tile Adhesives & Grouts",
-          "Protective Coatings",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "kitchens",
-        title: "Kitchens & Bathrooms",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-          "Flooring Products",
-        ],
-      },
-      {
-        id: "submerged",
-        title: "Submerged Areas",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Concrete Repair",
-        ],
-      },
-      {
-        id: "storage",
-        title: "Storage / Loading Bays",
-        products: [
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "parking",
-        title: "Car Parks",
-        products: [
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-          "Flooring Products",
-          "Sealants",
-        ],
-      },
-      {
-        id: "food-halls",
-        title: "Food Halls",
-        products: [
-          "Flooring Products",
-          "Protective Coatings",
-          "Surface Treatments",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-        ],
-      },
-      {
-        id: "acoustic-halls",
-        title: "Acoustically Treated Halls",
-        products: [
-          "Surface Treatments",
-          "Plastering Textured Products",
-          "Protective Coatings",
-          "Flooring Products",
-        ],
-      },
-      {
-        id: "climate-controlled",
-        title: "Climate-Controlled Zones",
-        products: ["Surface Treatments", "Protective Coatings"],
-      },
-    ],
-  },
-  {
-    id: "transportation",
-    title: "Transportation",
-    icon: <Car />,
-    description:
-      "Supports airports, stations, terminals, and ports with high-performance waterproofing systems, concrete repair technologies, protective coatings, sealants, flooring systems, and runway-grade solutions.",
-    tabs: ["Airports", "Train Stations", "Bus Terminals", "Seaports"],
-    areas: [
-      {
-        id: "sub-structure",
-        title: "Sub-Structure Elements",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "roofs",
-        title: "Roofs",
-        products: [
-          "Waterproofing Products",
-          "Sealants",
-          "Protective Coatings",
-          "Plastering Textured",
-        ],
-      },
-      {
-        id: "facades",
-        title: "Façades",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured Products",
-          "Products Coatings",
-        ],
-      },
-      {
-        id: "walls",
-        title: "Walls",
-        products: [
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Plastering Textured",
-        ],
-      },
-      {
-        id: "floors",
-        title: "Floors",
-        products: [
-          "Tile Adhesives & Grouts",
-          "Protective Coatings",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "kitchens",
-        title: "Kitchens & Bathrooms",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-          "Flooring Products",
-        ],
-      },
-      {
-        id: "submerged",
-        title: "Submerged Areas",
-        products: [
-          "Waterproofing Products",
-          "Tile Adhesives & Grouts",
-          "Concrete Repair",
-        ],
-      },
-      {
-        id: "storage",
-        title: "Storage / Loading Bays",
-        products: [
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "parking",
-        title: "Car Parks",
-        products: [
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-          "Flooring Products",
-          "Sealants",
-        ],
-      },
-      {
-        id: "food-halls",
-        title: "Food Halls",
-        products: [
-          "Flooring Products",
-          "Protective Coatings",
-          "Surface Treatments",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-        ],
-      },
-      {
-        id: "runways",
-        title: "Runways & Taxiways",
-        products: [
-          "Concrete Repair",
-          "Protective Coatings",
-          "Flooring Products",
-          "Sealants",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "control-towers",
-        title: "Control Towers",
-        products: [
-          "Plastering Textured Product",
-          "Protective Coatings",
-          "Sealants",
-        ],
-      },
-    ],
-  },
-  {
-    id: "cement",
-    title: "Cement",
-    icon: <Factory />,
-    description:
-      "Serves cement plants with cement additives, concrete repair systems, fiber reinforcement, protective coatings, and industrial flooring solutions.",
-    tabs: ["Cement Plants"],
-    areas: [
-      {
-        id: "raw-mill",
-        title: "Cement Raw Material Mill",
-        products: ["Cement additives"],
-      },
-      {
-        id: "silos",
-        title: "Silos",
-        products: ["Concrete Repair", "Concrete Fiber"],
-      },
-      {
-        id: "packing",
-        title: "Packing Facilities",
-        products: ["Concrete Repair", "Concrete Fiber"],
-      },
-      {
-        id: "storage",
-        title: "Storage / Loading Bays",
-        products: [
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fibers",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "industrial-floors",
-        title: "Industrial Floors",
-        products: [
-          "Flooring Products",
-          "Protective Coatings",
-          "Surface Treatments",
-          "Tile Adhesives & Grouts",
-          "Sealants",
-          "Concrete Repair",
-        ],
-      },
-    ],
-  },
-  {
-    id: "concrete",
-    title: "Concrete",
-    icon: <Building2 />,
-    description:
-      "Supports batching plants, precast facilities, infrastructure, and residential construction with concrete admixtures, repair and strengthening systems, fiber reinforcement, waterproofing solutions.",
-    tabs: ["Batching Plants", "Precast Facilities"],
-    areas: [
-      {
-        id: "high-rise",
-        title: "High Rise Buildings",
-        products: [
-          "Concrete Repair",
-          "Concrete Fiber",
-          "Waterproofing Products",
-          "Surface Treatments",
-          "Plastering Textured Products",
-          "Protective Coatings",
-          "Flooring Products",
-          "Sealants",
-          "Anchoring and Grouts",
-          "Tile Adhesives & Grouts",
-        ],
-      },
-      {
-        id: "dams",
-        title: "Dams",
-        products: ["Concrete Repair", "Concrete Fiber"],
-      },
-      {
-        id: "power-plants",
-        title: "Power Plants",
-        products: ["Concrete Repair", "Protective Coatings", "Sealants"],
-      },
-      {
-        id: "residential",
-        title: "Residential Buildings",
-        products: [
-          "Concrete Fiber",
-          "Waterproofing Products",
-          "Surface Treatments",
-          "Plastering Textured Products",
-          "Protective Coatings",
-          "Sealants",
-          "Anchoring and Grouts",
-          "Tile Adhesives & Grouts",
-        ],
-      },
-      {
-        id: "roads",
-        title: "Roads & Highways",
-        products: [
-          "Concrete Repair",
-          "Concrete Fiber",
-          "Protective Coatings",
-          "Sealants",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "bridges",
-        title: "Bridges",
-        products: [
-          "Concrete Repair",
-          "Concrete Fiber",
-          "Protective Coatings",
-          "Sealants",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "tunnel",
-        title: "Tunnel",
-        products: [
-          "Concrete Repair",
-          "Concrete Fiber",
-          "Protective Coatings",
-          "Sealants",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "ready-mix",
-        title: "Ready-Mix Concrete",
-        products: ["Concrete Admixtures"],
-      },
-      {
-        id: "precast",
-        title: "Precast",
-        products: [
-          "Concrete Repair",
-          "Concrete Fiber",
-          "Protective Coatings",
-          "Sealants",
-        ],
-      },
-    ],
-  },
-  {
-    id: "marine",
-    title: "Marine",
-    icon: <Factory />,
-    description:
-      "Delivers marine-grade solutions for quays, jetties, docks, and slipways using corrosion-resistant protective coatings, concrete repair systems, waterproofing solutions, sealants.",
-    tabs: ["Quay Walls", "Jetties", "Docks"],
-    areas: [
-      {
-        id: "marine-piling",
-        title: "Marine Piling",
-        products: [
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fiber",
-          "Anchoring and Grouts",
-          "Waterproofing Products",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "quay-walls",
-        title: "Quay Walls",
-        products: [
-          "Sealants",
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fiber",
-          "Anchoring and Grouts",
-          "Waterproofing Products",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "slipways",
-        title: "Slipways",
-        products: [
-          "Sealants",
-          "Protective Coatings",
-          "Concrete Repair",
-          "Concrete Fiber",
-          "Anchoring and Grouts",
-          "Waterproofing Products",
-          "Surface Treatments",
-        ],
-      },
-    ],
-  },
-  {
-    id: "oil-gas",
-    title: "Oil & Gas",
-    icon: <Zap />,
-    description:
-      "Supports refineries, pipelines, storage tanks, and offshore platforms with chemical-resistant coatings, waterproofing systems, concrete repair technologies, fiber reinforcement, sealants.",
-    tabs: ["Refineries", "Storage Tanks", "Pipelines"],
-    areas: [
-      {
-        id: "tanks",
-        title: "Tanks",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair",
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Concrete Fiber",
-        ],
-      },
-      {
-        id: "pipelines",
-        title: "Pipelines",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair Products",
-          "Protective Coatings",
-          "Sealants",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "offshore",
-        title: "Offshore Platforms",
-        products: [
-          "Surface Treatments",
-          "Concrete Fiber",
-          "Concrete Repair Products",
-          "Protective Coatings",
-          "Sealants",
-          "Anchoring and Grouts",
-          "Waterproofing Products",
-        ],
-      },
-    ],
-  },
-  {
-    id: "water",
-    title: "Water",
-    icon: <Factory />,
-    description:
-      "Serves treatment plants, reservoirs, pipelines, and pumping stations with waterproofing systems, concrete repair solutions, protective coatings, sealants, surface treatments.",
-    tabs: ["Treatment Plants", "Pumping Stations", "Reservoirs", "Pipelines"],
-    areas: [
-      {
-        id: "pipelines",
-        title: "Pipelines",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair Products",
-          "Protective Coatings",
-          "Sealants",
-          "Anchoring and Grouts",
-        ],
-      },
-      {
-        id: "treatment-tanks",
-        title: "Treatment Tanks",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair Products",
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-        ],
-      },
-      {
-        id: "reservoirs",
-        title: "Reservoirs",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair",
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-          "Concrete Fiber",
-        ],
-      },
-      {
-        id: "septic-tanks",
-        title: "Septic Tanks",
-        products: [
-          "Waterproofing Products",
-          "Concrete Repair",
-          "Protective Coatings",
-          "Sealants",
-          "Surface Treatments",
-        ],
-      },
-    ],
-  },
-];
-
-// --- 2. دالة الربط مع صفحة الحلول ---
-// Maps product category names from Sectors to Solutions page IDs
-const getSolutionLink = (productName) => {
-  const mapping = {
-    "Waterproofing Products": "waterproofing",
-    Sealants: "sealants",
-    "Concrete Repair": "cementitious-repair",
-    "Concrete Repair Products": "cementitious-repair",
-    "Protective Coatings": "protective-coating",
-    "Flooring Products": "flooring",
-    "Tile Adhesives & Grouts": "tile-adhesives",
-    "Concrete Admixtures": "concrete-admixtures",
-    "Concrete Fibers": "concrete-fibers",
-    "Concrete Fiber": "concrete-fibers",
-    "Surface Treatments": "surface-treatments",
-    "Plastering Textured Products": "decorative",
-    "Plastering Textured": "decorative",
-    "Products Coatings": "protective-coating",
-    "Anchoring and Grouts": "cementitious-repair",
-    "Cement additives": "cement-additives",
-  };
-
-  const solutionId = mapping[productName];
-  if (solutionId) {
-    return `/solutions#${solutionId}`;
-  }
-
-  // Fallback: use search query
-  return `/solutions?search=${encodeURIComponent(productName)}`;
+// Helper to map icon name to component
+const IconHelper = ({ name, size = 32, className }) => {
+    const icons = {
+        Building2, Factory, GraduationCap, Zap, Car, Briefcase, LayoutGrid,
+        Droplets, Hammer, PaintBucket, Beaker, Layers, Grid, Box
+    };
+    const IconComponent = icons[name] || Box;
+    return <IconComponent size={size} className={className} />;
 };
+
+
 
 // --- 3. المكونات الفرعية ---
 
 // دالة للحصول على بيانات الفئة (أيقونة + وصف)
-const getProductCategoryInfo = (name) => {
-  const categoryData = {
-    "Waterproofing Products": {
-      icon: <Droplets size={32} />,
-      description:
-        "Advanced waterproofing systems for roofs, basements, and wet areas",
-      color: "bg-blue-50",
-      iconColor: "text-blue-600",
-    },
-    Sealants: {
-      icon: <Box size={32} />,
-      description:
-        "Flexible joint sealants for construction and infrastructure",
-      color: "bg-purple-50",
-      iconColor: "text-purple-600",
-    },
-    "Concrete Repair": {
-      icon: <Hammer size={32} />,
-      description:
-        "Restoration mortars and repair systems for damaged concrete",
-      color: "bg-orange-50",
-      iconColor: "text-orange-600",
-    },
-    "Concrete Repair Products": {
-      icon: <Hammer size={32} />,
-      description:
-        "Restoration mortars and repair systems for damaged concrete",
-      color: "bg-orange-50",
-      iconColor: "text-orange-600",
-    },
-    "Protective Coatings": {
-      icon: <PaintBucket size={32} />,
-      description: "Surface protection against carbonation and chemical attack",
-      color: "bg-green-50",
-      iconColor: "text-green-600",
-    },
-    "Flooring Products": {
-      icon: <Grid size={32} />,
-      description: "Industrial and decorative flooring solutions",
-      color: "bg-indigo-50",
-      iconColor: "text-indigo-600",
-    },
-    "Tile Adhesives & Grouts": {
-      icon: <Layers size={32} />,
-      description: "High-performance tile fixing systems and grouts",
-      color: "bg-pink-50",
-      iconColor: "text-pink-600",
-    },
-    "Concrete Admixtures": {
-      icon: <Beaker size={32} />,
-      description: "Performance enhancers for strength and durability",
-      color: "bg-cyan-50",
-      iconColor: "text-cyan-600",
-    },
-    "Concrete Fibers": {
-      icon: <Grid size={32} />,
-      description: "Fiber reinforcement to control cracking",
-      color: "bg-teal-50",
-      iconColor: "text-teal-600",
-    },
-    "Concrete Fiber": {
-      icon: <Grid size={32} />,
-      description: "Fiber reinforcement to control cracking",
-      color: "bg-teal-50",
-      iconColor: "text-teal-600",
-    },
-    "Surface Treatments": {
-      icon: <Layers size={32} />,
-      description: "Curing compounds and surface protection agents",
-      color: "bg-amber-50",
-      iconColor: "text-amber-600",
-    },
-    "Plastering Textured Products": {
-      icon: <PaintBucket size={32} />,
-      description: "Decorative finish plasters and textured coatings",
-      color: "bg-rose-50",
-      iconColor: "text-rose-600",
-    },
-    "Plastering Textured": {
-      icon: <PaintBucket size={32} />,
-      description: "Decorative finish plasters and textured coatings",
-      color: "bg-rose-50",
-      iconColor: "text-rose-600",
-    },
-    "Anchoring and Grouts": {
-      icon: <Hammer size={32} />,
-      description: "High-strength anchoring and grouting systems",
-      color: "bg-slate-50",
-      iconColor: "text-slate-600",
-    },
-    "Cement additives": {
-      icon: <Grid size={32} />,
-      description: "Grinding aids and performance enhancers for cement",
-      color: "bg-gray-50",
-      iconColor: "text-gray-600",
-    },
-    "Products Coatings": {
-      icon: <PaintBucket size={32} />,
-      description: "Protective coating systems",
-      color: "bg-green-50",
-      iconColor: "text-green-600",
-    },
-  };
 
-  return (
-    categoryData[name] || {
-      icon: <Box size={32} />,
-      description: "Professional construction solutions",
-      color: "bg-gray-50",
-      iconColor: "text-gray-600",
-    }
-  );
-};
 
 // كرت المنتج المحسّن
-const ProductCard = ({ name }) => {
-  const info = getProductCategoryInfo(name);
+const ProductCard = ({ product, sections }) => {
+  const name = product.name;
+  const slug = product.slug;
+  const description = product.description;
+  const iconName = product.icon; // Get icon name from product object
+
+  // Use IconHelper for dynamic icon, fall back to Box if not found
+  const icon = <IconHelper name={iconName} size={32} />;
+
+  // Define color based on some logic or keep dynamic if backend provides it (currently not, so maybe keep fallback or random?)
+  // For now, let's keep the existing color logic based on name or just default to gray/red
+  const color = "bg-gray-50"; 
+  const iconColor = "text-gray-600";
 
   return (
     <Link
-      to={getSolutionLink(name)}
+      to={`/solutions#${slug}`}
       className="bg-white rounded-2xl border border-gray-100 hover:border-[#ee2039] hover:shadow-xl transition-all duration-300 group/product flex flex-col h-full overflow-hidden cursor-pointer"
     >
       {/* Header with Icon */}
       <div
-        className={`${info.color} p-6 flex items-center justify-center transition-colors duration-300 group-hover/product:bg-[#ee2039]/5`}
+        className={`${color} p-6 flex items-center justify-center transition-colors duration-300 group-hover/product:bg-[#ee2039]/5`}
       >
         <div
-          className={`${info.iconColor} group-hover/product:text-[#ee2039] transition-colors duration-300`}
+          className={`${iconColor} group-hover/product:text-[#ee2039] transition-colors duration-300`}
         >
-          {info.icon}
+          {icon}
         </div>
       </div>
 
@@ -1449,14 +81,14 @@ const ProductCard = ({ name }) => {
           {name}
         </h4>
         <p className="text-xs text-gray-500 leading-relaxed mb-4 flex-1">
-          {info.description}
+          {description}
         </p>
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
             <FileText size={12} />
-            View Details
+            {sections?.ui_labels?.empty_text_en || "View Details"}
           </span>
           <div className="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover/product:bg-[#ee2039] group-hover/product:text-white transition-all duration-300 group-hover/product:scale-110">
             <ArrowRight size={14} />
@@ -1469,46 +101,101 @@ const ProductCard = ({ name }) => {
 
 // --- 3. المكون الرئيسي للصفحة ---
 const Sectors = () => {
+  const { sections, sectors: apiSectors, loading, error } = useSectors();
+
+  // Transform API Data
+  const sectorsData = useMemo(() => {
+    return apiSectors.map((s) => {
+      const sectorData = {
+        id: s.slug,
+        title: s.name_en, // Could use i18n here later
+        icon: <IconHelper name={s.icon_name} />, 
+        description: s.description_en,
+        areas: s.areas.map((a) => {
+          // Extract unique categories from solutions mapped to 'products' by hook
+          const uniqueCategories = [];
+          const seen = new Set();
+          if (a.products) {
+              a.products.forEach(prod => {
+                  const catId = prod.category_id;
+                  if(catId && !seen.has(catId)) {
+                      seen.add(catId);
+                      uniqueCategories.push({
+                          name: prod.category ? prod.category.name_en : prod.name,
+                          slug: prod.slug,
+                          description: prod.description,
+                          icon: prod.icon
+                      });
+                  }
+              });
+          }
+          return {
+            id: a.slug,
+            title: a.name_en,
+            products: uniqueCategories
+          };
+        })
+      };
+
+      // Extract raw tabs JSON from backend and parse if it's a string, falling back to empty array
+      let parsedTabs = s.tabs;
+      if (typeof parsedTabs === 'string') {
+        try {
+          parsedTabs = JSON.parse(parsedTabs);
+        } catch (e) {
+          parsedTabs = [];
+        }
+      }
+      
+      sectorData.tabs = Array.isArray(parsedTabs) ? parsedTabs : [];
+      
+      return sectorData;
+    });
+  }, [apiSectors]);
+
   // Detect if desktop or mobile on initial load
   const getInitialSectorId = () => {
-    if (typeof window !== "undefined") {
-      // Desktop: lg breakpoint is 1024px in Tailwind
-      return window.innerWidth >= 1024 ? SECTORS_DATA[0].id : null;
+    if (typeof window !== "undefined" && sectorsData.length > 0) {
+      return window.innerWidth >= 1024 ? sectorsData[0].id : null;
     }
     return null;
   };
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeSectorId, setActiveSectorId] = useState(getInitialSectorId);
+  const [activeSectorId, setActiveSectorId] = useState(null);
   const [activeAreaId, setActiveAreaId] = useState(null);
+
+  // Set initial sector when data is loaded
+  useEffect(() => {
+    if (sectorsData.length > 0 && activeSectorId === null && window.innerWidth >= 1024) {
+        setActiveSectorId(sectorsData[0].id);
+    }
+  }, [sectorsData]);
 
   // Scroll to top only on initial page load
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Handle window resize to reset state if switching between mobile/desktop
+  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
       const isDesktop = window.innerWidth >= 1024;
-      // Only update if currently null and switching to desktop
-      if (isDesktop && activeSectorId === null) {
-        setActiveSectorId(SECTORS_DATA[0].id);
+      if (isDesktop && activeSectorId === null && sectorsData.length > 0) {
+        setActiveSectorId(sectorsData[0].id);
       }
-      // Or if switching to mobile and a sector is open, keep it (user might have opened it)
-      // No action needed - let user control
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [activeSectorId]);
+  }, [activeSectorId, sectorsData]);
 
   // --- Handle URL Hash Navigation ---
   const location = useLocation();
   useEffect(() => {
-    if (location.hash) {
+    if (location.hash && sectorsData.length > 0) {
       const sectorId = location.hash.replace("#", "");
-      const sector = SECTORS_DATA.find((s) => s.id === sectorId);
+      const sector = sectorsData.find((s) => s.id === sectorId);
       if (sector) {
         setActiveSectorId(sectorId);
         setTimeout(() => {
@@ -1519,20 +206,21 @@ const Sectors = () => {
         }, 100);
       }
     }
-  }, [location]);
+  }, [location, sectorsData]);
 
   // --- Search Logic ---
+  // Using sectorsData instead of SECTORS_DATA
   const filteredSectors = useMemo(() => {
-    if (!searchTerm) return SECTORS_DATA;
+    if (!searchTerm) return sectorsData;
     const lowerTerm = searchTerm.toLowerCase();
 
-    return SECTORS_DATA.reduce((acc, sector) => {
+    return sectorsData.reduce((acc, sector) => {
       const sectorMatches = sector.title.toLowerCase().includes(lowerTerm);
 
       const matchingAreas = sector.areas.reduce((areaAcc, area) => {
         const areaTitleMatches = area.title.toLowerCase().includes(lowerTerm);
         const matchingProducts = area.products.filter((p) =>
-          p.toLowerCase().includes(lowerTerm),
+          p.name.toLowerCase().includes(lowerTerm),
         );
 
         if (areaTitleMatches || matchingProducts.length > 0) {
@@ -1552,18 +240,18 @@ const Sectors = () => {
       }
       return acc;
     }, []);
-  }, [searchTerm]);
+  }, [searchTerm, sectorsData]);
 
   const activeSector = useMemo(() => {
+    if (!sectorsData || sectorsData.length === 0) return null;
     const found = filteredSectors.find((s) => s.id === activeSectorId);
     if (found) return found;
 
-    // Fallback: on desktop (lg+), show first sector; on mobile, show nothing
-    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+    if (typeof window !== "undefined" && window.innerWidth >= 1024 && filteredSectors.length > 0) {
       return filteredSectors[0] || null;
     }
     return null;
-  }, [filteredSectors, activeSectorId]);
+  }, [filteredSectors, activeSectorId, sectorsData]);
 
   const activeArea = useMemo(() => {
     if (!activeSector || !activeAreaId) return null;
@@ -1581,6 +269,31 @@ const Sectors = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <svg className="animate-spin h-10 w-10 text-[#ee2039] mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p className="text-lg text-gray-600">Loading sectors...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center p-8 bg-white rounded-lg shadow-md">
+          <p className="text-xl text-red-600 font-bold mb-4">Error loading sectors!</p>
+          <p className="text-gray-700">Please try again later or contact support.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
@@ -1588,16 +301,23 @@ const Sectors = () => {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.15]"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 border border-[#ee2039]/30 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-              <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
-              Sector Expertise
-            </div>
+            {sections?.hero?.subtitle_en && (
+              <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 border border-[#ee2039]/30 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
+                <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
+                {sections.hero.subtitle_en}
+              </div>
+            )}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              Sectors We <span className="text-[#ee2039]">Serve</span>
+              {sections?.hero?.title_en ? (
+                <>
+                  {sections.hero.title_en.split(' ').slice(0, -1).join(' ')} <span className="text-[#ee2039]">{sections.hero.title_en.split(' ').slice(-1)}</span>
+                </>
+              ) : (
+                <>Sectors We <span className="text-[#ee2039]">Serve</span></>
+              )}
             </h1>
             <p className="text-gray-400 text-xl max-w-2xl mx-auto">
-              Tailored engineering solutions for every industry. Select a sector
-              to see our breakdown of areas and recommended materials.
+              {sections?.hero?.description_en || "Tailored engineering solutions for every industry. Select a sector to see our breakdown of areas and recommended materials."}
             </p>
           </div>
         </div>
@@ -1614,7 +334,7 @@ const Sectors = () => {
               />
               <input
                 type="text"
-                placeholder="Search sectors, areas, or products..."
+                placeholder={sections?.search?.placeholder_en || "Search sectors, areas, or products..."}
                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-[#ee2039] focus:ring-1 focus:ring-[#ee2039] transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -1623,7 +343,7 @@ const Sectors = () => {
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Filter size={16} />
               <span className="font-medium">
-                {filteredSectors.length} Sectors Found
+                {filteredSectors.length} {sections?.search?.title_en || "Sectors Found"}
               </span>
             </div>
           </div>
@@ -1640,21 +360,21 @@ const Sectors = () => {
                 {/* --- Left Sidebar --- */}
                 <div className="w-full lg:w-[380px] lg:min-w-[380px] space-y-4">
                   <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 px-2">
-                    Select Industry
+                    {sections?.ui_labels?.title_en}
                   </h3>
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-3 max-h-[calc(100vh-280px)] overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
                     {filteredSectors.map((sector) => (
                       <button
                         key={sector.id}
                         onClick={() => handleSectorChange(sector.id)}
-                        className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 flex items-center gap-4 group ${
+                        className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 flex items-center gap-4 group shrink-0 ${
                           activeSector && activeSector.id === sector.id
                             ? "bg-black border-slate-900 text-white shadow-xl scale-100 z-10"
                             : "bg-white border-gray-100 text-slate-600 hover:border-[#ee2039] hover:shadow-md"
                         }`}
                       >
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0 ${
                             activeSector && activeSector.id === sector.id
                               ? "bg-[#ee2039] text-white"
                               : "bg-gray-50 text-slate-400 group-hover:text-[#ee2039]"
@@ -1663,17 +383,17 @@ const Sectors = () => {
                           {React.cloneElement(sector.icon, { size: 18 })}
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-bold text-sm md:text-base">
+                          <h4 className="font-bold text-sm md:text-base line-clamp-1">
                             {sector.title}
                           </h4>
                           <p
                             className={`text-[10px] mt-0.5 line-clamp-1 ${activeSector && activeSector.id === sector.id ? "text-gray-400" : "text-gray-400"}`}
                           >
-                            {sector.areas.length} Areas
+                            {sector.areas.length} {sections?.ui_labels?.description_en || "Areas"}
                           </p>
                         </div>
                         {activeSector && activeSector.id === sector.id && (
-                          <ArrowRight className="text-[#ee2039]" size={18} />
+                          <ArrowRight className="text-[#ee2039] shrink-0" size={18} />
                         )}
                       </button>
                     ))}
@@ -1732,7 +452,7 @@ const Sectors = () => {
                           <div className="animate-in fade-in slide-in-from-left-4 duration-300">
                             <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
                               <MapPin size={20} className="text-[#ee2039]" />
-                              Select Engineering Area
+                              {sections?.ui_labels?.subtitle_en || "Engineering Areas"}
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {activeSector.areas.map((area) => (
@@ -1746,7 +466,7 @@ const Sectors = () => {
                                       {area.title}
                                     </h4>
                                     <span className="text-xs text-gray-400 font-medium mt-1 inline-block">
-                                      {area.products.length} Products
+                                      {area.products.length} {sections?.ui_labels?.placeholder_en || "Products"}
                                     </span>
                                   </div>
                                   <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-300 group-hover/area:text-[#ee2039] shadow-sm">
@@ -1764,7 +484,7 @@ const Sectors = () => {
                                 onClick={() => setActiveAreaId(null)}
                                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 text-gray-600 text-xs font-bold hover:bg-[#ee2039] hover:text-white transition-all"
                               >
-                                <ArrowLeft size={14} /> Back to Areas
+                                <ArrowLeft size={14} /> {sections?.ui_labels?.btn_text_en || "Back to Areas"}
                               </button>
                               <span className="text-gray-300">|</span>
                               <span className="text-[#ee2039] font-bold text-lg">
@@ -1774,7 +494,7 @@ const Sectors = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {activeArea.products.map((product, idx) => (
-                                <ProductCard key={idx} name={product} />
+                                <ProductCard key={idx} product={product} sections={sections} />
                               ))}
                             </div>
                           </div>
@@ -1788,7 +508,7 @@ const Sectors = () => {
               {/* Mobile Layout: Accordion Style */}
               <div className="lg:hidden space-y-3">
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 px-2">
-                  Select Industry
+                  {sections?.ui_labels?.title_en || "Select Industry"}
                 </h3>
                 {filteredSectors.map((sector) => (
                   <div key={sector.id} className="space-y-3">
@@ -1813,7 +533,7 @@ const Sectors = () => {
                       <div className="flex-1">
                         <h4 className="font-bold text-sm">{sector.title}</h4>
                         <p className="text-[10px] mt-0.5 text-gray-400">
-                          {sector.areas.length} Areas
+                          {sector.areas.length} {sections?.ui_labels?.description_en || "Areas"}
                         </p>
                       </div>
                       <ChevronDown
@@ -1828,7 +548,7 @@ const Sectors = () => {
 
                     {/* Dropdown Content */}
                     {activeSector && activeSector.id === sector.id && (
-                      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300 flex flex-col gap-3 max-h-[calc(100vh-300px)] overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
                         {/* Header */}
                         <div className="mb-6 pb-6 border-b border-gray-100">
                           <div className="flex items-start gap-4">
@@ -1873,7 +593,7 @@ const Sectors = () => {
                           <div>
                             <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
                               <MapPin size={16} className="text-[#ee2039]" />
-                              Engineering Areas
+                              {sections?.ui_labels?.subtitle_en || "Engineering Areas"}
                             </h3>
                             <div className="space-y-2">
                               {activeSector.areas.map((area) => (
@@ -1887,7 +607,7 @@ const Sectors = () => {
                                       {area.title}
                                     </h4>
                                     <span className="text-[10px] text-gray-400 font-medium mt-0.5 inline-block">
-                                      {area.products.length} Products
+                                      {area.products.length} {sections?.ui_labels?.placeholder_en || "Products"}
                                     </span>
                                   </div>
                                   <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-gray-300 shadow-sm">
@@ -1915,7 +635,7 @@ const Sectors = () => {
 
                             <div className="grid grid-cols-1 gap-3">
                               {activeArea.products.map((product, idx) => (
-                                <ProductCard key={idx} name={product} />
+                                <ProductCard key={idx} product={product} sections={sections} />
                               ))}
                             </div>
                           </div>
@@ -1930,13 +650,13 @@ const Sectors = () => {
             <div className="text-center py-20">
               <Box size={48} className="mx-auto text-gray-300 mb-4" />
               <p className="text-xl text-gray-400 font-bold">
-                No sectors found matching "{searchTerm}"
+                {sections?.search?.empty_text_en || "No sectors found matching"} "{searchTerm}"
               </p>
               <button
                 onClick={() => setSearchTerm("")}
                 className="mt-4 text-[#ee2039] font-bold hover:underline"
               >
-                Clear Search
+                {sections?.search?.subtitle_en || "Clear Search"}
               </button>
             </div>
           )}
@@ -1946,4 +666,4 @@ const Sectors = () => {
   );
 };
 
-export default Sectors;
+  export default Sectors;

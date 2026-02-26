@@ -149,7 +149,7 @@ const ServiceCard = ({ service }) => {
 
 // --- المكون الرئيسي للصفحة ---
 const Services = () => {
-    const { services, loading, error } = useServices();
+  const { sections, services, loading, error } = useServices();
   const location = useLocation();
  
 
@@ -189,20 +189,22 @@ const Services = () => {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/10 text-white border border-[#ee2039]/20 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-              <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
-              Technical Excellence
-            </div>
+            {sections.hero?.subtitle_en && (
+              <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/10 text-white border border-[#ee2039]/20 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
+                <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
+                {sections.hero.subtitle_en}
+              </div>
+            )}
 
             <h1 className="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              Engineering <span className="text-[#ee2039]">Services</span>
-              <br />& Technical Support
+              {sections.hero?.title_en || "Engineering Services"} <br />
+              <span className="text-[#ee2039]">
+                {sections.hero?.btn_text_en}
+              </span>
             </h1>
 
             <p className="text-gray-400 text-lg md:text-xl max-w-2xl leading-relaxed mx-auto">
-              From specialized chemical formulations to on-site inspections, Al
-              Faiha Group provides end-to-end expertise to ensure the success of
-              your infrastructure projects.
+              {sections.hero?.description_en}
             </p>
           </div>
         </div>
@@ -229,19 +231,17 @@ const Services = () => {
 
             <div className="relative z-10 max-w-2xl">
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                Need a <span className="text-[#ee2039]">Customized</span>{" "}
-                Solution?
+                {sections.cta?.title_en || "Need a Customized Solution?"}
               </h2>
               <p className="text-gray-400 text-lg mb-10">
-                Our technical teams is ready to develop tailored chemical
-                formulations to meet the specific requirements of your project.
+                {sections.cta?.description_en}
               </p>
 
               <button
-                onClick={() => handleOpenModal("Customized Solution Request")}
+                onClick={() => handleOpenModal(sections.cta?.title_en || "Customized Solution Request")}
                 className="inline-flex items-center gap-3 bg-[#ee2039] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#c41229] transition-all group hover:scale-105 active:scale-95"
               >
-                Request Technical Support
+                {sections.cta?.btn_text_en || "Request Technical Support"}
                 <ArrowRight
                   size={20}
                   className="group-hover:translate-x-2 transition-transform"

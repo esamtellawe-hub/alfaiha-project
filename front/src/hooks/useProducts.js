@@ -35,7 +35,7 @@ const useProducts = () => {
             if (filters.search) params.append('search', filters.search);
             if (filters.limit) params.append('limit', filters.limit);
             
-            const response = await api.get(`/data/products?${params.toString()}`);
+            const response = await api.get(`/data/all-solutions?${params.toString()}`);
             return response.data;
         } catch (err) {
             console.error("Error fetching products:", err);

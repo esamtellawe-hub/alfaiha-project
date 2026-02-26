@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, FileText, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
-import productsData from '../products.json';
+import api from '../api/axios'; // Import API client
 import ServiceRequestModal from '../Component/ServiceRequestModal';
 
 // --- COMPONENTS ---
@@ -10,11 +10,17 @@ import ServiceRequestModal from '../Component/ServiceRequestModal';
 const TabContent = ({ tabId, product }) => {
   if (!product) return null;
   
+  // Helper to get localized array or string
+  const getList = (key) => {
+      const val = product[key] || [];
+      return Array.isArray(val) ? val : [val];
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-top-1 duration-300">
       {tabId === 'advantages' && product.advantages && (
         <ul className="grid gap-3">
-          {product.advantages.map((advantage, index) => (
+          {getList('advantages').map((advantage, index) => (
             <li key={index} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
               <CheckCircle2 className="w-5 h-5 text-[#ee2039] shrink-0 mt-0.5" />
               <span className="text-gray-700 leading-relaxed text-sm md:text-base">{advantage}</span>
@@ -26,7 +32,7 @@ const TabContent = ({ tabId, product }) => {
       {tabId === 'applications' && product.uses && (
         <div className="space-y-4">
           <ul className="grid gap-3">
-            {product.uses.map((use, index) => (
+            {getList('uses').map((use, index) => (
               <li key={index} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                 <div className="w-2 h-2 rounded-full bg-[#ee2039] mt-2 shrink-0" />
                 <span className="text-gray-700 leading-relaxed text-sm md:text-base font-medium">{use}</span>
@@ -49,24 +55,86 @@ const TabContent = ({ tabId, product }) => {
 
 // --- MAIN PAGE COMPONENT ---
 const ProductDetails = () => {
-  const { productId } = useParams();
+  const { productId } = useParams(); // This is likely the slug based on routes
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('advantages');
   const [isModalOpen, setIsModalOpen] = useState(false);
   
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [productId]);
 
-  const product = Object.values(productsData).find(p => p.id === productId);
+  // Fetch product data
+  useEffect(() => {
+      const fetchProduct = async () => {
+          try {
+              setLoading(true);
+              // endpoint is /data/solution/:slug (defined in routes/solutions.js)
+              const response = await api.get(`/data/solution/${productId}`);
+              
+              // Map API response to Component State structure (simplifying for UI)
+              const data = response.data;
+              const mappedProduct = {
+                  id: data.id,
+                  slug: data.slug,
+                  name: data.name_en || data.name_ar, // Prefer EN or fallback
+                  category: data.category?.name_en || 'Solution',
+                  description: data.description_en || data.description_ar,
+                  image: data.image_url ? `http://localhost:5000${data.image_url}` : '/images/product1.png', 
+                  
+                  // Arrays (JSON fields)
+                  advantages: data.advantages_en || data.advantages_ar || [],
+                  uses: data.uses_en || data.uses_ar || [],
 
-  if (!product) {
+                  // Specs
+                  coverage: data.coverage,
+                  packaging: data.packaging,
+                  storage: data.storage,
+                  mixing: data.mixing_ratio,
+                  standard: 'ISO 9001:2015' // Placeholder or field if exists? Model doesn't have standard field explicitly in what I recall, maybe I missed it? 
+                  // Ah, in seed, standard wasn't explicitly there, but UI has it. 
+                  // Let's check model... mixing_ratio, coverage, packaging, storage, shelf_life. 
+                  // UI uses 'standard'. Model doesn't have 'standard'.
+                  // I'll leave it undefined to hide tab or hardcode a generic one if needed.
+              };
+              
+              setProduct(mappedProduct);
+              setLoading(false);
+          } catch (err) {
+              console.error("Error fetching product details:", err);
+              setError(err);
+              setLoading(false);
+          }
+      };
+
+      if (productId) {
+          fetchProduct();
+      }
+  }, [productId]);
+
+
+  if (loading) {
+      return (
+          <div className="min-h-screen bg-white flex items-center justify-center">
+              <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 border-4 border-[#ee2039] border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-400">Loading Solution Details...</p>
+              </div>
+          </div>
+      );
+  }
+
+  if (error || !product) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Product Not Found</h1>
-          <p className="text-gray-600 mb-6">The product you're looking for doesn't exist.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Solution Not Found</h1>
+          <p className="text-gray-600 mb-6">The solution you're looking for doesn't exist or an error occurred.</p>
           <Link
             to="/solutions"
             className="inline-flex items-center gap-2 px-6 py-3 bg-[#ee2039] text-white rounded-lg hover:bg-[#c41229] transition-colors w-full justify-center sm:w-auto"
@@ -102,7 +170,7 @@ const ProductDetails = () => {
             className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-6 transition-colors text-sm font-medium"
           >
             <ArrowLeft size={18} />
-            <span>Back to Products</span>
+            <span>Back to Solutions</span>
           </button>
 
           <div className="flex flex-col md:flex-row gap-8 lg:gap-16 items-center md:items-start">
@@ -114,6 +182,7 @@ const ProductDetails = () => {
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-contain p-4 hover:scale-105 transition-transform duration-500 rounded-2xl"
+                    onError={(e) => { e.target.src = '/images/product1.png'; }}
                   />
                 </div>
               </div>

@@ -1,67 +1,48 @@
 import React, { useState } from 'react';
-import { Briefcase, MapPin, Clock, ArrowRight, CheckCircle2, Users, Rocket, Heart } from 'lucide-react';
+import { Briefcase, MapPin, Clock, ArrowRight, Users, Rocket, Heart, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import useJobs from '../hooks/useJobs';
+
+const TYPE_COLORS = {
+  'Full Time':  'bg-green-50 text-green-700 border-green-200',
+  'Part Time':  'bg-blue-50 text-blue-700 border-blue-200',
+  'Contract':   'bg-orange-50 text-orange-700 border-orange-200',
+  'Internship': 'bg-purple-50 text-purple-700 border-purple-200',
+};
+
 const Careers = () => {
-  const [activeDepartment, setActiveDepartment] = useState('All');
+  const { jobs, loading } = useJobs();
+  const [expanded, setExpanded] = useState(null);
+  const [typeFilter, setTypeFilter] = useState('All');
   const navigate = useNavigate();
-  const jobs = [
-    {
-      id: 1,
-      title: "Senior Chemical Engineer",
-      department: "R&D",
-      location: "Amman, Jordan",
-      type: "Full-time",
-      description: "Lead the development of new concrete admixtures and oversee quality control processes in our main laboratory."
-    },
-    {
-      id: 2,
-      title: "Regional Sales Manager",
-      department: "Sales",
-      location: "Riyadh, KSA",
-      type: "Full-time",
-      description: "Drive business growth and manage key client relationships across the central region of Saudi Arabia."
-    },
-    {
-      id: 3,
-      title: "Technical Support Specialist",
-      department: "Technical",
-      location: "Baghdad, Iraq",
-      type: "Full-time",
-      description: "Provide on-site technical assistance and product application guidance to our construction partners."
-    },
-    {
-      id: 4,
-      title: "Logistics Coordinator",
-      department: "Operations",
-      location: "Amman, Jordan",
-      type: "Full-time",
-      description: "Manage supply chain operations and ensure timely delivery of products to our regional warehouses."
-    }
-  ];
 
-  const departments = ['All', 'R&D', 'Sales', 'Technical', 'Operations'];
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('en', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    });
+  };
 
-  const filteredJobs = activeDepartment === 'All' 
-    ? jobs 
-    : jobs.filter(job => job.department === activeDepartment);
+  const isExpired = (dateStr) => dateStr && new Date(dateStr) < new Date();
+
+  const jobTypes = ['All', ...new Set(jobs.map(j => j.type).filter(Boolean))];
+  const filtered = typeFilter === 'All' ? jobs : jobs.filter(j => j.type === typeFilter);
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Hero Section */}
+
+      {/* Hero */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 bg-black overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.15]"></div>
-        
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.15]" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-             <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 border border-[#ee2039]/30 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 text-white">
+            <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 border border-[#ee2039]/30 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 text-white">
               <Users size={12} className="text-[#ee2039]" />
               Join Our Team
             </div>
-            
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
               Build Your <span className="text-[#ee2039]">Future</span> With Us
             </h1>
-            
             <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
               Join a team of innovators, engineers, and problem-solvers dedicated to shaping the future of construction in the MENA region.
             </p>
@@ -74,9 +55,8 @@ const Careers = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Work at Al Faiha?</h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">We offer more than just a job; we offer a career path filled with growth, challenges, and rewards.</p>
+            <p className="text-gray-500 max-w-2xl mx-auto">We offer more than just a job — a career path filled with growth, challenges, and rewards.</p>
           </div>
-
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:-translate-y-1 transition-transform duration-300">
               <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 mb-6">
@@ -92,7 +72,7 @@ const Careers = () => {
               <h3 className="text-xl font-bold text-slate-900 mb-3">Diverse Culture</h3>
               <p className="text-gray-500 leading-relaxed text-sm">Join a multicultural team of professionals from across the region, fostering creativity and collaboration.</p>
             </div>
-             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:-translate-y-1 transition-transform duration-300">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:-translate-y-1 transition-transform duration-300">
               <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-[#ee2039] mb-6">
                 <Heart size={24} />
               </div>
@@ -106,73 +86,132 @@ const Careers = () => {
       {/* Open Positions */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6 max-w-5xl mx-auto">
             <div>
               <h2 className="text-3xl font-bold text-slate-900 mb-2">Open Positions</h2>
               <p className="text-gray-500">Find the role that fits your passion and expertise.</p>
             </div>
-            
-            {/* Filter Tabs */}
-            <div className="flex flex-wrap gap-2">
-              {departments.map((dept) => (
-                <button
-                  key={dept}
-                  onClick={() => setActiveDepartment(dept)}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                    activeDepartment === dept
-                      ? 'bg-[#ee2039] text-white'
-                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                  }`}
-                >
-                  {dept}
-                </button>
-              ))}
-            </div>
-          </div>
 
-          <div className="grid gap-6 max-w-5xl mx-auto">
-            {filteredJobs.map((job) => (
-              <div 
-                key={job.id} 
-                className="group bg-white rounded-2xl p-6 md:p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-[#ee2039]/20 transition-all duration-300 flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
-              >
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-3 mb-2">
-                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-[#ee2039] transition-colors">{job.title}</h3>
-                    <span className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full">{job.department}</span>
-                  </div>
-                  <p className="text-gray-500 text-sm mb-4 max-w-2xl">{job.description}</p>
-                  
-                  <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-gray-400">
-                    <div className="flex items-center gap-1.5">
-                      <MapPin size={14} /> {job.location}
-                    </div>
-                     <div className="flex items-center gap-1.5">
-                      <Clock size={14} /> {job.type}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 w-full md:w-auto mt-4 md:mt-0">
-                  <button onClick={() => navigate('/careers/ApplicationForm')} className="flex-1 md:flex-initial whitespace-nowrap flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-[#ee2039] transition-colors">
-                    Apply Now <ArrowRight size={16} />
+            {/* Type Filter */}
+            {!loading && (
+              <div className="flex flex-wrap gap-2">
+                {jobTypes.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTypeFilter(t)}
+                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                      typeFilter === t ? 'bg-[#ee2039] text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                    }`}
+                  >
+                    {t}
                   </button>
-                  <button className="md:hidden px-4 py-3 bg-gray-100 rounded-xl text-slate-700 hover:bg-gray-200 transition-colors">
-                    Details
-                  </button>
-                </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
 
+          {/* Loading */}
+          {loading && (
+            <div className="flex justify-center py-20">
+              <div className="w-10 h-10 border-4 border-[#ee2039] border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+
+          {/* Jobs Accordion */}
+          {!loading && (
+            <div className="grid gap-5 max-w-5xl mx-auto">
+              {filtered.length === 0 && (
+                <p className="text-center text-gray-400 py-16">No open positions found.</p>
+              )}
+              {filtered.map((job) => {
+                const isOpen = expanded === job.id;
+                const expired = isExpired(job.deadline);
+                return (
+                  <div
+                    key={job.id}
+                    className={`group bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${
+                      isOpen ? 'border-[#ee2039]/30 shadow-xl' : 'border-gray-100 shadow-sm hover:shadow-lg hover:border-gray-200'
+                    }`}
+                  >
+                    <button
+                      onClick={() => setExpanded(isOpen ? null : job.id)}
+                      className="w-full text-left p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-4"
+                    >
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                          <span className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border ${TYPE_COLORS[job.type] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                            {job.type}
+                          </span>
+                          {expired && (
+                            <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full bg-red-50 text-red-500 border border-red-200">
+                              Deadline Passed
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 group-hover:text-[#ee2039] transition-colors">
+                          {job.title_en}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
+                          {job.location_en && (
+                            <span className="flex items-center gap-1.5">
+                              <MapPin size={14} className="text-[#ee2039]" /> {job.location_en}
+                            </span>
+                          )}
+                          {job.deadline && (
+                            <span className="flex items-center gap-1.5">
+                              <Calendar size={14} className="text-[#ee2039]" />
+                              Deadline: {formatDate(job.deadline)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="shrink-0 flex items-center gap-3">
+                        {!expired && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); navigate('/careers/ApplicationForm'); }}
+                            className="hidden md:flex items-center gap-2 px-4 py-2 bg-[#ee2039] text-white text-sm font-bold rounded-lg hover:bg-[#c41229] transition-colors"
+                          >
+                            Apply Now <ArrowRight size={14} />
+                          </button>
+                        )}
+                        <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                          {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </span>
+                      </div>
+                    </button>
+
+                    {/* Expanded */}
+                    {isOpen && (
+                      <div className="px-6 md:px-8 pb-8 border-t border-gray-100 pt-6">
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">Job Description</h4>
+                        <p className="text-gray-600 leading-relaxed whitespace-pre-line">{job.description_en}</p>
+                        {!expired && (
+                          <button
+                            onClick={() => navigate('/careers/ApplicationForm')}
+                            className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-[#ee2039] text-white font-bold rounded-xl hover:bg-[#c41229] transition-colors"
+                          >
+                            Apply for This Position <ArrowRight size={16} />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* General Application */}
           <div className="text-center mt-12 bg-gray-50 py-10 rounded-2xl border border-gray-100 max-w-4xl mx-auto">
             <h3 className="text-lg font-bold text-slate-900 mb-2">Don't see a suitable role?</h3>
             <p className="text-gray-500 text-sm mb-6 max-w-md mx-auto">We are always looking for talent. Send us your CV for future opportunities.</p>
-            <a href="mailto:careers@alfaihagroup.com" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-slate-200 rounded-xl font-bold text-slate-700 hover:border-[#ee2039] hover:text-[#ee2039] transition-all bg-white hover:bg-gray-50">
-              Send General Application
+            <a
+              href="mailto:careers@alfaihagroup.com"
+              className="inline-flex items-center gap-2 px-6 py-3 border-2 border-slate-200 rounded-xl font-bold text-slate-700 hover:border-[#ee2039] hover:text-[#ee2039] transition-all bg-white"
+            >
+              Send General Application <ArrowRight size={16} />
             </a>
           </div>
-
         </div>
       </section>
 

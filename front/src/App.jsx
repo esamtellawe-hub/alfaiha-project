@@ -16,6 +16,8 @@ import Academy from "./pages/Academy.jsx";
 import ProductDetails from "./pages/ProductDetails.jsx";
 import Blog from "./pages/blog.jsx";
 import News from "./pages/News.jsx";
+import NewsDetail from "./pages/NewsDetail.jsx";
+import BlogDetail from "./pages/BlogDetail.jsx";
 import Careers from "./pages/Jobs.jsx";
 import ApplicationForm from "./pages/ApplicationForm.jsx";
 
@@ -39,7 +41,9 @@ function App() {
             <Route path="/academy" element={<Academy />} />
             <Route path="/product/:productId" element={<ProductDetails />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogDetail />} />
             <Route path="/news" element={<News />} />
+            <Route path="/news/:slug" element={<NewsDetail />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/application-form" element={<ApplicationForm />} />
             <Route path="/careers/ApplicationForm" element={<ApplicationForm />} />
