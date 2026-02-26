@@ -8,6 +8,7 @@ const homeRoutes = require('./routes/home');
 const productRoutes = require('./routes/solutions');
 const contentRoutes = require('./routes/content');
 const menuRoutes = require('./routes/menu');
+const adminRoutes = require('./routes/admin');
 const setupAssociations = require('./models/associations');
 const seedSuperAdmin = require('./seeders/superAdminSeeder');
 const seedSiteSettings = require('./seeders/siteSettingsSeeder');
@@ -50,6 +51,7 @@ app.use('/api/home', homeRoutes);
 app.use('/api/data', productRoutes); 
 app.use('/api/content', contentRoutes);
 app.use('/api/menu', menuRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 const startServer = async () => {
@@ -61,7 +63,7 @@ const startServer = async () => {
     setupAssociations();
     
     // Sync models with database (use { force: true } to reset tables - CAREFUL!)
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
     console.log('✅ Database models synced.');
     
     // Seeders
