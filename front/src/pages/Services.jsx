@@ -1,3 +1,4 @@
+import { useLanguage } from "../context/LanguageContext";
 import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 
@@ -35,12 +36,13 @@ const iconMap = {
 };
 
 // --- مكون الكرت ---
-const ServiceCard = ({ service }) => {
+const ServiceCard = ({ service, currentLang }) => {
+  const { language } = useLanguage();
   const IconComponent = iconMap[service.icon_name] || Zap;
 
-  // Direct access to English content
-  const title = service.title_en;
-  const description = service.description_en;
+  // Dynamic access to content based on language
+  const title = service[`title_${currentLang}`] || service[`title_${language}`] || ervice.title_en;
+  const description = service[`description_${currentLang}`] || service[`description_${language}`] || ervice.description_en;
   // Parse JSON fields safely
   const parseJson = (data) => {
     if (!data) return [];
@@ -54,10 +56,11 @@ const ServiceCard = ({ service }) => {
     }
   };
 
-  const subServices = parseJson(service.sub_services_en);
-  const relatedProducts = parseJson(service.related_products_en);
-  const relatedSectors = parseJson(service.related_sectors_en);
-  const caseStudies = parseJson(service.case_studies_en);
+  const subServicesRaw = service[`sub_services_${currentLang}`] || service[`sub_services_${language}`] || ervice.sub_services_en;
+  const subServices = parseJson(subServicesRaw);
+  const relatedProducts = parseJson(service[`related_products_${language}`] || service.related_products_en); // Related content usually doesn't need translation, just the label
+  const relatedSectors = parseJson(service[`related_sectors_${language}`] || service.related_sectors_en);
+  const caseStudies = parseJson(service[`case_studies_${language}`] || service.case_studies_en);
 
   return (
     <div
@@ -149,10 +152,11 @@ const ServiceCard = ({ service }) => {
 
 // --- المكون الرئيسي للصفحة ---
 const Services = () => {
+  const { language } = useLanguage();
   const { sections, services, loading, error } = useServices();
   const location = useLocation();
  
-
+  const [currentLang, setCurrentLang] = useState("en"); // Default language
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeServiceTitle, setActiveServiceTitle] = useState(
     "General Technical Support"
@@ -188,23 +192,25 @@ const Services = () => {
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            {sections.hero?.subtitle_en && (
+          
+
+          <div className="max-w-4xl mx-auto text-center" dir={currentLang === 'ar' ? 'rtl' : 'ltr'}>
+            {sections.hero?.[`subtitle_${currentLang}`] && (
               <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/10 text-white border border-[#ee2039]/20 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
                 <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
-                {sections.hero.subtitle_en}
+                {sections.hero[`subtitle_${currentLang}`]}
               </div>
             )}
 
             <h1 className="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              {sections.hero?.title_en || "Engineering Services"} <br />
+              {sections.hero?.[`title_${currentLang}`] || "Engineering Services"} <br />
               <span className="text-[#ee2039]">
-                {sections.hero?.btn_text_en}
+                {sections.hero?.[`btn_text_${currentLang}`] || ""}
               </span>
             </h1>
 
             <p className="text-gray-400 text-lg md:text-xl max-w-2xl leading-relaxed mx-auto">
-              {sections.hero?.description_en}
+              {sections.hero?.[`description_${currentLang}`]}
             </p>
           </div>
         </div>
@@ -212,10 +218,10 @@ const Services = () => {
 
       {/* Services Grid */}
       <section className="py-24 bg-gray-50 relative">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4" dir={currentLang === 'ar' ? 'rtl' : 'ltr'}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service) => (
-              <ServiceCard key={service.id} service={service} />
+              <ServiceCard key={service.id} service={service} currentLang={currentLang} />
             ))}
           </div>
         </div>
@@ -223,28 +229,28 @@ const Services = () => {
 
       {/* Call to Action: Inquiry */}
       <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4" dir={currentLang === 'ar' ? 'rtl' : 'ltr'}>
           <div className="bg-slate-900 rounded-[3rem] p-12 md:p-20 relative overflow-hidden group">
-            <div className="absolute -top-10 -right-10 p-12 opacity-10 animate-[spin_10s_linear_infinite]">
+            <div className={`absolute -top-10 ${currentLang === 'ar' ? '-left-10' : '-right-10'} p-12 opacity-10 animate-[spin_10s_linear_infinite]`}>
               <Settings size={300} className="text-white" />
             </div>
 
             <div className="relative z-10 max-w-2xl">
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                {sections.cta?.title_en || "Need a Customized Solution?"}
+                {sections.cta?.[`title_${currentLang}`] || "Need a Customized Solution?"}
               </h2>
               <p className="text-gray-400 text-lg mb-10">
-                {sections.cta?.description_en}
+                {sections.cta?.[`description_${currentLang}`]}
               </p>
 
               <button
-                onClick={() => handleOpenModal(sections.cta?.title_en || "Customized Solution Request")}
+                onClick={() => handleOpenModal(sections.cta?.[`title_${currentLang}`] || "Customized Solution Request")}
                 className="inline-flex items-center gap-3 bg-[#ee2039] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#c41229] transition-all group hover:scale-105 active:scale-95"
               >
-                {sections.cta?.btn_text_en || "Request Technical Support"}
+                {sections.cta?.[`btn_text_${currentLang}`] || "Request Technical Support"}
                 <ArrowRight
                   size={20}
-                  className="group-hover:translate-x-2 transition-transform"
+                  className={`transition-transform ${currentLang === 'ar' ? 'rotate-180 group-hover:-translate-x-2' : 'group-hover:translate-x-2'}`}
                 />
               </button>
             </div>

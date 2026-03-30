@@ -39,13 +39,14 @@ const MenuItem = sequelize.define('MenuItem', {
     }
   },
 
-  // Mega Menu Specifics
+  // Mega Menu & Dropdown Specifics
   columns: {
     type: DataTypes.INTEGER,
     defaultValue: 1
   },
-  description_en: { type: DataTypes.STRING, allowNull: true }, // For mega menu items
+  description_en: { type: DataTypes.STRING, allowNull: true }, 
   description_ar: { type: DataTypes.STRING, allowNull: true },
+  description_fr: { type: DataTypes.STRING, allowNull: true },
 
   is_active: {
     type: DataTypes.BOOLEAN,

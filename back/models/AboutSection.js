@@ -12,6 +12,10 @@ const AboutSection = sequelize.define('AboutSection', {
     allowNull: false,
     unique: true
   },
+  image: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   title_en: { type: DataTypes.STRING, allowNull: false },
   title_ar: { type: DataTypes.STRING, allowNull: false },
   title_fr: { type: DataTypes.STRING, allowNull: true },

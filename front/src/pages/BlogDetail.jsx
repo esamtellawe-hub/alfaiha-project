@@ -1,9 +1,11 @@
+import { useLanguage } from "../context/LanguageContext";
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, ArrowLeft, User, Clock, Share2 } from 'lucide-react';
 import api from '../api/axios';
 
 const BlogDetail = () => {
+  const { language } = useLanguage();
   const { slug } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,13 +45,13 @@ const BlogDetail = () => {
           <Link to="/blog" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors font-medium">
             <ArrowLeft size={16} /> Back to Blog
           </Link>
-          {post.category_en && (
+          {(post[`category_${language}`] || post.category_en) && (
             <span className="inline-block px-3 py-1 bg-[#ee2039]/20 text-[#ee2039] border border-[#ee2039]/30 text-[10px] font-bold uppercase tracking-wider rounded-full mb-4">
-              {post.category_en}
+              {post[`category_${language}`] || post.category_en}
             </span>
           )}
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-            {post.title_en}
+            {post[`title_${language}`] || post.title_en}
           </h1>
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
             <span className="flex items-center gap-1.5">
@@ -78,20 +80,20 @@ const BlogDetail = () => {
           {/* Featured Image */}
           {post.image_url && (
             <div className="rounded-2xl overflow-hidden mb-10 shadow-xl">
-              <img src={post.image_url} alt={post.title_en} className="w-full h-64 md:h-96 object-cover" />
+              <img src={post.image_url.startsWith('http') ? post.image_url : `http://localhost:5000${post.image_url}`} alt={post[`title_${language}`] || post.title_en} className="w-full h-64 md:h-96 object-cover" />
             </div>
           )}
 
           {/* Blog Body */}
           <div className="bg-white rounded-2xl p-8 md:p-12 shadow-sm border border-gray-100">
-            {post.excerpt_en && (
+            {(post[`excerpt_${language}`] || post.excerpt_en) && (
               <p className="text-xl text-gray-600 font-medium leading-relaxed mb-8 pb-8 border-b border-gray-100 italic">
-                {post.excerpt_en}
+                {post[`excerpt_${language}`] || post.excerpt_en}
               </p>
             )}
             <div className="prose prose-slate max-w-none">
               <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-line">
-                {post.content_en}
+                {post[`content_${language}`] || post.content_en}
               </p>
             </div>
 

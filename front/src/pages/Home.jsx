@@ -1,15 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  ChevronRight,
-  GraduationCap,
-  Users,
-  Globe,
-  Award,
-  TrendingUp,
-} from "lucide-react";
+import { Globe, Award, TrendingUp, GraduationCap, Users, ArrowRight, ChevronRight } from "lucide-react";
 import useHomeData from "../hooks/useHomeData";
+import { useLanguage } from "../context/LanguageContext";
+import { IMAGE_BASE_URL } from "../api/axios";
 
 // --- Helper Component: Number Counter ---
 const Counter = ({ end, duration = 2000, isVisible }) => {
@@ -62,10 +56,11 @@ const renderIcon = (iconName, className) => {
 };
 
 const EngineeringConfidence = ({ data }) => {
+  const { language } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
 
-  const coreValues = data?.extra_data?.core_values_en || [];
+  const coreValues = data?.extra_data?.[`core_values_${language}`] || data?.extra_data?.core_values_en || [];
 
   const pathData =
     "M0,200 L180,200 L180,140 L210,140 L210,200 L240,200 L240,80 L280,80 L280,200 L310,200 L310,110 L350,110 L350,200 L380,200 L380,20 L420,20 L420,200 L450,200 L450,70 L490,70 L490,200 L520,200 L520,130 L560,130 L560,200 L590,200 L590,90 L630,90 L630,200 L800,200";
@@ -101,9 +96,9 @@ const EngineeringConfidence = ({ data }) => {
           }`}
         >
           <h2 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-slate-900 tracking-tight leading-tight md:leading-[1.1]">
-            {data.title_en}
+            {data[`title_${language}`] || data.title_en}
             <br />
-            <span className="text-[#ee2039]">{data.description_en}</span>
+            <span className="text-[#ee2039]">{data[`description_${language}`] || data.description_en}</span>
           </h2>
         </div>
 
@@ -196,6 +191,7 @@ const EngineeringConfidence = ({ data }) => {
 };
 
 const StatsSection = ({ sections }) => {
+  const { language } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -244,9 +240,9 @@ const StatsSection = ({ sections }) => {
                 </span>
               </div>
               <h3 className="text-sm md:text-base font-bold text-gray-500 uppercase tracking-wider mb-1">
-                {stat.title_en}
+                {stat[`title_${language}`] || stat.title_en}
               </h3>
-              <p className="text-xs text-gray-700">{stat.description_en}</p>
+              <p className="text-xs text-gray-700">{stat[`description_${language}`] || stat.description_en}</p>
             </div>
           ))}
         </div>
@@ -256,6 +252,7 @@ const StatsSection = ({ sections }) => {
 };
 
 const FeaturedProducts = ({ data }) => {
+  const { language } = useLanguage();
   const [activeIndex, setActiveIndex] = useState(0);
   const [showContent, setShowContent] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
@@ -285,7 +282,7 @@ const FeaturedProducts = ({ data }) => {
   }, []);
 
   if (!data) return null;
-  const products = data.extra_data?.products_en || [];
+  const products = data.extra_data?.[`products_${language}`] || data.extra_data?.products_en || [];
 
   return (
     <section
@@ -296,7 +293,7 @@ const FeaturedProducts = ({ data }) => {
         className={`container mx-auto px-4 mb-10 text-center transition-all duration-1000 ${isVisible ? "opacity-100" : "opacity-0 translate-y-10"}`}
       >
         <h2 className="text-3xl md:text-5xl font-bold text-slate-900">
-          {data.title_en} <span className="text-[#ee2039]">{data.description_en}</span>
+          {data[`title_${language}`] || data.title_en} <span className="text-[#ee2039]">{data[`description_${language}`] || data.description_en}</span>
         </h2>
       </div>
 
@@ -320,7 +317,7 @@ const FeaturedProducts = ({ data }) => {
               {isActive && (
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
-                  style={{ backgroundImage: `url('${product.image}')` }}
+                  style={{ backgroundImage: `url('${product.image?.startsWith('http') || !product.image?.startsWith('/uploads') ? product.image : IMAGE_BASE_URL + product.image}')` }}
                 />
               )}
               {isActive && (
@@ -377,6 +374,7 @@ const FeaturedProducts = ({ data }) => {
 
 // --- 4. Certifications ---
 const Certifications = ({ certs }) => {
+  const { language } = useLanguage();
   if (!certs || certs.length === 0) return null;
 
   return (
@@ -414,7 +412,7 @@ const Certifications = ({ certs }) => {
                 className={`w-20 h-20 md:w-24 md:h-24 rounded-full bg-white flex items-center justify-center mb-4 transition-all duration-300 group-hover:shadow-xl border border-gray-100 group-hover:border-gray-200 overflow-hidden p-4`}
               >
                 <img
-                  src={cert.image_url}
+                  src={cert.image_url?.startsWith('http') || !cert.image_url?.startsWith('/uploads') ? cert.image_url : IMAGE_BASE_URL + cert.image_url}
                   alt={cert.name}
                   className="w-full h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
                 />
@@ -435,6 +433,7 @@ const Certifications = ({ certs }) => {
 
 // --- 5. HomeCTA ---
 const HomeCTA = ({ sections }) => {
+  const { language } = useLanguage();
   const cta1 = sections['cta_academy'];
   const cta2 = sections['cta_partners'];
 
@@ -447,7 +446,7 @@ const HomeCTA = ({ sections }) => {
           <div className="relative rounded-3xl overflow-hidden min-h-[300px] md:min-h-[400px] group cursor-pointer transform-gpu">
             <div 
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"
-                style={{ backgroundImage: `url('${cta1.image_url}')` }}
+                style={{ backgroundImage: `url('${cta1.image_url?.startsWith('http') || !cta1.image_url?.startsWith('/uploads') ? cta1.image_url : IMAGE_BASE_URL + cta1.image_url}')` }}
             ></div>
             <div className="absolute inset-0 bg-slate-900/80 group-hover:bg-slate-900/70 transition-colors duration-300"></div>
             <Link to={cta1.link_url}>
@@ -457,16 +456,16 @@ const HomeCTA = ({ sections }) => {
                   {renderIcon(cta1.icon_name, "text-blue-400 w-5 h-5 md:w-6 md:h-6")}
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 md:mb-4">
-                  {cta1.title_en}
+                  {cta1[`title_${language}`] || cta1.title_en}
                 </h3>
                 <p className="text-gray-200 leading-relaxed max-w-md text-sm md:text-base">
-                  {cta1.description_en}
+                  {cta1[`description_${language}`] || cta1.description_en}
                 </p>
               </div>
               <p
                 className="inline-flex items-center gap-2 text-white font-bold hover:gap-4 transition-all group-hover:text-blue-400 text-sm md:text-base"
               >
-                {cta1.btn_text_en}{" "}
+                {cta1[`btn_text_${language}`] || cta1.btn_text_en}{" "}
                 <ArrowRight size={18} className="md:w-5 md:h-5" />
               </p>
             </div>
@@ -475,7 +474,7 @@ const HomeCTA = ({ sections }) => {
           <div className="relative rounded-3xl overflow-hidden min-h-[300px] md:min-h-[400px] group cursor-pointer transform-gpu">
             <div 
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 will-change-transform group-hover:scale-105"
-                style={{ backgroundImage: `url('${cta2.image_url}')` }}
+                style={{ backgroundImage: `url('${cta2.image_url?.startsWith('http') || !cta2.image_url?.startsWith('/uploads') ? cta2.image_url : IMAGE_BASE_URL + cta2.image_url}')` }}
             ></div>
             
             <div className="absolute inset-0 bg-[#ee2039]/60 group-hover:bg-[#ee2039]/50 transition-colors duration-300"></div>
@@ -486,16 +485,16 @@ const HomeCTA = ({ sections }) => {
                   {renderIcon(cta2.icon_name, "text-white w-5 h-5 md:w-6 md:h-6")}
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 md:mb-4">
-                    {cta2.title_en}
+                    {cta2[`title_${language}`] || cta2.title_en}
                 </h3>
                 <p className="text-white/90 leading-relaxed max-w-md text-sm md:text-base">
-                  {cta2.description_en}
+                  {cta2[`description_${language}`] || cta2.description_en}
                 </p>
               </div>
               <p
                 className="inline-flex items-center gap-2 text-white font-bold hover:gap-4 transition-all text-sm md:text-base"
               >
-                {cta2.btn_text_en}{" "}
+                {cta2[`btn_text_${language}`] || cta2.btn_text_en}{" "}
                 <ArrowRight size={18} className="md:w-5 md:h-5" />
               </p>
             </div>
@@ -509,7 +508,7 @@ const HomeCTA = ({ sections }) => {
 
 // --- 6. Main Home Page Component ---
 const Home = () => {
-    
+  const { language } = useLanguage();
   const { loading, error, hero, sections, certifications } = useHomeData();
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -553,7 +552,7 @@ const Home = () => {
             <div
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
               style={{
-                backgroundImage: `url('${slide.image_url}')`,
+                backgroundImage: `url('${slide.image_url?.startsWith('http') || !slide.image_url?.startsWith('/uploads') ? slide.image_url : IMAGE_BASE_URL + slide.image_url}')`,
                 opacity: 0.6,
               }}
             />
@@ -571,23 +570,23 @@ const Home = () => {
               {/* Badge/Subtitle */}
               <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 text-white border border-[#ee2039]/30 text-[10px] xs:text-xs md:text-sm font-bold tracking-[0.2em] uppercase mb-6 backdrop-blur-sm">
                 <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
-                {hero[currentSlide].subtitle_en}
+                {hero[currentSlide][`subtitle_${language}`] || hero[currentSlide].subtitle_en}
               </div>
 
               {/* Main Title */}
               <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 tracking-tight leading-[1.2]">
                 <span className="whitespace-nowrap sm:whitespace-normal block sm:inline">
-                  {hero[currentSlide].title_en}{" "}
+                  {hero[currentSlide][`title_${language}`] || hero[currentSlide].title_en}{" "}
                 </span>
 
                 <span className="block text-[#ee2039]">
-                  {hero[currentSlide].highlight_text_en}
+                  {hero[currentSlide][`highlight_text_${language}`] || hero[currentSlide].highlight_text_en}
                 </span>
               </h1>
 
               {/* Description */}
               <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 mb-10 leading-relaxed max-w-2xl mx-auto font-light">
-                {hero[currentSlide].description_en}
+                {hero[currentSlide][`description_${language}`] || hero[currentSlide].description_en}
               </p>
 
               {/* Call to Actions */}
@@ -597,7 +596,7 @@ const Home = () => {
                   to={hero[currentSlide].btn_1_link || "/solutions"}
                   className="w-full sm:w-auto px-10 py-4 bg-[#ee2039] hover:bg-[#c41229] text-white rounded-md font-bold text-base transition-all duration-300 shadow-lg shadow-[#ee2039]/20 text-center active:scale-95"
                 >
-                  {hero[currentSlide].btn_1_text_en}
+                  {hero[currentSlide][`btn_1_text_${language}`] || hero[currentSlide].btn_1_text_en}
                 </Link>
                 )}
 
@@ -606,7 +605,7 @@ const Home = () => {
                   to={hero[currentSlide].btn_2_link || "/projects"}
                   className="w-full sm:w-auto px-10 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-md font-bold text-base backdrop-blur-md transition-all duration-300 text-center active:scale-95"
                 >
-                  {hero[currentSlide].btn_2_text_en}
+                  {hero[currentSlide][`btn_2_text_${language}`] || hero[currentSlide].btn_2_text_en}
                 </Link>
                 )}
               </div>

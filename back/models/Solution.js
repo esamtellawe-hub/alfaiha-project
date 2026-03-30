@@ -29,6 +29,10 @@ const Solution = sequelize.define('Solution', {
     type: DataTypes.STRING,
     allowNull: true
   },
+  msds_url: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   is_featured: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
@@ -53,12 +57,34 @@ const Solution = sequelize.define('Solution', {
   advantages_ar: { type: DataTypes.JSON, allowNull: true },
   advantages_fr: { type: DataTypes.JSON, allowNull: true },
 
-  // --- Fixed Technical Specs (Usually numbers/codes, but can be text) ---
-  mixing_ratio: { type: DataTypes.STRING, allowNull: true },
-  coverage: { type: DataTypes.STRING, allowNull: true },
-  packaging: { type: DataTypes.STRING, allowNull: true },
-  storage: { type: DataTypes.STRING, allowNull: true },
-  shelf_life: { type: DataTypes.STRING, allowNull: true }
+  // --- Fixed Technical Specs (Multilingual) ---
+  mixing_ratio_en: { type: DataTypes.STRING, allowNull: true },
+  mixing_ratio_ar: { type: DataTypes.STRING, allowNull: true },
+  mixing_ratio_fr: { type: DataTypes.STRING, allowNull: true },
+
+  coverage_en: { type: DataTypes.STRING, allowNull: true },
+  coverage_ar: { type: DataTypes.STRING, allowNull: true },
+  coverage_fr: { type: DataTypes.STRING, allowNull: true },
+
+  packaging_en: { type: DataTypes.STRING, allowNull: true },
+  packaging_ar: { type: DataTypes.STRING, allowNull: true },
+  packaging_fr: { type: DataTypes.STRING, allowNull: true },
+
+  storage_en: { type: DataTypes.STRING, allowNull: true },
+  storage_ar: { type: DataTypes.STRING, allowNull: true },
+  storage_fr: { type: DataTypes.STRING, allowNull: true },
+
+  standard_en: { type: DataTypes.STRING, allowNull: true },
+  standard_ar: { type: DataTypes.STRING, allowNull: true },
+  standard_fr: { type: DataTypes.STRING, allowNull: true },
+
+  health_and_safety_en: { type: DataTypes.TEXT, allowNull: true },
+  health_and_safety_ar: { type: DataTypes.TEXT, allowNull: true },
+  health_and_safety_fr: { type: DataTypes.TEXT, allowNull: true },
+
+  shelf_life_en: { type: DataTypes.STRING, allowNull: true },
+  shelf_life_ar: { type: DataTypes.STRING, allowNull: true },
+  shelf_life_fr: { type: DataTypes.STRING, allowNull: true }
 
 }, {
   tableName: 'solutions',

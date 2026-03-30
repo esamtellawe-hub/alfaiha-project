@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown, Menu, X, Globe, ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom"; // استيراد Link و useLocation
+import { useLanguage } from "../context/LanguageContext";
 
 // --- بيانات القائمة ---
 import useMenu from "../hooks/useMenu";
 import useSiteSettings from "../hooks/useSiteSettings";
 
 const Header = () => {
+  const { language: currentLang, setLanguage } = useLanguage();
+
   const { menuItems, loading: menuLoading } = useMenu();
   const { regionalOffices } = useSiteSettings();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -74,13 +77,24 @@ const Header = () => {
         <div className="flex items-center gap-4 text-gray-400">
           <Globe size={13} />
           <div className="flex items-center gap-3 font-medium tracking-wider text-[10px] uppercase">
-            <span className="text-white cursor-pointer">EN</span>
+            <span 
+              onClick={() => setLanguage('en')} 
+              className={`cursor-pointer transition-colors ${currentLang === 'en' ? 'text-white' : 'hover:text-white'}`}
+            >
+              EN
+            </span>
             <span className="text-gray-700">|</span>
-            <span className="hover:text-white cursor-pointer transition-colors">
+            <span 
+              onClick={() => setLanguage('ar')}
+              className={`cursor-pointer transition-colors ${currentLang === 'ar' ? 'text-white' : 'hover:text-white'}`}
+            >
               AR
             </span>
             <span className="text-gray-700">|</span>
-            <span className="hover:text-white cursor-pointer transition-colors">
+            <span 
+              onClick={() => setLanguage('fr')}
+              className={`cursor-pointer transition-colors ${currentLang === 'fr' ? 'text-white' : 'hover:text-white'}`}
+            >
               FR
             </span>
           </div>
@@ -116,7 +130,7 @@ const Header = () => {
                   to={item.href || item.path}
                   className={`relative group py-6 flex items-center gap-1 transition-colors ${isActive ? "text-[#ee2039]" : "hover:text-[#ee2039]"}`}
                 >
-                  {item.label_en}
+                  {item[`label_${currentLang}`] || item.label_en}
                   <span className={`absolute bottom-6 left-0 h-[2px] bg-[#ee2039] transition-all duration-300 ${isActive ? "w-full opacity-100" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-100"}`}></span>
                 </Link>
               );
@@ -136,7 +150,7 @@ const Header = () => {
                     if (!item.path) e.preventDefault();
                   }}
                 >
-                  {item.label_en}
+                  {item[`label_${currentLang}`] || item.label_en}
                   <ChevronDown
                     size={11}
                     strokeWidth={3}
@@ -171,11 +185,11 @@ const Header = () => {
                           <div className="w-[3px] h-0 bg-[#ee2039] group-hover/item:h-full transition-all duration-300 rounded-full mt-1"></div>
                           <div className="flex flex-col">
                             <span className="text-[14px] font-bold text-slate-800 group-hover/item:text-[#ee2039] transition-colors leading-tight">
-                              {subItem.label_en}
+                              {subItem[`label_${currentLang}`] || subItem.label_en}
                             </span>
-                            {subItem.description_en && (
+                            {(subItem[`description_${currentLang}`] || subItem.description_en) && (
                               <span className="text-[12px] text-gray-400 mt-1.5 leading-relaxed font-normal">
-                                {subItem.description_en}
+                                {subItem[`description_${currentLang}`] || subItem.description_en}
                               </span>
                             )}
                           </div>
@@ -191,7 +205,7 @@ const Header = () => {
                           className="block px-4 py-2.5 text-[13px] text-slate-600 hover:text-[#ee2039] hover:bg-gray-50 rounded-md transition-all font-medium text-left"
                           onClick={() => setActiveDropdown(null)}
                         >
-                          {subItem.label_en}
+                          {subItem[`label_${currentLang}`] || subItem.label_en}
                         </Link>
                       ))}
                     </div>
@@ -245,7 +259,7 @@ const Header = () => {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`block py-3 px-2 font-bold text-[15px] border-b border-gray-50 last:border-0 ${isActive ? "text-[#ee2039]" : "text-slate-800 hover:text-[#ee2039]"}`}
                     >
-                      {item.label_en}
+                      {item[`label_${currentLang}`] || item.label_en}
                     </Link>
                   );
                 }
@@ -258,7 +272,7 @@ const Header = () => {
                       onClick={() => toggleMobileGroup(item.id)}
                       className={`flex w-full justify-between items-center py-4 px-2 font-bold text-[15px] transition-colors ${mobileExpanded[item.id] || isActive ? "text-[#ee2039]" : "text-slate-800"}`}
                     >
-                      {item.label_en}
+                      {item[`label_${currentLang}`] || item.label_en}
                       <ChevronRight
                         size={18}
                         className={`transition-transform duration-300 ${mobileExpanded[item.id] ? "rotate-90 text-[#ee2039]" : "text-gray-300"}`}
@@ -275,7 +289,7 @@ const Header = () => {
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="block py-2.5 px-4 text-[13px] text-gray-600 hover:text-[#ee2039] hover:bg-white rounded-lg transition-all font-medium"
                           >
-                            {sub.label_en}
+                            {sub[`label_${currentLang}`] || sub.label_en}
                           </Link>
                         ))}
                       </div>
@@ -287,13 +301,22 @@ const Header = () => {
           </div>
           <div className="p-6 bg-slate-50 border-t border-gray-100">
             <div className="flex justify-center gap-8 text-sm font-bold text-gray-400">
-              <span className="text-[#ee2039] border-b-2 border-[#ee2039] cursor-default pb-1">
+              <span 
+                onClick={() => setLanguage('en')}
+                className={`cursor-pointer transition-colors pb-1 ${currentLang === 'en' ? 'text-[#ee2039] border-b-2 border-[#ee2039]' : 'hover:text-slate-800'}`}
+              >
                 EN
               </span>
-              <span className="hover:text-slate-800 cursor-pointer transition-colors pb-1">
+              <span 
+                onClick={() => setLanguage('ar')}
+                className={`cursor-pointer transition-colors pb-1 ${currentLang === 'ar' ? 'text-[#ee2039] border-b-2 border-[#ee2039]' : 'hover:text-slate-800'}`}
+              >
                 AR
               </span>
-              <span className="hover:text-slate-800 cursor-pointer transition-colors pb-1"> 
+              <span 
+                onClick={() => setLanguage('fr')}
+                className={`cursor-pointer transition-colors pb-1 ${currentLang === 'fr' ? 'text-[#ee2039] border-b-2 border-[#ee2039]' : 'hover:text-slate-800'}`}
+              > 
                 FR
               </span>
             </div>

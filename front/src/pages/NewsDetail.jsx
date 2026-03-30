@@ -1,9 +1,11 @@
+import { useLanguage } from "../context/LanguageContext";
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, ArrowLeft, User, Share2 } from 'lucide-react';
 import api from '../api/axios';
 
 const NewsDetail = () => {
+  const { language } = useLanguage();
   const { slug } = useParams();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,7 @@ const NewsDetail = () => {
             </span>
           )}
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-            {article.title_en}
+            {article[`title_${language}`] || article.title_en}
           </h1>
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
             <span className="flex items-center gap-1.5">
@@ -72,7 +74,7 @@ const NewsDetail = () => {
           {/* Featured Image */}
           {article.image_url && (
             <div className="rounded-2xl overflow-hidden mb-10 shadow-xl">
-              <img src={article.image_url} alt={article.title_en} className="w-full h-64 md:h-96 object-cover" />
+              <img src={article.image_url} alt={article[`title_${language}`] || article.title_en} className="w-full h-64 md:h-96 object-cover" />
             </div>
           )}
 
@@ -80,7 +82,7 @@ const NewsDetail = () => {
           <div className="bg-white rounded-2xl p-8 md:p-12 shadow-sm border border-gray-100">
             <div className="prose prose-slate max-w-none">
               <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-line">
-                {article.content_en}
+                {article[`content_${language}`] || article.content_en}
               </p>
             </div>
 

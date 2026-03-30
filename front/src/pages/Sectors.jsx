@@ -1,3 +1,4 @@
+import { useLanguage } from "../context/LanguageContext";
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, Link } from "react-router-dom";
 import useSectors from "../hooks/useSectors";
@@ -29,6 +30,7 @@ import {
 
 // Helper to map icon name to component
 const IconHelper = ({ name, size = 32, className }) => {
+  const { language } = useLanguage();
     const icons = {
         Building2, Factory, GraduationCap, Zap, Car, Briefcase, LayoutGrid,
         Droplets, Hammer, PaintBucket, Beaker, Layers, Grid, Box
@@ -46,6 +48,7 @@ const IconHelper = ({ name, size = 32, className }) => {
 
 // كرت المنتج المحسّن
 const ProductCard = ({ product, sections }) => {
+  const { language } = useLanguage();
   const name = product.name;
   const slug = product.slug;
   const description = product.description;
@@ -101,6 +104,7 @@ const ProductCard = ({ product, sections }) => {
 
 // --- 3. المكون الرئيسي للصفحة ---
 const Sectors = () => {
+  const { language } = useLanguage();
   const { sections, sectors: apiSectors, loading, error } = useSectors();
 
   // Transform API Data
@@ -108,31 +112,30 @@ const Sectors = () => {
     return apiSectors.map((s) => {
       const sectorData = {
         id: s.slug,
-        title: s.name_en, // Could use i18n here later
+        title: s[`name_${language}`] || s.name_en, // Could use i18n here later
         icon: <IconHelper name={s.icon_name} />, 
-        description: s.description_en,
+        description: s[`description_${language}`] || s.description_en,
         areas: s.areas.map((a) => {
-          // Extract unique categories from solutions mapped to 'products' by hook
-          const uniqueCategories = [];
-          const seen = new Set();
-          if (a.products) {
-              a.products.forEach(prod => {
-                  const catId = prod.category_id;
-                  if(catId && !seen.has(catId)) {
-                      seen.add(catId);
-                      uniqueCategories.push({
-                          name: prod.category ? prod.category.name_en : prod.name,
-                          slug: prod.slug,
-                          description: prod.description,
-                          icon: prod.icon
-                      });
-                  }
+          // Unique products (solutions) inside this area
+          const uniqueProducts = [];
+          if (a.categories && Array.isArray(a.categories)) {
+              a.categories.forEach(cat => {
+                   if (cat.solutions && Array.isArray(cat.solutions)) {
+                       cat.solutions.forEach(prod => {
+                           uniqueProducts.push({
+                               name: prod[`name_${language}`] || prod.name_en,
+                               slug: prod.slug,
+                               description: prod[`description_${language}`] || prod.description_en || "",
+                               icon: cat.icon_name || "Box"
+                           });
+                       });
+                   }
               });
           }
           return {
             id: a.slug,
-            title: a.name_en,
-            products: uniqueCategories
+            title: a[`name_${language}`] || a.name_en,
+            products: uniqueProducts
           };
         })
       };
@@ -147,7 +150,10 @@ const Sectors = () => {
         }
       }
       
-      sectorData.tabs = Array.isArray(parsedTabs) ? parsedTabs : [];
+      // Handle the case where tabs might be an array of objects `[{label: "..."}]` instead of just strings
+      sectorData.tabs = Array.isArray(parsedTabs) 
+         ? parsedTabs.map(t => typeof t === 'string' ? t : (t.label || t.name || t.text || ''))
+         : [];
       
       return sectorData;
     });
@@ -304,13 +310,13 @@ const Sectors = () => {
             {sections?.hero?.subtitle_en && (
               <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 border border-[#ee2039]/30 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
                 <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
-                {sections.hero.subtitle_en}
+                {sections.hero[`subtitle_${language}`] || sections.hero.subtitle_en}
               </div>
             )}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               {sections?.hero?.title_en ? (
                 <>
-                  {sections.hero.title_en.split(' ').slice(0, -1).join(' ')} <span className="text-[#ee2039]">{sections.hero.title_en.split(' ').slice(-1)}</span>
+                  {sections.hero[`title_${language}`] || sections.hero.title_en.split(' ').slice(0, -1).join(' ')} <span className="text-[#ee2039]">{sections.hero[`title_${language}`] || sections.hero.title_en.split(' ').slice(-1)}</span>
                 </>
               ) : (
                 <>Sectors We <span className="text-[#ee2039]">Serve</span></>

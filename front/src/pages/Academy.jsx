@@ -1,3 +1,4 @@
+import { useLanguage } from "../context/LanguageContext";
 import React, { useState } from "react";
 import { useAcademy } from "../hooks/useAcademy";
 import {
@@ -15,6 +16,7 @@ import {
 
 // Helper object to dynamically render Lucifer icons from strings in DB
 const IconRenderer = ({ name, size = 24, className = "" }) => {
+  const { language } = useLanguage();
   const icons = {
     Target: <Target size={size} className={className} />,
     Award: <Award size={size} className={className} />,
@@ -27,6 +29,7 @@ const IconRenderer = ({ name, size = 24, className = "" }) => {
 };
 
 const Academy = () => {
+  const { language } = useLanguage();
   const { sections, loading, error } = useAcademy();
   
   const [formData, setFormData] = useState({
@@ -88,7 +91,7 @@ const Academy = () => {
 
             <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white">
               {sections?.hero?.title_en ? (
-                sections.hero.title_en.split(' ').map((word, i) => (
+                sections.hero[`title_${language}`] || hero.title_en.split(' ').map((word, i) => (
                   <React.Fragment key={i}>
                     {i === 1 ? <span className="text-[#ee2039]">{word}</span> : word + ' '}
                   </React.Fragment>
@@ -171,8 +174,8 @@ const Academy = () => {
                 <div className="w-12 h-12 rounded-xl bg-[#ee2039] flex items-center justify-center mb-4 text-white">
                   <IconRenderer name={item.icon} size={24} />
                 </div>
-                <h4 className="text-xl font-bold text-slate-900 mb-3">{item.title_en}</h4>
-                <p className="text-gray-800 leading-relaxed">{item.desc_en}</p>
+                <h4 className="text-xl font-bold text-slate-900 mb-3">{item[`title_${language}`] || item.title_en}</h4>
+                <p className="text-gray-800 leading-relaxed">{item[`desc_${language}`] || item.desc_en}</p>
               </div>
             ))}
           </div>
@@ -250,8 +253,8 @@ const Academy = () => {
                     <IconRenderer name={item.icon} size={24} />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-2">{item.title_en}</h4>
-                    <p className="text-gray-800 text-sm leading-relaxed">{item.desc_en}</p>
+                    <h4 className="text-lg font-bold text-slate-900 mb-2">{item[`title_${language}`] || item.title_en}</h4>
+                    <p className="text-gray-800 text-sm leading-relaxed">{item[`desc_${language}`] || item.desc_en}</p>
                   </div>
                 </div>
               ))}

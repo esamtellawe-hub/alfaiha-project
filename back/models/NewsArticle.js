@@ -32,10 +32,17 @@ const NewsArticle = sequelize.define('NewsArticle', {
     type: DataTypes.STRING,
     defaultValue: 'Admin'
   },
+  type: {
+    type: DataTypes.STRING,
+    defaultValue: 'Company News'
+  },
   is_published: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
-  }
+  },
+  linkedin_url: { type: DataTypes.STRING, allowNull: true },
+  facebook_url: { type: DataTypes.STRING, allowNull: true },
+  instagram_url: { type: DataTypes.STRING, allowNull: true },
 }, {
   tableName: 'news_articles',
   timestamps: true, // created_at, updated_at

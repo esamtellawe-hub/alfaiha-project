@@ -7,6 +7,8 @@ const api = axios.create({
   },
 });
 
+export const IMAGE_BASE_URL = 'http://localhost:5000'; // Base URL for static assets
+
 // Add a request interceptor to include the token if it exists
 api.interceptors.request.use(
   (config) => {
@@ -17,6 +19,19 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Check if server is down (Network Error) or returned 503 Service Unavailable
+    if (error.message === 'Network Error' || (error.response && error.response.status === 503)) {
+      if (window.location.pathname !== '/maintenance') {
+        window.location.href = '/maintenance';
+      }
+    }
     return Promise.reject(error);
   }
 );

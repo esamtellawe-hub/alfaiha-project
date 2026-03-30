@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
+import { useLanguage } from "../context/LanguageContext";
+import React, { useState, useEffect } from 'react';
 import { Calendar, ArrowRight, Globe, Facebook, Linkedin, Instagram } from 'lucide-react';
 import useNews from '../hooks/useNews';
+import api from '../api/axios';
 
 const FILTERS = ['All', 'Press Release', 'Company News', 'Events', 'Awards'];
 
 const News = () => {
+  const { language } = useLanguage();
   const { articles, loading } = useNews();
   const [filter, setFilter] = useState('all');
+  const [hero, setHero] = useState(null);
+
+  useEffect(() => {
+    api.get('/content/news-page').then(r => setHero(r.data.sections?.hero)).catch(() => {});
+  }, []);
 
   // Format date from DB (YYYY-MM-DD) to display parts
   const parseDate = (dateStr) => {
@@ -28,6 +36,7 @@ const News = () => {
       );
 
   const SocialIcon = ({ type, url }) => {
+  const { language } = useLanguage();
     if (!url) return null;
     const icons = { facebook: <Facebook size={18} />, instagram: <Instagram size={18} />, linkedin: <Linkedin size={18} /> };
     const colors = { facebook: 'hover:text-[#1877F2]', instagram: 'hover:text-[#E4405F]', linkedin: 'hover:text-[#0A66C2]' };
@@ -48,13 +57,17 @@ const News = () => {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 border border-[#ee2039]/30 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 text-white">
               <Globe size={12} className="text-[#ee2039]" />
-              Media Center
+              {hero?.subtitle_en || 'Media Center'}
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              News & <span className="text-[#ee2039]">Press</span>
+              {hero?.title_en ? (
+                <>{hero[`title_${language}`] || hero.title_en.split(' ').slice(0, -1).join(' ')} <span className="text-[#ee2039]">{hero[`title_${language}`] || hero.title_en.split(' ').slice(-1)}</span></>
+              ) : (
+                <>News & <span className="text-[#ee2039]">Press</span></>
+              )}
             </h1>
             <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-              Official announcements, company milestones, and the latest updates from Al Faiha Group.
+              {hero?.description_en || 'Official announcements, company milestones, and the latest updates from Al Faiha Group.'}
             </p>
           </div>
         </div>
@@ -127,11 +140,11 @@ const News = () => {
                       </div>
 
                       <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-3 group-hover:text-[#ee2039] transition-colors">
-                        {article.title_en}
+                        {article[`title_${language}`] || article.title_en}
                       </h3>
 
                       <p className="text-gray-500 leading-relaxed mb-6">
-                        {article.content_en?.substring(0, 200)}{article.content_en?.length > 200 ? '...' : ''}
+                        {article[`content_${language}`] || article.content_en?.substring(0, 200)}{article[`content_${language}`] || article.content_en?.length > 200 ? '...' : ''}
                       </p>
 
                       <div className="flex items-center justify-between mt-auto">
@@ -161,7 +174,7 @@ const News = () => {
                       <div className="w-full md:w-48 aspect-video md:aspect-square rounded-xl overflow-hidden bg-gray-100 shrink-0 mt-4 md:mt-0">
                         <img
                           src={article.image_url}
-                          alt={article.title_en}
+                          alt={article[`title_${language}`] || article.title_en}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                       </div>

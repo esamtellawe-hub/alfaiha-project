@@ -277,8 +277,8 @@ const seedSectors = async () => {
 
         // Clear existing Sectors and Areas (cascade will handle areas, but best to be safe)
         // Note: foreign keys might prevent simple truncate. We are in a reseed script, usually we clean up everything.
-        // Assuming reseed.js cleans up or we use findOrCreate/Destroy.
         // Let's destroy all first to ensure clean slate if re-running.
+        await AreaSolution.destroy({ where: {} });
         await SectorArea.destroy({ where: {} });
         await Sector.destroy({ where: {} });
 
@@ -308,6 +308,8 @@ const seedSectors = async () => {
                 // In Sectors.jsx these map to Categories.
                 // We will find ALL *Solutions* that belong to a *Category* matching these keywords.
                 
+                const seenSolutionsData = new Set();
+                
                 for (const keyword of areaData.products) {
                     // Try to match partial category name
                     const categories = await Category.findAll({
@@ -334,12 +336,21 @@ const seedSectors = async () => {
                         
                         // Use direct create to avoid association issues
                         if (solutions.length > 0) {
-                             const bulkData = solutions.map(sol => ({
-                                 sector_area_id: area.id,
-                                 solution_id: sol.id
-                             }));
-                             // Using AreaSolution model directly requires requiring it at top
-                             await AreaSolution.bulkCreate(bulkData);
+                             const bulkData = [];
+                             solutions.forEach(sol => {
+                                 const uniqueKey = `${area.id}-${sol.id}`;
+                                 if (!seenSolutionsData.has(uniqueKey)) {
+                                     bulkData.push({
+                                         sector_area_id: area.id,
+                                         solution_id: sol.id
+                                     });
+                                     seenSolutionsData.add(uniqueKey);
+                                 }
+                             });
+
+                             if (bulkData.length > 0) {
+                                 await AreaSolution.bulkCreate(bulkData);
+                             }
                         }
                     }
                 }

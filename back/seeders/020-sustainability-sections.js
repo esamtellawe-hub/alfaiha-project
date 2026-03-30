@@ -7,91 +7,89 @@ const seedSustainability = async () => {
     await sequelize.authenticate();
     await sequelize.sync({ alter: true });
 
-    const count = await SustainabilitySection.count();
-    if (count > 0) {
-      console.log('ℹ️  Sustainability sections already exist. Skipping.');
-      process.exit(0);
-    }
+    // Truncate to reset with new flat schema
+    await SustainabilitySection.destroy({ truncate: true, cascade: true });
 
     await SustainabilitySection.bulkCreate([
-      {
-        section_key: 'sustainability',
-        icon: 'Leaf',
-        order: 1,
-        title_en: 'Our Commitment to the Environment',
-        title_ar: 'التزامنا بالبيئة',
-        title_fr: 'Notre Engagement envers l\'Environnement',
-        subtitle_en: 'Sustainability',
-        subtitle_ar: 'الاستدامة',
-        subtitle_fr: 'Durabilité',
-        body_en: 'Every product we create and every process we refine reflects our responsibility to balance technical performance with environmental care, resource efficiency, and long-term structural performance. Our journey toward sustainability begins with innovation — a core value that drives us to engineer eco-efficient formulations and optimize our manufacturing practices.',
-        body_ar: 'كل منتج نصنعه وكل عملية نحسّنها تعكس مسؤوليتنا في الموازنة بين الأداء التقني والرعاية البيئية وكفاءة الموارد والأداء الهيكلي طويل الأمد.',
-        body_fr: 'Chaque produit que nous créons et chaque processus que nous affinons reflète notre responsabilité d\'équilibrer les performances techniques et le soin environnemental.',
-        is_active: true
+      // ================= HERO =================
+      { section_key: 'hero', order: 1,
+        subtitle_en: 'Building a Sustainable Future', title_en: 'Sustainability & Innovation',
+        body_en: 'At Al Faiha Group, sustainability is not just a statement; it\'s our standard. We believe construction shapes not only today\'s landscape but safeguards tomorrow\'s future.'
       },
-      {
-        section_key: 'esg_qhse',
-        icon: 'Shield',
-        order: 2,
-        title_en: 'Environmental, Social & Governance Excellence',
-        title_ar: 'التميز البيئي والاجتماعي والحوكمة',
-        title_fr: 'Excellence Environnementale, Sociale et de Gouvernance',
-        subtitle_en: 'ESG & QHSE',
-        subtitle_ar: 'ESG وQHSE',
-        subtitle_fr: 'ESG & QHSE',
-        body_en: 'AlFaiha Group upholds the highest standards of ESG responsibility, reinforced by a comprehensive and fully integrated Quality, Health, Safety, and Environment (QHSE) framework. Through stringent safety protocols, sustainable sourcing, and governance systems aligned with ISO 14001, we create safer workplaces and enhance operational excellence.',
-        body_ar: 'تلتزم مجموعة الفيحاء بأعلى معايير المسؤولية البيئية والاجتماعية والحوكمة، معززةً بإطار شامل ومتكامل لإدارة الجودة والصحة والسلامة والبيئة.',
-        body_fr: 'Le Groupe Al Faiha respecte les normes les plus élevées en matière de responsabilité ESG, renforcées par un cadre QHSE complet et entièrement intégré.',
-        is_active: true
+      // ================= SUSTAINABILITY MAIN =================
+      { section_key: 'sustainability_main', order: 2, icon: 'Leaf',
+        subtitle_en: 'Sustainability', title_en: 'Our Commitment to the Environment',
+        body_en: 'Every product we create and every process we refine reflects our responsibility to balance technical performance with environmental care, resource efficiency, and long-term structural performance.'
       },
-      {
-        section_key: 'rd',
-        icon: 'FlaskConical',
-        order: 3,
-        title_en: 'Innovation Through Research',
-        title_ar: 'الابتكار من خلال البحث',
-        title_fr: 'L\'Innovation par la Recherche',
-        subtitle_en: 'Research & Development',
-        subtitle_ar: 'البحث والتطوير',
-        subtitle_fr: 'Recherche & Développement',
-        body_en: 'At Al Faiha Group, Research & Development is at the core of everything we do. Our R&D team focuses on innovative chemical formulations, continuous product improvement, and performance-driven solutions for all applications. Through advanced laboratory testing, real-site validation, and close collaboration with clients, we develop solutions that meet evolving project demands and industry standards.',
-        body_ar: 'في مجموعة الفيحاء، يُعدّ البحث والتطوير في صميم كل ما نقوم به. يركز فريق البحث والتطوير لدينا على التركيبات الكيميائية المبتكرة والتحسين المستمر للمنتجات.',
-        body_fr: 'Chez Al Faiha Group, la Recherche & Développement est au cœur de tout ce que nous faisons.',
-        is_active: true
+      { section_key: 'sustainability_product', order: 3, icon: 'Lightbulb',
+        title_en: 'Sustainable Product Innovation',
+        body_en: 'Our journey toward sustainability begins with innovation, a core value that drives us to engineer eco-efficient formulations and optimize our manufacturing practices. Through continuous research and development, we deliver construction chemicals and materials that enhance durability, reduce lifecycle costs, and minimize environmental impact.'
       },
-      {
-        section_key: 'csr',
-        icon: 'Heart',
-        order: 4,
-        title_en: 'Building Stronger Communities',
-        title_ar: 'بناء مجتمعات أقوى',
-        title_fr: 'Construire des Communautés Plus Fortes',
-        subtitle_en: 'Corporate Social Responsibility',
-        subtitle_ar: 'المسؤولية الاجتماعية للشركات',
-        subtitle_fr: 'Responsabilité Sociale des Entreprises',
-        body_en: 'Our CSR programs focus on empowering local communities, supporting education and vocational training, and promoting sustainable construction practices. Through partnerships with civic organizations and industry bodies, we contribute to building not only stronger structures, but stronger societies.',
-        body_ar: 'تركز برامج المسؤولية الاجتماعية لدينا على تمكين المجتمعات المحلية ودعم التعليم والتدريب المهني وتعزيز ممارسات البناء المستدامة.',
-        body_fr: 'Nos programmes RSE se concentrent sur l\'autonomisation des communautés locales, le soutien à l\'éducation et à la formation professionnelle.',
-        is_active: true
+      { section_key: 'sustainability_cement', order: 4, icon: 'Target',
+        title_en: 'Cement Additives – Driving Decarbonization',
+        body_en: 'A cornerstone of our sustainability strategy is our Cement Additives line, designed to help the cement industry advance toward global decarbonization targets:'
       },
-      {
-        section_key: 'innovation',
-        icon: 'Lightbulb',
-        order: 5,
-        title_en: 'Pioneering the Future of Construction',
-        title_ar: 'ريادة مستقبل البناء',
-        title_fr: 'Pionnier de l\'Avenir de la Construction',
-        subtitle_en: 'Innovation',
-        subtitle_ar: 'الابتكار',
-        subtitle_fr: 'Innovation',
-        body_en: 'From advanced construction chemicals to customized solutions for complex infrastructure projects, we continuously advance our technologies to anticipate and meet the needs of modern construction. Our approach blends global expertise with local insight, ensuring that we not only deliver superior performance but also set new benchmarks in durability, efficiency, and application methods.',
-        body_ar: 'من الكيماويات الإنشائية المتقدمة إلى الحلول المخصصة لمشاريع البنية التحتية المعقدة، نواصل تطوير تقنياتنا لتلبية احتياجات البناء الحديث.',
-        body_fr: 'Des produits chimiques de construction avancés aux solutions personnalisées pour les projets d\'infrastructure complexes, nous faisons continuellement progresser nos technologies.',
-        is_active: true
+      // Cards
+      { section_key: 'sustainability_card_1', order: 5, icon: 'CheckCircle2',
+        title_en: 'Reduced Clinker Usage', body_en: 'Decreasing CO₂ emissions in cement production' },
+      { section_key: 'sustainability_card_2', order: 6, icon: 'Zap',
+        title_en: 'Higher Grinding Efficiency', body_en: 'Reducing energy consumption during milling' },
+      { section_key: 'sustainability_card_3', order: 7, icon: 'Award',
+        title_en: 'Enhanced Concrete Performance', body_en: 'Extending lifespan while reducing maintenance and waste' },
+      // Red Box
+      { section_key: 'sustainability_red_box', order: 8,
+        title_en: 'Shaping a Greener Future',
+        body_en: 'Rooted in our values of Accountability in Every Project and Health, Safety, and Sustainability, Al Faiha Group integrates environmental stewardship into every decision. By partnering with clients who share our vision, we are building a construction ecosystem where growth and responsibility go hand in hand; shaping a future defined by innovation, efficiency, and care for generations to come.'
+      },
+
+      // ================= ESG =================
+      { section_key: 'esg_main', order: 9, icon: 'Shield',
+        subtitle_en: 'ESG & QHSE', title_en: 'Environmental, Social & Governance Excellence',
+        body_en: 'AlFaiha Group upholds the highest standards of ESG responsibility, reinforced by a comprehensive and fully integrated Quality, Health, Safety, and Environment (QHSE) framework.\n\nThrough stringent safety protocols, sustainable sourcing, and governance systems aligned with ISO 14001, we create safer workplaces, emphasize sustainable sourcing, and enhance operational excellence. This integrated ESG and QHSE approach safeguards people and projects alike while strengthening trust with clients, partners, and communities across the region.'
+      },
+      { section_key: 'esg_card_1', order: 10, icon: 'Shield',
+        title_en: 'Environmental', body_en: 'Sustainable practices and impact reduction' },
+      { section_key: 'esg_card_2', order: 11, icon: 'Users',
+        title_en: 'Social', body_en: 'Community engagement and safety' },
+      { section_key: 'esg_card_3', order: 12, icon: 'Award',
+        title_en: 'Governance', body_en: 'Accountability and transparency' },
+
+      // ================= R&D =================
+      { section_key: 'rd_main', order: 13, icon: 'FlaskConical',
+        subtitle_en: 'Research & Development', title_en: 'Innovation Through Research',
+        body_en: 'At Al Faiha Group, Research & Development is at the core of everything we do.\n\nOur R&D team focuses on innovative chemical formulations, continuous product improvement, and performance-driven solutions for all solutions. Through advanced laboratory testing, real-site validation, and close collaboration with clients, we develop solutions that meet evolving project demands, industry standards, and environmental conditions; ensuring reliability, efficiency, and long-term performance.'
+      },
+      { section_key: 'rd_card_1', order: 14, icon: 'FlaskConical',
+        title_en: 'Advanced Testing', body_en: 'Laboratory and field validation' },
+      { section_key: 'rd_card_2', order: 15, icon: 'Lightbulb',
+        title_en: 'Innovation', body_en: 'Cutting-edge formulations' },
+      { section_key: 'rd_card_3', order: 16, icon: 'Users',
+        title_en: 'Collaboration', body_en: 'Client-driven solutions' },
+
+      // ================= CSR =================
+      { section_key: 'csr_main', order: 17, icon: 'Heart',
+        subtitle_en: 'Corporate Social Responsibility', title_en: 'Building Stronger Communities',
+        body_en: 'Beyond business, we believe in giving back.\n\nOur CSR programs focus on empowering local communities, supporting education and vocational training, and promoting sustainable construction practices. Through partnerships with civic organizations and industry bodies, we contribute to building not only stronger structures, but stronger societies; where opportunity, safety, and shared progress define every endeavor.'
+      },
+      { section_key: 'csr_card_1', order: 18, icon: 'Heart',
+        title_en: 'Community Empowerment', body_en: 'Supporting local communities and development' },
+      { section_key: 'csr_card_2', order: 19, icon: 'Users',
+        title_en: 'Education & Training', body_en: 'Vocational programs and skill development' },
+      { section_key: 'csr_card_3', order: 20, icon: 'Award',
+        title_en: 'Partnerships', body_en: 'Collaboration with civic organizations' },
+
+      // ================= INNOVATION =================
+      { section_key: 'innovation_main', order: 21, icon: 'Lightbulb',
+        subtitle_en: 'Innovation', title_en: 'Pioneering the Future of Construction',
+        body_en: 'At Al Faiha Group, innovation lies at the heart of everything we do.'
+      },
+      { section_key: 'innovation_dark_box', order: 22,
+        title_en: '',
+        body_en: 'From advanced construction chemicals to customized solutions for complex infrastructure projects, we continuously advance our technologies to anticipate and meet the needs of modern construction. Our approach blends global expertise with local insight, ensuring that we not only deliver superior performance but also set new benchmarks in durability, efficiency, and application methods.<br/><br/>Rooted in our core values, our drive for innovation is more than a process; it is a mindset that propels Al Faiha Group forward as a trusted partner in building the future.'
       }
     ]);
 
-    console.log('✅ Sustainability Sections seeded.');
+    console.log('✅ Flat Sustainability Sections seeded safely.');
     process.exit(0);
   } catch (err) {
     console.error('❌ Error:', err.message);

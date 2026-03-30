@@ -7,8 +7,34 @@ const FooterSection = require('../models/FooterSection');
 const Category = require('../models/Category');
 const JobApplication = require('../models/JobApplication');
 const sequelize = require('../config/database');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const router = express.Router();
+
+// --- CV Upload Setup ---
+const cvDir = path.join(__dirname, '../uploads/cvs');
+if (!fs.existsSync(cvDir)) fs.mkdirSync(cvDir, { recursive: true });
+
+const cvStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, cvDir),
+  filename: (req, file, cb) => {
+    const safe = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    cb(null, `${Date.now()}-${safe}`);
+  }
+});
+
+const cvUpload = multer({
+  storage: cvStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.pdf', '.doc', '.docx'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) cb(null, true);
+    else cb(new Error('Only PDF, DOC, DOCX files allowed'));
+  }
+});
 
 // --- PUBLIC ROUTES (For Frontend) ---
 
@@ -67,10 +93,10 @@ router.get('/footer-data', async (req, res) => {
       attributes: ['id', 'slug', 'name_en', 'name_ar', 'name_fr']
     });
 
-    // 4. Regional Offices (First 3 typically used in footer)
+    // 4. Regional Offices
     const offices = await RegionalOffice.findAll({
       where: { is_active: true },
-      limit: 3 // Footer only shows first 3 usually, or we can send all
+      order: [['id', 'ASC']]
     });
 
     res.json({
@@ -120,8 +146,8 @@ router.post('/newsletter', async (req, res) => {
   }
 });
 
-// Submit Job Application
-router.post('/apply', async (req, res) => {
+// Submit Job Application (with optional CV file upload)
+router.post('/apply', cvUpload.single('cv'), async (req, res) => {
   try {
     const {
       first_name, last_name, email, phone,
@@ -129,14 +155,19 @@ router.post('/apply', async (req, res) => {
       experience_level, cover_letter, job_id
     } = req.body;
 
+    if (!first_name || !last_name || !email) {
+      return res.status(400).json({ error: 'First name, last name, and email are required.' });
+    }
+
     const application = await JobApplication.create({
       job_id: job_id || null,
       first_name, last_name, email, phone,
       location, linkedin_url, position_applied,
-      experience_level, cover_letter
+      experience_level, cover_letter,
+      cv_filename: req.file ? req.file.filename : null
     });
 
-    console.log('📩 New Job Application:', application.id, '-', first_name, last_name, '-', position_applied);
+    console.log('📩 New Job Application:', application.id, '-', first_name, last_name, '-', position_applied, req.file ? `| CV: ${req.file.filename}` : '| No CV');
     res.json({ success: true, message: 'Application received', id: application.id });
   } catch (error) {
     res.status(500).json({ error: error.message });

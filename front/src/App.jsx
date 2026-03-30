@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./Component/ScrollToTop.jsx";
+import { LanguageProvider } from "./context/LanguageContext.jsx";
 import "./index.css";
 import Navbar from "./Component/Navbar.jsx";
 import Home from "./pages/Home.jsx";
@@ -20,11 +21,14 @@ import NewsDetail from "./pages/NewsDetail.jsx";
 import BlogDetail from "./pages/BlogDetail.jsx";
 import Careers from "./pages/Jobs.jsx";
 import ApplicationForm from "./pages/ApplicationForm.jsx";
-
+import Maintenance from "./pages/MaintenancePage.jsx";
+import NotFound from "./pages/NotFound.jsx";
 function App() {
+  
   return (
-    <Router>
-      <ScrollToTop />
+    <LanguageProvider>
+      <Router>
+        <ScrollToTop />
       <div className="flex flex-col min-h-screen bg-white">
         <Navbar />
 
@@ -47,12 +51,15 @@ function App() {
             <Route path="/careers" element={<Careers />} />
             <Route path="/application-form" element={<ApplicationForm />} />
             <Route path="/careers/ApplicationForm" element={<ApplicationForm />} />
+            <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
 
         <Footer />
       </div>
-    </Router>
+      </Router>
+    </LanguageProvider>
   );
 }
 

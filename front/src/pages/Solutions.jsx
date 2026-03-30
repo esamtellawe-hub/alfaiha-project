@@ -1,6 +1,8 @@
+import { useLanguage } from "../context/LanguageContext";
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, Link } from "react-router-dom";
 import useSolutions from "../hooks/useSolutions";
+import { IMAGE_BASE_URL } from "../api/axios";
 import {
   ChevronDown,
   FileText,
@@ -35,14 +37,15 @@ const ICON_MAP = {
 const DEFAULT_ICON = <Box />;
 
 // --- 2. مكون عرض المنتجات ---
-const ProductItem = ({ product }) => {
+const ProductItem = ({ product, lang }) => {
+  const { language } = useLanguage();
   // Use data from DB
-  const name = product.name_en || product.name_ar;
+  const name = product[`name_${lang}`] || product[`name_${language}`] || product.name_en || product.name_ar;
   const productId = product.slug || product.id; // Prefer slug for URLs
   
   // Function to get product image or placeholder
   const getProductImage = () => {
-    if (product.image_url) return `http://localhost:5000${product.image_url}`;
+    if (product.image_url) return product.image_url.startsWith('http') || !product.image_url.startsWith('/uploads') ? product.image_url : `${IMAGE_BASE_URL}${product.image_url}`;
     
     // For now, use different product images as placeholders if no image in DB
     const productImages = [
@@ -86,9 +89,22 @@ const ProductItem = ({ product }) => {
         </h4>
 
         {/* Product Features/Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          <span className="text-[9px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">High Performance</span>
-          <span className="text-[9px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">Certified</span>
+        <div className="flex flex-wrap gap-1.5 mb-4 max-h-[44px] overflow-hidden">
+          {(() => {
+            const getArray = (key) => {
+              const val = product[`${key}_${lang}`];
+              if (!val) return [];
+              if (Array.isArray(val)) return val;
+              try { return JSON.parse(val); } catch (e) { return []; }
+            };
+            const tags = [...getArray('advantages'), ...getArray('uses')].filter(Boolean);
+            if (tags.length === 0) return null;
+            return tags.slice(0, 3).map((tag, i) => (
+              <span key={i} className="text-[9px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full truncate max-w-[120px]">
+                {tag}
+              </span>
+            ));
+          })()}
         </div>
 
         {/* Footer Actions */}
@@ -120,7 +136,8 @@ const ProductItem = ({ product }) => {
 };
 
 // --- 3. مكون القسم الرئيسي ---
-const CategorySection = ({ category, sections, isOpen, toggleOpen }) => {
+const CategorySection = ({ category, sections, isOpen, toggleOpen, lang }) => {
+  const { language } = useLanguage();
   const [activeSubCategory, setActiveSubCategory] = useState(null);
 
   useEffect(() => {
@@ -181,10 +198,10 @@ const CategorySection = ({ category, sections, isOpen, toggleOpen }) => {
                   : "text-slate-900 group-hover:text-[#ee2039]"
               }`}
             >
-              {category.name_en || category.name_ar}
+              {category[`name_${lang}`] || category[`name_${language}`] || category.name_en || category.name_ar}
             </h3>
             <p className="text-gray-500 text-xs md:text-sm mt-1 max-w-xl hidden md:block">
-              {category.description_en || category.description_ar}
+              {category[`description_${lang}`] || category[`description_${language}`] || category.description_en || category.description_ar}
             </p>
           </div>
         </div>
@@ -210,7 +227,7 @@ const CategorySection = ({ category, sections, isOpen, toggleOpen }) => {
           {!hasSubCategories && directSolutions.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {directSolutions.map((product) => (
-                <ProductItem key={product.id} product={product} />
+                <ProductItem key={product.id} product={product} lang={lang} />
               ))}
             </div>
           )}
@@ -218,7 +235,7 @@ const CategorySection = ({ category, sections, isOpen, toggleOpen }) => {
           {/* Case 1.5: No solutions and no subcategories */}
           {!hasSubCategories && directSolutions.length === 0 && (
             <div className="text-center py-8 text-gray-400 italic">
-                {sections?.search?.description_en || "No solutions available in this category yet."}
+                {sections?.search?.[`description_${lang}`] || "No solutions available in this category yet."}
             </div>
           )}
 
@@ -242,7 +259,7 @@ const CategorySection = ({ category, sections, isOpen, toggleOpen }) => {
                         </div>
                         <div>
                           <h4 className="font-bold text-slate-800 text-lg group-hover/sub:text-[#ee2039] transition-colors">
-                            {sub.name_en || sub.name_ar}
+                            {sub[`name_${lang}`] || sub[`name_${language}`] || sub.name_en || sub.name_ar}
                           </h4>
                           <span className="text-xs text-gray-400 font-medium bg-gray-100 px-2 py-1 rounded-full mt-1 inline-block">
                             {sub.solutions?.length || 0} Solutions
@@ -266,18 +283,18 @@ const CategorySection = ({ category, sections, isOpen, toggleOpen }) => {
                     </button>
                     <span className="h-4 w-[1px] bg-gray-300"></span>
                     <h4 className="text-xl font-bold text-[#ee2039]">
-                      {activeSubCategory.name_en || activeSubCategory.name_ar}
+                      {activeSubCategory[`name_${lang}`] || activeSubCategory[`name_${language}`] || activeSubCategory.name_en || activeSubCategory.name_ar}
                     </h4>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {(activeSubCategory.solutions || []).length > 0 ? (
                         activeSubCategory.solutions.map((product) => (
-                            <ProductItem key={product.id} product={product} />
+                            <ProductItem key={product.id} product={product} lang={lang} />
                         ))
                     ) : (
                         <div className="col-span-full text-center py-8 text-gray-400 italic">
-                             {sections?.search?.description_en || "No solutions available in this sub-category yet."}
+                             {sections?.search?.[`description_${lang}`] || "No solutions available in this sub-category yet."}
                         </div>
                     )}
                   </div>
@@ -290,7 +307,7 @@ const CategorySection = ({ category, sections, isOpen, toggleOpen }) => {
           <div className="mt-8 flex items-center gap-2 text-xs text-gray-500 bg-white p-3 rounded-lg border border-dashed border-gray-300 justify-center">
             <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
             <span>
-              {sections?.footer_note?.description_en || "Technical Data Sheets (TDS) & Material Safety Data Sheets (MSDS) will be available for download shortly."}
+              {sections?.footer_note?.[`description_${lang}`] || "Technical Data Sheets (TDS) & Material Safety Data Sheets (MSDS) will be available for download shortly."}
             </span>
           </div>
         </div>
@@ -301,9 +318,11 @@ const CategorySection = ({ category, sections, isOpen, toggleOpen }) => {
 
 // --- المكون الرئيسي ---
 const Solutions = () => {
+  const { language } = useLanguage();
   const { sections, solutions, loading, error } = useSolutions();
   const [openSections, setOpenSections] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentLang, setCurrentLang] = useState("en");
 
   const location = useLocation();
 
@@ -355,7 +374,7 @@ const Solutions = () => {
     const lowerTerm = searchTerm.toLowerCase();
 
     return solutions.reduce((acc, category) => {
-      const catName = category.name_en || category.name_ar || "";
+      const catName = category[`name_${language}`] || category.name_en || category.name_ar || "";
       const categoryTitle = catName.toLowerCase();
       const categoryMatches = categoryTitle.includes(lowerTerm);
 
@@ -364,12 +383,12 @@ const Solutions = () => {
       if (hasSubs) {
         const subs = category.children || [];
         const matchingSubCats = subs.reduce((subAcc, sub) => {
-          const subName = sub.name_en || sub.name_ar || "";
+          const subName = sub[`name_${language}`] || sub.name_en || sub.name_ar || "";
           const subTitle = subName.toLowerCase();
           const subSolutions = sub.solutions || [];
           const subTitleMatches = subTitle.includes(lowerTerm);
           const matchingSolutions = subSolutions.filter(
-            (p) => (p.name_en || p.name_ar || "").toLowerCase().includes(lowerTerm),
+            (p) => (p[`name_${language}`] || p.name_en || p.name_ar || "").toLowerCase().includes(lowerTerm),
           );
 
           if (subTitleMatches || matchingSolutions.length > 0) {
@@ -390,7 +409,7 @@ const Solutions = () => {
       } else {
         const prods = category.solutions || [];
         const matchingSolutions = prods.filter(
-          (p) => (p.name_en || p.name_ar || "").toLowerCase().includes(lowerTerm),
+          (p) => (p[`name_${language}`] || p.name_en || p.name_ar || "").toLowerCase().includes(lowerTerm),
         );
         if (categoryMatches || matchingSolutions.length > 0) {
           acc.push({
@@ -447,31 +466,33 @@ const Solutions = () => {
   }
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white min-h-screen" dir={currentLang === 'ar' ? 'rtl' : 'ltr'}>
       {/* Hero Section */}
       <section className="relative pt-40 pb-20 bg-black overflow-hidden ">
         <div className="absolute inset-0 opacity-[0.15] pointer-events-none ">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:40px_40px] "></div>
         </div>
         <div className="container mx-auto px-4 relative z-10 ">
+          {/* Language Switcher */}
+
           <div className="max-w-4xl mx-auto text-center">
-            {sections.hero?.subtitle_en && (
+            {sections.hero?.[`subtitle_${currentLang}`] && (
               <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[#ee2039]/20 text-white border border-[#ee2039]/30 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 ">
                 <span className="w-2 h-2 rounded-full bg-[#ee2039] animate-pulse"></span>
-                {sections.hero.subtitle_en}
+                {sections.hero[`subtitle_${currentLang}`]}
               </div>
             )}
             <h1 className="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              {sections.hero?.title_en ? (
+              {sections.hero?.[`title_${currentLang}`] ? (
                 <>
-                  {sections.hero.title_en.split(' ')[0]} <span className="text-[#ee2039]">{sections.hero.title_en.split(' ').slice(1).join(' ')}</span>
+                  {sections.hero[`title_${currentLang}`].split(' ')[0]} <span className="text-[#ee2039]">{sections.hero[`title_${currentLang}`].split(' ').slice(1).join(' ')}</span>
                 </>
               ) : (
                 <>Engineered <span className="text-[#ee2039]">Solutions</span></>
               )}
             </h1>
             <p className="text-gray-200 text-lg md:text-xl max-w-2xl leading-relaxed mx-auto">
-              {sections.hero?.description_en || "Browse our comprehensive range of specialized construction chemicals..."}
+              {sections.hero?.[`description_${currentLang}`] || "Browse our comprehensive range of specialized construction chemicals..."}
             </p>
           </div>
         </div>
@@ -488,7 +509,7 @@ const Solutions = () => {
               />
               <input
                 type="text"
-                placeholder={sections.search?.placeholder_en || "Search categories, sub-categories, or products..."}
+                placeholder={sections.search?.[`placeholder_${currentLang}`] || "Search categories, sub-categories, or products..."}
                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-[#ee2039] focus:ring-1 focus:ring-[#ee2039] transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -497,7 +518,7 @@ const Solutions = () => {
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Filter size={16} />
               <span className="font-medium">
-                {filteredData.length} {sections.search?.title_en || "Categories Found"}
+                {filteredData.length} {sections.search?.[`title_${currentLang}`] || "Categories Found"}
               </span>
             </div>
           </div>
@@ -516,19 +537,20 @@ const Solutions = () => {
                   sections={sections} // Pass sections mapping
                   isOpen={openSections.includes(category.slug || category.id)}
                   toggleOpen={() => toggleSection(category.slug || category.id)}
+                  lang={currentLang}
                 />
               ))
             ) : (
               <div className="text-center py-20">
                 <Box size={48} className="mx-auto text-gray-300 mb-4" />
                 <p className="text-xl text-gray-400 font-bold">
-                  {sections.search?.empty_text_en || "No solutions found matching"} "{searchTerm}"
+                  {sections.search?.[`empty_text_${currentLang}`] || "No solutions found matching"} "{searchTerm}"
                 </p>
                 <button
                   onClick={() => setSearchTerm("")}
                   className="mt-4 text-[#ee2039] font-bold hover:underline"
                 >
-                  {sections.search?.subtitle_en || "Clear Search"}
+                  {sections.search?.[`subtitle_${currentLang}`] || "Clear Search"}
                 </button>
               </div>
             )}

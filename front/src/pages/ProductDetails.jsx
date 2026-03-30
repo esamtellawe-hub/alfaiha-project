@@ -1,3 +1,4 @@
+import { useLanguage } from "../context/LanguageContext";
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, FileText, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
@@ -7,18 +8,35 @@ import ServiceRequestModal from '../Component/ServiceRequestModal';
 // --- COMPONENTS ---
 
 // 1. Tab Content Component (Extracted for performance)
-const TabContent = ({ tabId, product }) => {
+const TabContent = ({ tabId, product, lang }) => {
+  const { language } = useLanguage();
   if (!product) return null;
   
   // Helper to get localized array or string
   const getList = (key) => {
-      const val = product[key] || [];
-      return Array.isArray(val) ? val : [val];
+      const val = product[`${key}_${lang}`] || product[`${key}_en`] || [];
+      
+      if (Array.isArray(val)) return val;
+      
+      if (typeof val === 'string') {
+          // If it looks like a JSON array string, parse it
+          if (val.trim().startsWith('[') && val.trim().endsWith(']')) {
+              try {
+                  return JSON.parse(val);
+              } catch (e) {
+                  console.error(`Failed to parse ${key} as JSON:`, e);
+              }
+          }
+          // Otherwise, split by comma if the comma is acting as a separator
+          return val.split(',').map(item => item.trim()).filter(item => item.length > 0);
+      }
+      
+      return [val];
   };
 
   return (
     <div className="animate-in fade-in slide-in-from-top-1 duration-300">
-      {tabId === 'advantages' && product.advantages && (
+      {tabId === 'advantages' && (product[`advantages_${language}`] || product.advantages_en || product.advantages_ar || product.advantages_fr) && (
         <ul className="grid gap-3">
           {getList('advantages').map((advantage, index) => (
             <li key={index} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
@@ -29,7 +47,7 @@ const TabContent = ({ tabId, product }) => {
         </ul>
       )}
 
-      {tabId === 'applications' && product.uses && (
+      {tabId === 'uses' && (product[`uses_${language}`] || product.uses_en || product.uses_ar || product.uses_fr) && (
         <div className="space-y-4">
           <ul className="grid gap-3">
             {getList('uses').map((use, index) => (
@@ -42,10 +60,14 @@ const TabContent = ({ tabId, product }) => {
         </div>
       )}
 
-      {['packaging', 'storage', 'dosage', 'standards'].includes(tabId) && (
+      {['packaging', 'storage', 'dosage', 'standards', 'health_and_safety'].includes(tabId) && (
         <div className="prose prose-slate max-w-none">
           <div className="bg-gray-50/50 p-5 rounded-xl border border-gray-100 text-slate-700 leading-relaxed text-sm md:text-base font-medium">
-             {tabId === 'dosage' ? product.mixing : product[tabId]}
+             {(() => {
+                const val = tabId === 'dosage' ? (product[`mixing_${lang}`] || product[`mixing_${language}`] || roduct.mixing_en) : (product[`${tabId}_${lang}`] || product[`${tabId}_en`]);
+                const hasData = val && val.toString().trim() !== '' && val.toString().toLowerCase() !== 'null';
+                return hasData ? val : '-';
+             })()}
           </div>
         </div>
       )}
@@ -55,10 +77,12 @@ const TabContent = ({ tabId, product }) => {
 
 // --- MAIN PAGE COMPONENT ---
 const ProductDetails = () => {
-  const { productId } = useParams(); // This is likely the slug based on routes
+  const { language } = useLanguage();
+  const { productId } = useParams(); 
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('advantages');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState('en');
   
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -81,25 +105,28 @@ const ProductDetails = () => {
               const mappedProduct = {
                   id: data.id,
                   slug: data.slug,
-                  name: data.name_en || data.name_ar, // Prefer EN or fallback
-                  category: data.category?.name_en || 'Solution',
-                  description: data.description_en || data.description_ar,
+                  name_en: data[`name_${language}`] || data.name_en,
+                  name_ar: data.name_ar,
+                  name_fr: data.name_fr,
+                  category: data.category?.[`name_${currentLang}`] || data.category?.name_en || 'Solution',
+                  description_en: data[`description_${language}`] || data.description_en,
+                  description_ar: data.description_ar,
+                  description_fr: data.description_fr,
                   image: data.image_url ? `http://localhost:5000${data.image_url}` : '/images/product1.png', 
+                  datasheet_url: data.datasheet_url,
+                  msds_url: data.msds_url,
                   
                   // Arrays (JSON fields)
-                  advantages: data.advantages_en || data.advantages_ar || [],
-                  uses: data.uses_en || data.uses_ar || [],
+                  advantages_en: data[`advantages_${language}`] || data.advantages_en, advantages_ar: data.advantages_ar, advantages_fr: data.advantages_fr,
+                  uses_en: data[`uses_${language}`] || data.uses_en, uses_ar: data.uses_ar, uses_fr: data.uses_fr,
 
-                  // Specs
-                  coverage: data.coverage,
-                  packaging: data.packaging,
-                  storage: data.storage,
-                  mixing: data.mixing_ratio,
-                  standard: 'ISO 9001:2015' // Placeholder or field if exists? Model doesn't have standard field explicitly in what I recall, maybe I missed it? 
-                  // Ah, in seed, standard wasn't explicitly there, but UI has it. 
-                  // Let's check model... mixing_ratio, coverage, packaging, storage, shelf_life. 
-                  // UI uses 'standard'. Model doesn't have 'standard'.
-                  // I'll leave it undefined to hide tab or hardcode a generic one if needed.
+                  // Specs (Multilingual)
+                  coverage_en: data[`coverage_${language}`] || data.coverage_en, coverage_ar: data.coverage_ar, coverage_fr: data.coverage_fr,
+                  packaging_en: data[`packaging_${language}`] || data.packaging_en, packaging_ar: data.packaging_ar, packaging_fr: data.packaging_fr,
+                  storage_en: data[`storage_${language}`] || data.storage_en, storage_ar: data.storage_ar, storage_fr: data.storage_fr,
+                  mixing_en: data[`mixing_ratio_${language}`] || data.mixing_ratio_en, mixing_ar: data.mixing_ratio_ar, mixing_fr: data.mixing_ratio_fr,
+                  standard_en: data[`standard_${language}`] || data.standard_en, standard_ar: data.standard_ar, standard_fr: data.standard_fr,
+                  health_and_safety_en: data[`health_and_safety_${language}`] || data.health_and_safety_en, health_and_safety_ar: data.health_and_safety_ar, health_and_safety_fr: data.health_and_safety_fr,
               };
               
               setProduct(mappedProduct);
@@ -147,17 +174,27 @@ const ProductDetails = () => {
     );
   }
 
+  // Compute the current tab's active data arrays based on lang
+  const currentAdvantages = product?.[`advantages_${currentLang}`] || product?.advantages_en || [];
+  const currentUses = product?.[`uses_${currentLang}`] || product?.uses_en || [];
+
+  const hasContent = (val) => val && val.toString().trim() !== '' && val.toString().toLowerCase() !== 'null';
+
   const tabs = [
-    { id: 'advantages', label: 'Advantages', show: product.advantages?.length > 0 },
-    { id: 'applications', label: 'Applications', show: product.uses?.length > 0 },
-    { id: 'packaging', label: 'Packaging', show: product.packaging },
-    { id: 'storage', label: 'Storage', show: product.storage },
-    { id: 'dosage', label: 'Dosage', show: product.mixing },
-    { id: 'standards', label: 'Standards', show: product.standard }
+    { id: 'advantages', label: currentLang === 'ar' ? 'الميزات' : currentLang === 'fr' ? 'Avantages' : 'Advantages', show: currentAdvantages?.length > 0 },
+    { id: 'uses', label: currentLang === 'ar' ? 'الاستخدامات' : currentLang === 'fr' ? 'Applications' : 'Uses', show: currentUses?.length > 0 },
+    { id: 'packaging', label: currentLang === 'ar' ? 'التعبئة والتغليف' : currentLang === 'fr' ? 'Emballage' : 'Packaging', show: true },
+    { id: 'storage', label: currentLang === 'ar' ? 'التخزين' : currentLang === 'fr' ? 'Stockage' : 'Storage', show: true },
+    { id: 'dosage', label: currentLang === 'ar' ? 'نسبة الخلط' : currentLang === 'fr' ? 'Dosage' : 'Mixing', show: true },
+    { id: 'health_and_safety', label: currentLang === 'ar' ? 'الصحة والسلامة' : currentLang === 'fr' ? 'Santé et Sécurité' : 'Health & Safety', show: true },
   ].filter(tab => tab.show);
 
+  // Fallback to English if the current language field is empty
+  const displayName = product?.[`name_${currentLang}`] || product?.name_en || product?.name_ar || "";
+  const displayDesc = product?.[`description_${currentLang}`] || product?.description_en || product?.description_ar || "";
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
+    <div className="min-h-screen bg-gray-50 pb-12" dir={currentLang === 'ar' ? 'rtl' : 'ltr'}>
       {/* Hero Section */}
       <section className="relative pt-20 pb-12 md:pt-36 md:pb-24 bg-slate-900 overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
@@ -170,7 +207,9 @@ const ProductDetails = () => {
             className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-6 transition-colors text-sm font-medium"
           >
             <ArrowLeft size={18} />
-            <span>Back to Solutions</span>
+            <span className="mb-0">
+               {currentLang === 'ar' ? 'الرجوع إلى الحلول' : currentLang === 'fr' ? 'Retour aux Solutions' : 'Back to Solutions'}
+            </span>
           </button>
 
           <div className="flex flex-col md:flex-row gap-8 lg:gap-16 items-center md:items-start">
@@ -191,13 +230,13 @@ const ProductDetails = () => {
             {/* Title Box */}
             <div className="w-full md:w-7/12 order-2 md:order-1 text-center md:text-left">
               <span className="inline-flex items-center px-3 py-1 bg-[#ee2039]/20 text-white border border-[#ee2039]/30 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider mb-4">
-                {product.category}
+                {product.category || 'Solution'}
               </span>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
-                {product.name}
+                {displayName}
               </h1>
               <p className="text-sm sm:text-lg text-gray-400 leading-relaxed max-w-2xl mx-auto md:mx-0">
-                {product.description}
+                {displayDesc}
               </p>
             </div>
           </div>
@@ -230,7 +269,7 @@ const ProductDetails = () => {
                   ))}
                 </div>
                 <div className="p-8 min-h-[300px]">
-                  <TabContent tabId={activeTab} product={product} />
+                  <TabContent tabId={activeTab} product={product} lang={currentLang} />
                 </div>
               </div>
 
@@ -255,7 +294,7 @@ const ProductDetails = () => {
                     
                     {activeTab === tab.id && (
                       <div className="px-6 pb-8 pt-4 bg-white animate-in fade-in duration-300">
-                        <TabContent tabId={tab.id} product={product} />
+                        <TabContent tabId={tab.id} product={product} lang={currentLang} />
                       </div>
                     )}
                     
@@ -273,34 +312,34 @@ const ProductDetails = () => {
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:sticky lg:top-24">
                 <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <FileText className="text-[#ee2039]" size={20} />
-                  Technical Specs
+                  {currentLang === 'ar' ? 'المواصفات الفنية' : currentLang === 'fr' ? 'Spécifications Techniques' : 'Technical Specs'}
                 </h3>
                 
                 <div className="space-y-4 divide-y divide-gray-100">
                   {[
-                    { label: "Coverage", value: product.coverage },
-                    { label: "Packaging", value: product.packaging },
-                    { label: "Storage", value: product.storage },
-                    { label: "Standard", value: product.standard }
-                  ].map((item, idx) => item.value && (
+                    { label: currentLang === 'ar' ? "التغطية" : currentLang === "fr" ? "Couverture" : "Coverage", value: product[`coverage_${language}`] || product.coverage_en },
+                    
+                    { label: currentLang === 'ar' ? "المواصفات" : currentLang === "fr" ? "Norme" : "Standard", value: product[`standard_${language}`] || product.standard_en }
+                  ].map((item, idx) => (
                     <div key={idx} className={idx !== 0 ? "pt-4" : ""}>
                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">{item.label}</p>
-                      <p className="text-sm font-medium text-slate-800 leading-relaxed">{item.value}</p>
+                      <p className="text-sm font-medium text-slate-800 leading-relaxed">{hasContent(item.value) ? item.value : '-'}</p>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-gray-100">
-                  <button className="w-full flex items-center justify-center gap-2 bg-black hover:bg-[#ee2039] text-[#ee2039] hover:text-white py-4 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-slate-900/10">
+                <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col gap-4">
+                  {/* Download TDS Button */}
+                  <a href={product.datasheet_url ? `http://localhost:5000${product.datasheet_url}` : "#"} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 bg-black hover:bg-[#ee2039] text-[#ee2039] hover:text-white py-4 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-slate-900/10">
                     <FileText size={18} />
-                    Download TDS 
-                  </button>
-                  </div>
-                  <div className="mt-6 pt-6 border-t border-gray-100">
-                  <button className="w-full flex items-center justify-center gap-2 bg-black hover:bg-[#ee2039] text-[#ee2039] hover:text-white py-4 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-slate-900/10">
+                    {currentLang === 'ar' ? 'تحميل البيانات الفنية' : currentLang === 'fr' ? 'Télécharger la fiche technique' : 'Download TDS'}
+                  </a>
+
+                  {/* Download MSDS Button */}
+                  <a href={product.msds_url ? `http://localhost:5000${product.msds_url}` : "#"} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 bg-black hover:bg-[#ee2039] text-[#ee2039] hover:text-white py-4 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-slate-900/10">
                     <FileText size={18} />
-                    Download MSDS    
-                  </button>
+                    {currentLang === 'ar' ? 'تحميل بيانات السلامة' : currentLang === 'fr' ? 'Télécharger FDS' : 'Download MSDS'}
+                  </a>
                 </div>
 
                 {/* Internal Support Link */}
@@ -309,7 +348,7 @@ const ProductDetails = () => {
                     onClick={() => setIsModalOpen(true)}
                     className="flex items-center justify-center w-full bg-red-50 text-[#ee2039] py-3 rounded-xl font-bold hover:bg-red-100 transition-colors"
                   >
-                    Contact Expert
+                   {currentLang === 'ar' ? 'تواصل مع خبير' : currentLang === 'fr' ? 'Contacter un expert' : 'Contact Expert'}
                   </button>
                 </div>
               </div>

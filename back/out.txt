@@ -1,0 +1,17 @@
+﻿[dotenv@17.3.1] injecting env (7) from .env -- tip: ΓÜÖ∩╕Å  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ΓÜÖ∩╕Å  specify custom .env file path with { path: '/custom/path/.env' }
+Database connected.
+Reading file: C:\Users\C-ROAD\Desktop\AlFaiha project\back\Products Breakdown (1).xlsx
+Total rows: 175
+Column Map: {
+  productName: 0,
+  description: 1,
+  uses: 2,
+  advantages: 3,
+  standard: 4,
+  mixing: 6,
+  coverage: 7,
+  packaging: 8,
+  storage: 9,
+  health: 10
+}

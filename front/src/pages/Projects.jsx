@@ -1,3 +1,4 @@
+import { useLanguage } from "../context/LanguageContext";
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import {
@@ -9,22 +10,38 @@ import {
   CheckCircle2,
   Briefcase,
 } from "lucide-react";
+import { IMAGE_BASE_URL } from "../api/axios";
 
-// --- Country Codes for Flag Images ---
-const COUNTRY_FLAGS = {
-  Algeria: { code: "dz", name: "Algeria" },
-  Lebanon: { code: "lb", name: "Lebanon" },
-  Jordan: { code: "jo", name: "Jordan" },
-  Iraq: { code: "iq", name: "Iraq" },
-};
+// Dynamic Country Flags are handled via the project object's `countryCode` property
 
 // --- Project Card Component ---
 const ProjectCard = ({ project, sections }) => {
+  const { language } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
+
+  // Safe parsing of products to handle double-encoded JSON or legacy text
+  let parsedProducts = [];
+  if (project.products) {
+    if (Array.isArray(project.products)) {
+        parsedProducts = project.products;
+    } else if (typeof project.products === 'string') {
+        if (project.products.trim().startsWith('[')) {
+            try { parsedProducts = JSON.parse(project.products); } catch(e) { parsedProducts = [project.products]; }
+            if (typeof parsedProducts === 'string') { // Double encoded
+                 try { parsedProducts = JSON.parse(parsedProducts); } catch(e) { parsedProducts = [parsedProducts]; }
+            }
+        } else {
+            parsedProducts = [project.products]; // single raw string
+        }
+    }
+  }
+  if (!Array.isArray(parsedProducts)) parsedProducts = [];
+  
+  const displayProducts = parsedProducts.filter(Boolean);
 
   return (
     <div
-      className="group bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-[#ee2039] hover:shadow-2xl transition-all duration-500 flex flex-col h-full"
+      className="group bg-white rounded-3xl overflow-hidden border border-gray-100 hover:border-[#ee2039] hover:shadow-2xl transition-all duration-500 flex flex-col h-full w-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -32,16 +49,16 @@ const ProjectCard = ({ project, sections }) => {
       <div className="relative h-56 overflow-hidden bg-gray-100">
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-          style={{ backgroundImage: `url('${project.image_url || "/images/logo.png"}')` }}
+          style={{ backgroundImage: `url('${project.image_url ? (project.image_url.startsWith('http') || !project.image_url.startsWith('/uploads') ? project.image_url : `${IMAGE_BASE_URL}${project.image_url}`) : "/images/logo.png"}')` }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
         {/* Country Badge */}
-        {project.country && COUNTRY_FLAGS[project.country] && (
+        {project.country && project.countryCode && (
         <div className="absolute top-4 left-4 flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg">
           <div className="relative flex items-center justify-center w-5 h-5 rounded-full overflow-hidden shrink-0 border border-gray-200 shadow-sm">
             <img
-              src={`https://flagcdn.com/w80/${COUNTRY_FLAGS[project.country]?.code}.png`}
+              src={`https://flagcdn.com/w40/${project.countryCode.toLowerCase()}.png`}
               alt={project.country}
               className={`w-full h-full object-cover ${project.country === "Jordan" ? "object-left" : "object-center"}`}
             />
@@ -62,11 +79,11 @@ const ProjectCard = ({ project, sections }) => {
         )}
 
         {/* Location */}
-        {project.location_en && (
+        {project[`location_${language}`] || project.location_en && (
         <div className="absolute bottom-4 left-4 flex items-center gap-1.5 text-white">
           <MapPin size={14} className="opacity-80" />
           <span className="text-xs font-medium opacity-90">
-            {project.location_en}
+            {project[`location_${language}`] || project.location_en}
           </span>
         </div>
         )}
@@ -75,18 +92,18 @@ const ProjectCard = ({ project, sections }) => {
       {/* Content Section */}
       <div className="p-6 flex-1 flex flex-col">
         {/* Client */}
-        {project.client_en && (
+        {project[`client_${language}`] || project.client_en && (
         <div className="flex items-center gap-2 mb-3">
           <Briefcase size={14} className="text-gray-400" />
           <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-            {project.client_en}
+            {project[`client_${language}`] || project.client_en}
           </span>
         </div>
         )}
 
         {/* Title */}
         <h3 className="text-xl font-bold text-slate-900 mb-2 leading-tight group-hover:text-[#ee2039] transition-colors">
-          {project.title_en}
+          {project[`title_${language}`] || project.title_en}
         </h3>
 
         {/* Subtitle */}
@@ -97,21 +114,20 @@ const ProjectCard = ({ project, sections }) => {
         )}
 
         {/* Description */}
-        {project.description_en && (
+        {project[`description_${language}`] || project.description_en && (
         <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-3 flex-1">
-          {project.description_en}
+          {project[`description_${language}`] || project.description_en}
         </p>
         )}
 
         {/* Products Tags */}
-        {project.products && (Array.isArray(project.products) ? project.products : JSON.parse(project.products || "[]")).filter(Boolean).length > 0 && (
+        {displayProducts.length > 0 && (
         <div className="mb-4">
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
             {sections?.card?.title_en || "Products Used"}
           </p>
           <div className="flex flex-wrap gap-1.5">
-            {(Array.isArray(project.products) ? project.products : JSON.parse(project.products || "[]"))
-              .filter(Boolean)
+            {displayProducts
               .slice(0, 3)
               .map((product, idx) => (
               <span
@@ -121,9 +137,9 @@ const ProjectCard = ({ project, sections }) => {
                 {product}
               </span>
             ))}
-            {(Array.isArray(project.products) ? project.products : JSON.parse(project.products || "[]")).filter(Boolean).length > 3 && (
+            {displayProducts.length > 3 && (
               <span className="px-2 py-1 bg-gray-50 text-[10px] font-medium text-gray-500 rounded-md border border-gray-100">
-                +{(Array.isArray(project.products) ? project.products : JSON.parse(project.products || "[]")).filter(Boolean).length - 3} {sections?.card?.subtitle_en || "more"}
+                +{displayProducts.length - 3} {sections?.card?.subtitle_en || "more"}
               </span>
             )}
           </div>
@@ -154,6 +170,7 @@ import useProjects from "../hooks/useProjects";
 
 // --- Main Projects Component ---
 const Projects = () => {
+  const { language } = useLanguage();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   
@@ -184,8 +201,17 @@ const Projects = () => {
     }
   }, [countryParam]);
 
-  // Get unique countries
-  const countries = ["All", ...new Set(projectsData.map((p) => p.country).filter(Boolean))];
+  // Get unique countries and their codes from DB
+  const countriesData = useMemo(() => {
+    return projectsData.reduce((acc, p) => {
+      if (p.country && !acc.find(c => c.name === p.country)) {
+          acc.push({ name: p.country, code: p.countryCode });
+      }
+      return acc;
+    }, []);
+  }, [projectsData]);
+  
+  const countries = ["All", ...countriesData.map(c => c.name)];
 
   // Filter projects
   const filteredProjects = useMemo(() => {
@@ -214,7 +240,7 @@ const Projects = () => {
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               {sections?.hero?.title_en ? (
                 <>
-                  {sections.hero.title_en.split(' ')[0]} <span className="text-[#ee2039]">{sections.hero.title_en.split(' ').slice(1).join(' ')}</span>
+                  {sections.hero[`title_${language}`] || sections.hero.title_en.split(' ')[0]} <span className="text-[#ee2039]">{sections.hero[`title_${language}`] || sections.hero.title_en.split(' ').slice(1).join(' ')}</span>
                 </>
               ) : (
                 <>Projects & <span className="text-[#ee2039]">Clients</span></>
@@ -291,10 +317,10 @@ const Projects = () => {
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">
-                      {COUNTRY_FLAGS[country] && (
+                      {countriesData.find(c => c.name === country)?.code && (
                         <div className="relative flex items-center justify-center w-4 h-4 rounded-full overflow-hidden shrink-0 border border-gray-200 shadow-sm">
                           <img
-                            src={`https://flagcdn.com/w80/${COUNTRY_FLAGS[country].code}.png`}
+                            src={`https://flagcdn.com/w80/${countriesData.find(c => c.name === country).code.toLowerCase()}.png`}
                             alt={country}
                             className={`w-full h-full object-cover ${country === "Jordan" ? "object-left" : "object-center"}`}
                           />
@@ -342,7 +368,7 @@ const Projects = () => {
               {filteredProjects.map((project, index) => (
                 <div
                   key={project.id}
-                  className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex"
+                  className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex w-full h-full"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <ProjectCard project={project} sections={sections} />
@@ -376,4 +402,3 @@ const Projects = () => {
 };
 
 export default Projects;
-

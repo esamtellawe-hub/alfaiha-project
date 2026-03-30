@@ -60,6 +60,7 @@ router.get('/all-solutions', async (req, res) => {
 // Get single solution by slug
 router.get('/solution/:slug', async (req, res) => {
   try {
+    
     const solution = await Solution.findOne({
       where: { slug: req.params.slug },
       include: [

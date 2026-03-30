@@ -16,8 +16,8 @@ const Category = require('../models/Category');
 const Solution = require('../models/Solution');
 const AcademySection = require('../models/AcademySection');
 const SustainabilitySection = require('../models/SustainabilitySection');
-
 const router = express.Router();
+
 
 // --- HOME PAGE CMS ---
 router.get('/home', async (req, res) => {
@@ -33,15 +33,44 @@ router.get('/home', async (req, res) => {
 
     // Organize sections into a key-value object for easy frontend accessing
     const sectionsObj = {};
-    sections.forEach(sec => {
+    for (const sec of sections) {
       let parsedExtra = sec.extra_data;
-      if (typeof parsedExtra === 'string') {
-        try { parsedExtra = JSON.parse(parsedExtra); } catch (e) {}
+      while (typeof parsedExtra === 'string') {
+        try { parsedExtra = JSON.parse(parsedExtra); } catch (e) { break; }
       }
       const secData = sec.toJSON ? sec.toJSON() : sec;
       secData.extra_data = parsedExtra;
+
+      // Populate featured products if this is the featured_products section
+      if (sec.section_key === 'featured_products' && parsedExtra) {
+        for (const lang of ['en', 'ar', 'fr']) {
+          const key = `products_${lang}`;
+          if (Array.isArray(parsedExtra[key])) {
+            const populatedProducts = [];
+            for (const item of parsedExtra[key]) {
+              if (item.solution_id) {
+                const sol = await Solution.findByPk(item.solution_id, {
+                  include: [{ model: Category, as: 'category' }]
+                });
+                if (sol) {
+                  populatedProducts.push({
+                    name: sol[`name_${lang}`] || sol.name_en,
+                    category: sol.category ? (sol.category[`name_${lang}`] || sol.category.name_en) : '',
+                    image: sol.image_url,
+                    description: sol[`description_${lang}`] || sol.description_en,
+                    link: `/solutions?slug=${sol.slug}`,
+                    solution_id: sol.id
+                  });
+                }
+              }
+            }
+            parsedExtra[key] = populatedProducts;
+          }
+        }
+      }
+
       sectionsObj[sec.section_key] = secData;
-    });
+    }
 
     res.json({
       hero: heroSlides,
@@ -149,7 +178,7 @@ router.get('/sectors-page', async (req, res) => {
       sectionsObj[sec.section_key] = secData;
     });
 
-    // 2. Fetch Sectors tree (Sector -> Areas -> Products(Solutions))
+    // 2. Fetch Sectors tree (Sector -> Areas -> Categories -> Products(Solutions))
     const sectorsData = await Sector.findAll({
       include: [
         {
@@ -157,14 +186,13 @@ router.get('/sectors-page', async (req, res) => {
           as: 'areas',
           include: [
             {
-              model: Solution,
-              as: 'solutions',
+              model: Category,
+              as: 'categories',
               through: { attributes: [] },
               include: [
                 {
-                  model: Category,
-                  as: 'category',
-                  attributes: ['id', 'name_en', 'name_ar']
+                  model: Solution,
+                  as: 'solutions'
                 }
               ]
             }
@@ -223,23 +251,15 @@ router.get('/partners-page', async (req, res) => {
     const sectionsObj = {};
     sections.forEach(sec => {
       let parsedExtra = sec.extra_data;
-      // Handle the case where JSON is double-stringified
       while (typeof parsedExtra === 'string') {
-        try { 
-          parsedExtra = JSON.parse(parsedExtra); 
-        } catch (e) {
-          break; // Stop if it can't be parsed anymore
-        }
+        try { parsedExtra = JSON.parse(parsedExtra); } catch (e) { break; }
       }
-      
       const secData = sec.toJSON ? sec.toJSON() : sec;
       secData.extra_data = parsedExtra;
       sectionsObj[sec.section_key] = secData;
     });
 
-    res.json({
-      sections: sectionsObj
-    });
+    res.json({ sections: sectionsObj });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -385,6 +405,62 @@ router.get('/sustainability', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// --- NEWS PAGE CMS ---
+router.get('/news-page', async (req, res) => {
+  const NewsSection = require('../models/NewsSection');
+  try {
+    const sections = await NewsSection.findAll();
+    const sectionsObj = {};
+    sections.forEach(sec => { sectionsObj[sec.section_key] = sec; });
+    res.json({ sections: sectionsObj });
+  } catch (error) { res.status(500).json({ error: error.message }); }
+});
+
+// --- BLOG PAGE CMS ---
+router.get('/blog-page', async (req, res) => {
+  const BlogSection = require('../models/BlogSection');
+  try {
+    const sections = await BlogSection.findAll();
+    const sectionsObj = {};
+    sections.forEach(sec => { sectionsObj[sec.section_key] = sec; });
+    res.json({ sections: sectionsObj });
+  } catch (error) { res.status(500).json({ error: error.message }); }
+});
+
+// --- CAREERS / JOBS (public) ---
+router.get('/jobs', async (req, res) => {
+  try {
+    const jobs = await Job.findAll({
+      where: { is_active: true },
+      order: [['created_at', 'DESC']]
+    });
+    res.json(jobs);
+  } catch (error) { res.status(500).json({ error: error.message }); }
+});
+
+
+// --- CAREERS SECTION (public) ---
+const CareersSection = require('../models/CareersSection');
+router.get('/careers-section', async (req, res) => {
+  try {
+    let section = await CareersSection.findOne();
+    if (!section) section = await CareersSection.create({});
+    res.json(section);
+  } catch (error) { res.status(500).json({ error: error.message }); }
+});
+
+// --- POSITIONS (public - for application form dropdown) ---
+const Position = require('../models/Position');
+router.get('/positions', async (req, res) => {
+  try {
+    const items = await Position.findAll({
+      where: { is_active: true },
+      order: [['order', 'ASC'], ['name_en', 'ASC']]
+    });
+    res.json(items);
+  } catch (error) { res.status(500).json({ error: error.message }); }
 });
 
 module.exports = router;
