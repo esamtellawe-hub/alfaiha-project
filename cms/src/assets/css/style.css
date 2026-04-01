@@ -1,0 +1,35 @@
+.custom-color {
+    background-color: red; 
+    color: green; 
+    
+  }
+  .button-container {
+    display: flex; /* Display the buttons in a horizontal line */
+    justify-content: space-between; /* Add space between buttons */
+    align-items: center; /* Align buttons vertically in the middle */
+  }
+  .textarea-label {
+    display: block; /* Make it a block-level element */
+    margin-bottom: 5px; /* Add space between the label and textarea */
+   
+  }
+  
+  .light-theme {
+    background-color: #fff;
+    color: #000;
+  }
+  
+  .dark-theme {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .light-card {
+    background-color: #fff;
+    color: #000;
+  }
+  
+  .dark-card {
+    background-color: #333;
+    color: #fff;
+  }

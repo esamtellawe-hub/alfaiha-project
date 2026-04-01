@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/static/css/main.0665fc16.css",
+    "main.js": "/static/js/main.cfbf27ed.js",
+    "static/media/Al Faiha-Logo-EN-WT-landscape.png": "/static/media/Al Faiha-Logo-EN-WT-landscape.359892daa13f6ccccdb4.png",
+    "static/media/nucleo-icons.eot": "/static/media/nucleo-icons.bd42d77b9672555647d1.eot",
+    "static/media/nucleo-icons.ttf": "/static/media/nucleo-icons.4466aeec3386b965a232.ttf",
+    "static/media/nucleo-icons.woff": "/static/media/nucleo-icons.8e954b749f951b654fc6.woff",
+    "static/media/nucleo-icons.woff2": "/static/media/nucleo-icons.ec16bc4cc4526801004d.woff2",
+    "static/media/logo.svg": "/static/media/logo.103b5fa18196d5665a7e12318285c916.svg",
+    "index.html": "/index.html",
+    "main.0665fc16.css.map": "/static/css/main.0665fc16.css.map",
+    "main.cfbf27ed.js.map": "/static/js/main.cfbf27ed.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0665fc16.css",
+    "static/js/main.cfbf27ed.js"
+  ]
+}
